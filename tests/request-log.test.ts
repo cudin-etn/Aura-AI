@@ -19,6 +19,7 @@ import {
   noteAttemptSend,
   recordFirstOutput,
   requestLogEntryFromPersistedUsage,
+  requestThreadKey,
   sealRequestAttemptIdentity,
   type RequestLogContext,
 } from "../src/server/request-log";
@@ -38,6 +39,13 @@ function log(overrides: Partial<RequestLogEntry>): RequestLogEntry {
 }
 
 describe("request log metadata", () => {
+  test("hashes thread headers without storing the raw identifier", () => {
+    const key = requestThreadKey(new Headers({ "x-codex-parent-thread-id": "private-thread-id" }));
+    expect(key).toMatch(/^[0-9a-f]{16}$/);
+    expect(key).not.toContain("private-thread-id");
+    expect(requestThreadKey(new Headers())).toBeUndefined();
+  });
+
   test("recordFirstOutput is one-shot for request and active attempt (WP4 TTFT)", () => {
     const attempt = beginRequestAttempt(1, "a", "m1", "openai-chat");
     const logCtx: RequestLogContext = {

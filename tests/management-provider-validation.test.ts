@@ -1018,13 +1018,19 @@ describe("provider management validation", () => {
     };
 
     // Editor happy path: multiple fields in one call; validation runs on the MERGED provider.
-    const edit = await patch("extra", { defaultModel: "m-1", note: "fresh note", baseUrl: "https://extra2.example.test/v1" });
+    const edit = await patch("extra", {
+      defaultModel: "m-1",
+      note: "fresh note",
+      baseUrl: "https://extra2.example.test/v1",
+      compactMode: "synthetic",
+    });
     expect(edit?.status).toBe(200);
     expect(await edit?.json()).toMatchObject({ success: true, name: "extra", hasApiKey: true });
     expect(liveConfig.providers.extra).toMatchObject({
       baseUrl: "https://extra2.example.test/v1",
       defaultModel: "m-1",
       note: "fresh note",
+      compactMode: "synthetic",
       apiKey: "sk-existing", // untouched — keys are not writable through PATCH
     });
     expect(catalogRefreshes).toBe(1);
@@ -1048,6 +1054,7 @@ describe("provider management validation", () => {
     const ollamaLocal = await patch("ollama", { authMode: "local" });
     expect(ollamaLocal?.status).toBe(200);
     expect(liveConfig.providers.ollama.authMode).toBe("local");
+    expect((await patch("extra", { compactMode: "invalid" }))?.status).toBe(400);
 
     // codexAccountMode cannot be combined with editor fields (side-effect path stays isolated).
     const combined = await patch("openai", { codexAccountMode: "pool", note: "x" });

@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "responses-json",
+      "body": {
+        "input": "Reply exactly OK.",
+        "stream": false,
+        "reasoning": {
+          "effort": "low"
+        }
+      }
+    },
+    {
+      "id": "responses-stream",
+      "body": {
+        "input": "Reply exactly OK.",
+        "stream": true,
+        "reasoning": {
+          "effort": "low"
+        }
+      }
+    },
+    {
+      "id": "responses-tool-call",
+      "body": {
+        "input": "Call the ping tool exactly once.",
+        "stream": true,
+        "reasoning": {
+          "effort": "low"
+        },
+        "tool_choice": "required",
+        "tools": [
+          {
+            "type": "function",
+            "name": "ping",
+            "description": "Return pong.",
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "responses-tool-result",
+      "body": {
+        "instructions": "The ping tool returned pong. Reply exactly PONG.",
+        "input": [
+          {
+            "type": "function_call",
+            "call_id": "call_aura_fixture",
+            "name": "ping",
+            "arguments": "{}"
+          },
+          {
+            "type": "function_call_output",
+            "call_id": "call_aura_fixture",
+            "output": "pong"
+          }
+        ],
+        "stream": false,
+        "reasoning": {
+          "effort": "low"
+        }
+      }
+    },
+    {
+      "id": "responses-compact",
+      "path": "/responses/compact",
+      "body": {
+        "input": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "input_text",
+                "text": "User said hello."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "responses-error",
+      "expect": {
+        "status": 400,
+        "error": true
+      },
+      "body": {
+        "input": "This request must be rejected.",
+        "stream": "invalid"
+      }
+    },
+    {
+      "id": "responses-cancellation",
+      "abortAfterMs": 1,
+      "expect": {
+        "aborted": true
+      },
+      "body": {
+        "input": "Write a long explanation of distributed systems.",
+        "stream": true
+      }
+    }
+  ]
+}

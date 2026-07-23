@@ -202,7 +202,7 @@ export async function handleResponsesCompact(
     }
   }
 
-  if (route.provider.adapter === "openai-responses") {
+  if (route.provider.adapter === "openai-responses" && route.provider.compactMode !== "synthetic") {
     // Native ChatGPT/OpenAI model: forward the compact request verbatim to the real backend.
     // Resolve the SAME pool/thread auth context as /v1/responses — forwarding the caller's raw
     // headers would run compaction on the wrong account (or 401) whenever a pool account is
@@ -320,7 +320,16 @@ export async function handleResponsesCompact(
     headers: internalHeaders,
     body: JSON.stringify(internalBody),
   });
-  const response = await handleResponses(internalReq, config, logCtx, { abortSignal: req.signal });
+  const compactConfig = route.provider.adapter === "openai-responses"
+    ? {
+        ...config,
+        providers: {
+          ...config.providers,
+          [route.providerName]: { ...route.provider, adapter: "openai-chat" },
+        },
+      }
+    : config;
+  const response = await handleResponses(internalReq, compactConfig, logCtx, { abortSignal: req.signal });
   if (!response.ok) return response;
   let json: { output?: unknown[] };
   try {
@@ -338,5 +347,4 @@ export async function handleResponsesCompact(
   const output = buildCompactV1Output(extractCompactUserMessages(inputItems), summary);
   return new Response(JSON.stringify({ output }), { headers: { "Content-Type": "application/json" } });
 }
-
 

@@ -209,6 +209,19 @@ export async function handleProviderRoutes(ctx: ManagementContext): Promise<Resp
         return jsonResponse({ error: "authMode must be key, forward, oauth, or local" }, 400);
       }
     }
+    if (Object.hasOwn(rawBody, "compactMode")) {
+      if (typeof rawBody.compactMode !== "string") return jsonResponse({ error: "compactMode must be a string" }, 400);
+      const mode = rawBody.compactMode.trim();
+      if (mode === "native" || mode === "synthetic") {
+        next.compactMode = mode;
+        touched = true;
+      } else if (mode === "") {
+        delete next.compactMode;
+        touched = true;
+      } else {
+        return jsonResponse({ error: "compactMode must be native or synthetic" }, 400);
+      }
+    }
    if (Object.hasOwn(rawBody, "note")) {
      if (typeof rawBody.note !== "string") return jsonResponse({ error: "note must be a string" }, 400);
      const note = rawBody.note.trim();

@@ -1,5 +1,5 @@
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
-import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -9,6 +9,7 @@ setDefaultTimeout(30_000);
 
 const repoRoot = dirname(fileURLToPath(new URL("../package.json", import.meta.url)));
 const releaseScriptPath = join(repoRoot, "scripts", "release.ts");
+const commandShimPath = join(import.meta.dir, "fixtures", "release-command-shim.js");
 
 interface LoggedCall {
   args: string[];
@@ -24,152 +25,15 @@ interface ReleaseScenario {
   typecheckExitCode?: number;
 }
 
-function writeExecutable(path: string, contents: string): void {
-  writeFileSync(path, contents, "utf8");
-  chmodSync(path, 0o755);
-}
-
-function shimProgramSource(name: "bun" | "gh" | "git" | "npm"): string {
-  if (name === "bun") {
-    return `import { appendFileSync } from "node:fs";
-
-const args = process.argv.slice(2);
-appendFileSync(process.env.FAKE_RELEASE_LOG, JSON.stringify({ name: "bun", args }) + "\\n");
-
-const exitCode =
-  args[0] === "x" && args[1] === "tsc" ? Number(process.env.FAKE_BUN_TSC_EXIT_CODE ?? "0")
-  : args[0] === "test" && args[1] === "--isolate" && args[2] === "tests" ? Number(process.env.FAKE_BUN_TEST_EXIT_CODE ?? "0")
-  : args[0] === "run" && args[1] === "privacy:scan" ? Number(process.env.FAKE_BUN_PRIVACY_EXIT_CODE ?? "0")
-  : 0;
-
-if (exitCode !== 0) {
-  console.error(\`fake bun failure: \${args.join(" ")}\`);
-}
-
-process.exit(exitCode);
-`;
-  }
-
-  if (name === "git") {
-    return `import { appendFileSync } from "node:fs";
-
-const args = process.argv.slice(2);
-appendFileSync(process.env.FAKE_RELEASE_LOG, JSON.stringify({ name: "git", args }) + "\\n");
-
-const headSha = process.env.FAKE_GIT_HEAD_SHA ?? "abc123def456";
-const branch = process.env.FAKE_GIT_BRANCH ?? "main";
-const stdout = (text) => process.stdout.write(text);
-const stderr = (text) => process.stderr.write(text);
-
-if (args[0] === "rev-parse" && args[1] === "--abbrev-ref" && args[2] === "HEAD") {
-  stdout(branch + "\\n");
-  process.exit(0);
-}
-
-if (args[0] === "status" && args[1] === "--porcelain") {
-  stdout((process.env.FAKE_GIT_STATUS ?? "") + "\\n");
-  process.exit(0);
-}
-
-if (args[0] === "ls-remote") {
-  if (args.some(a => typeof a === "string" && a.startsWith("refs/heads/"))) {
-    const branchRef = args.find(a => typeof a === "string" && a.startsWith("refs/heads/"));
-    stdout(\`\${process.env.FAKE_GIT_REMOTE_HEAD_SHA ?? headSha}\t\${branchRef}\n\`);
-  }
-  process.exit(0);
-}
-
-if (args[0] === "add" || args[0] === "commit" || args[0] === "push") {
-  process.exit(0);
-}
-
-if (args[0] === "rev-parse" && args[1] === "HEAD") {
-  stdout(headSha + "\\n");
-  process.exit(0);
-}
-
-if (args[0] === "rev-parse" && args[1]?.startsWith("origin/")) {
-  stdout(headSha + "\\n");
-  process.exit(0);
-}
-
-stderr(\`unexpected git args: \${args.join(" ")}\\n\`);
-process.exit(1);
-`;
-  }
-
-  if (name === "npm") {
-    return `import { appendFileSync } from "node:fs";
-
-const args = process.argv.slice(2);
-appendFileSync(process.env.FAKE_RELEASE_LOG, JSON.stringify({ name: "npm", args }) + "\\n");
-
-if (args[0] === "view") {
-  console.error("npm ERR! code E404");
-  process.exit(1);
-}
-
-if (args[0] === "version") {
-  process.exit(0);
-}
-
-console.error(\`unexpected npm args: \${args.join(" ")}\`);
-process.exit(1);
-`;
-  }
-
-  return `import { appendFileSync } from "node:fs";
-
-const args = process.argv.slice(2);
-appendFileSync(process.env.FAKE_RELEASE_LOG, JSON.stringify({ name: "gh", args }) + "\\n");
-
-const headSha = process.env.FAKE_GIT_HEAD_SHA ?? "abc123def456";
-const stdout = (text) => process.stdout.write(text);
-const stderr = (text) => process.stderr.write(text);
-
-if (args[0] === "release" && args[1] === "view") {
-  stderr("release not found\\n");
-  process.exit(1);
-}
-
-if (args[0] === "run" && args[1] === "list") {
-  if (args.includes("ci.yml")) {
-    stdout(JSON.stringify([{ conclusion: "success", databaseId: 7, headSha, status: "completed", url: "https://example.test/ci" }]));
-    process.exit(0);
-  }
-
-  if (args.includes("service-lifecycle.yml")) {
-    stdout(JSON.stringify([{ conclusion: "success", databaseId: 8, headSha, status: "completed", url: "https://example.test/service" }]));
-    process.exit(0);
-  }
-
-  if (args.includes("release.yml")) {
-    stdout(JSON.stringify([{ createdAt: new Date().toISOString(), databaseId: 9, headSha, status: "queued", url: "https://example.test/release" }]));
-    process.exit(0);
-  }
-}
-
-if (args[0] === "workflow" && args[1] === "run") {
-  process.exit(0);
-}
-
-if (args[0] === "run" && args[1] === "watch") {
-  process.exit(0);
-}
-
-stderr(\`unexpected gh args: \${args.join(" ")}\\n\`);
-process.exit(1);
-`;
-}
-
 function installCommandShim(binDir: string, name: "bun" | "gh" | "git" | "npm"): void {
-  const jsPath = join(binDir, `${name}.js`);
   const launcherPath = join(binDir, name);
   const cmdPath = join(binDir, `${name}.cmd`);
 
-  writeFileSync(jsPath, shimProgramSource(name), "utf8");
-  writeExecutable(launcherPath, `#!${process.execPath}\nimport "./${name}.js";\n`);
-  writeFileSync(cmdPath, `@echo off\r\n"${process.execPath}" "%~dp0\\${name}.js" %*\r\n`, "utf8");
+  if (process.platform === "win32") {
+    writeFileSync(cmdPath, `@echo off\r\n"${process.execPath}" "${commandShimPath}" ${name} %*\r\n`, "utf8");
+  } else {
+    symlinkSync(commandShimPath, launcherPath);
+  }
 }
 
 function readLoggedCalls(logPath: string): LoggedCall[] {

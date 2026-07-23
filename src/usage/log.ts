@@ -33,9 +33,13 @@ export interface PersistedUsageAttempt {
 
 export interface PersistedUsageEntry {
   requestId: string;
+  threadKey?: string;
   timestamp: number;
   provider: string;
   model: string;
+  auraProfile?: "saver" | "balanced" | "quality";
+  auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
+  auraRouteReason?: "profile_match" | "manual_override";
   surface?: "claude";
   resolvedModel?: string;
   requestedModel?: string;
@@ -214,9 +218,15 @@ function normalizeUsageEntry(entry: PersistedUsageEntry): PersistedUsageEntry {
   const attempts = normalizedAttempts(entry.attempts);
   return {
     requestId: entry.requestId,
+    ...(typeof entry.threadKey === "string" && entry.threadKey
+      ? { threadKey: capMetadataString(entry.threadKey) }
+      : {}),
     timestamp: entry.timestamp,
     provider: entry.provider,
     model: entry.model,
+    ...(entry.auraProfile ? { auraProfile: entry.auraProfile } : {}),
+    ...(entry.auraRole ? { auraRole: entry.auraRole } : {}),
+    ...(entry.auraRouteReason ? { auraRouteReason: entry.auraRouteReason } : {}),
     ...(entry.surface === "claude" ? { surface: entry.surface } : {}),
     ...(entry.resolvedModel ? { resolvedModel: entry.resolvedModel } : {}),
     ...(entry.requestedModel ? { requestedModel: entry.requestedModel } : {}),

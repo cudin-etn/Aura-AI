@@ -423,6 +423,15 @@ export interface OcxConfig {
   port: number;
   providers: Record<string, OcxProviderConfig>;
   defaultProvider: string;
+  /** Aura's role/profile layer, compiled into existing OpenCodex routing controls. */
+  aura?: {
+    activeProfile?: "saver" | "balanced" | "quality";
+    roles?: Partial<Record<
+      "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs",
+      { model: string; effort: "low" | "medium" | "high" | "xhigh" | "max" | "ultra" }
+    >>;
+    maxSubagents?: number;
+  };
   /** OpenAI provider-contract migration marker (v2 = single `openai` provider with account mode). */
   openaiProviderTierVersion?: 1 | 2;
   /** Claude Code inbound + launcher settings. */
@@ -694,6 +703,8 @@ export interface ResponsesItemIdRepairConfig {
 export interface OcxProviderConfig {
   adapter: string;
   baseUrl: string;
+  /** Use the provider's native compact endpoint, or summarize through its chat-completions endpoint. */
+  compactMode?: "native" | "synthetic";
   /**
    * Optional relative resource path for key-auth openai-responses requests. Must start with `/`
    * and must not include a URL scheme, query string, or fragment. When omitted, the adapter keeps

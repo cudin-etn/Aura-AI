@@ -250,6 +250,23 @@ describe("server local API auth", () => {
     });
   });
 
+  test("safeConfigDTO exposes compact compatibility mode without provider secrets", () => {
+    const dto = safeConfigDTO({
+      ...config("127.0.0.1"),
+      providers: {
+        compat: {
+          adapter: "openai-responses",
+          baseUrl: "https://example.test/v1",
+          apiKey: "sk-secret-value",
+          compactMode: "synthetic",
+        },
+      },
+    } as OcxConfig) as { providers: Record<string, Record<string, unknown>> };
+
+    expect(dto.providers.compat.compactMode).toBe("synthetic");
+    expect(dto.providers.compat).not.toHaveProperty("apiKey");
+  });
+
   test("safeConfigDTO strips URL-embedded provider secrets", () => {
     const dto = safeConfigDTO({
       ...config("127.0.0.1"),
@@ -734,6 +751,57 @@ describe("server local API auth", () => {
       expect(last.content?.[0].text).toContain("compact summary body");
       // No ocx1 envelope may leak into v1 output.
       expect(JSON.stringify(json)).not.toContain("ocx1:");
+    } finally {
+      await server.stop(true);
+      await upstream.stop(true);
+    }
+  });
+
+  test("POST /v1/responses/compact can synthesize through chat for a responses provider", async () => {
+    if (existsSync(TEST_DIR)) rmSync(TEST_DIR, { recursive: true });
+    mkdirSync(TEST_DIR, { recursive: true });
+    process.env.OPENCODEX_HOME = TEST_DIR;
+    delete process.env.OPENCODEX_API_AUTH_TOKEN;
+
+    const paths: string[] = [];
+    const upstream = Bun.serve({
+      port: 0,
+      async fetch(req) {
+        paths.push(new URL(req.url).pathname);
+        return Response.json({
+          choices: [{ message: { role: "assistant", content: "synthetic compact summary" }, finish_reason: "stop" }],
+          usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+        });
+      },
+    });
+    saveConfig({
+      port: 0,
+      defaultProvider: "responses-compat",
+      providers: {
+        "responses-compat": {
+          adapter: "openai-responses",
+          compactMode: "synthetic",
+          baseUrl: `http://127.0.0.1:${upstream.port}/v1`,
+          allowPrivateNetwork: true,
+          apiKey: "provider-key",
+        },
+      },
+    } as OcxConfig);
+
+    const server = startServer(0);
+    try {
+      const response = await fetch(new URL("/v1/responses/compact", server.url), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          model: "responses-compat/some-model",
+          input: [{ type: "message", role: "user", content: [{ type: "input_text", text: "original ask" }] }],
+        }),
+      });
+      expect(response.status).toBe(200);
+      const json = await response.json() as { output: { role?: string; content?: { text: string }[] }[] };
+      expect(paths).toEqual(["/v1/chat/completions"]);
+      expect(json.output.at(-1)?.content?.[0].text).toContain("synthetic compact summary");
     } finally {
       await server.stop(true);
       await upstream.stop(true);

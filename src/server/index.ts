@@ -60,6 +60,7 @@ import {
   inspectResponseLogSsePayload,
   nextRequestLogId,
   recordFirstOutput,
+  requestThreadKey,
   type RequestLogContext,
   type RequestLogEntry,
 } from "./request-log";
@@ -327,7 +328,7 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown" };
+        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown", threadKey: requestThreadKey(req.headers) };
         let response: Response;
         try {
           response = await handleResponsesCompact(req, config, logCtx);
@@ -362,7 +363,7 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "image_gen", provider: "unknown" };
+        const logCtx: RequestLogContext = { model: "image_gen", provider: "unknown", threadKey: requestThreadKey(req.headers) };
         const endpoint = url.pathname.endsWith("/edits") ? "edits" as const : "generations" as const;
         const response = await handleImages(req, config, endpoint, logCtx);
         addFinalRequestLog(requestId, start, logCtx, response.status, response.status === 499 ? { closeReason: "client_cancel" } : undefined);
@@ -384,7 +385,7 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "web_search", provider: "unknown" };
+        const logCtx: RequestLogContext = { model: "web_search", provider: "unknown", threadKey: requestThreadKey(req.headers) };
         const response = await handleSearch(req, config, logCtx);
         addFinalRequestLog(
           requestId,
@@ -408,7 +409,7 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx = { model: "unknown", provider: "unknown" };
+        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown", threadKey: requestThreadKey(req.headers) };
         let logged = false;
         const finalizeNativePassthroughLog = (
           status: number,
@@ -463,7 +464,7 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown" };
+        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown", threadKey: requestThreadKey(req.headers) };
         // Logging is finalized inside handleClaudeMessages (Responses-vocab tap on the
         // pre-translation stream + native passthrough callbacks) — do not re-wrap the
         // translated Anthropic stream here.
@@ -485,7 +486,7 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown" };
+        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown", threadKey: requestThreadKey(req.headers) };
         const response = await handleChatCompletions(req, config, logCtx, { requestId, start });
         return withCors(response, req, config);
       }
@@ -574,6 +575,7 @@ export function startServer(port?: number) {
             addFinalRequestLog(requestId, start, logCtx, status, meta);
           };
           const baseHeaders = ws.data.headers ?? new Headers();
+          logCtx.threadKey = requestThreadKey(baseHeaders);
           const fwd = new Headers({ "content-type": "application/json" });
           baseHeaders.forEach((value, key) => fwd.set(key, value));
           const req = new Request("http://localhost/v1/responses", {

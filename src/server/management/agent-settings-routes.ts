@@ -55,6 +55,14 @@ import { estimateComboCost, estimateRequestCost, normalizeCostTokens, tokensPerS
 import type { PersistedUsageAttempt } from "../../usage/log";
 import { isAllowedRequestOrigin, jsonResponse, providerManagementConfigError, publicProviderBaseUrl, safeConfigDTO } from "../auth-cors";
 import { applySystemEnvToggle } from "../system-env";
+import {
+  AURA_PROFILE_IDS,
+  AURA_ROLES,
+  applyAuraProfile,
+  buildAuraProfile,
+  type AuraProfileId,
+  type AuraProfileOverrides,
+} from "../../policy/aura-profiles";
 
 import { isPlainRecord, parseDebugLogQuery, tokPerSecondResult, unavailableCostReason, costResult, requestLogDto, stripRegistryOnlyStaticHeaders, fetchAllModels } from "./shared";
 import type { MetricUnavailableReason, TokPerSecondResult, CostEstimateReason, CostResult, MetricSource } from "./shared";
@@ -62,6 +70,89 @@ import type { ManagementContext } from "./context";
 
 export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise<Response | null> {
   const { req, url, config, deps, refreshCodexCatalogBestEffort, syncClaudeAgentDefsBestEffort } = ctx;
+
+  if (url.pathname === "/api/aura/profile") {
+    const models = await fetchAllModels(config);
+    const disabled = new Set(config.disabledModels ?? []);
+    const { listCatalogNativeSlugs } = await import("../../codex/catalog");
+    const available = [
+      ...uniqueCatalogModelsForPublicList(models)
+        .map(catalogModelSlug)
+        .filter(model => !disabled.has(model)),
+      ...listCatalogNativeSlugs().filter(model => !disabled.has(model)),
+    ];
+    const activeProfile = config.aura?.activeProfile ?? "balanced";
+
+    if (req.method === "GET") {
+      return jsonResponse({
+        activeProfile,
+        profile: buildAuraProfile(activeProfile, available, config.aura?.roles),
+        profiles: AURA_PROFILE_IDS,
+        roles: AURA_ROLES,
+        available,
+      });
+    }
+
+    if (req.method === "PUT") {
+      let body: { profile?: unknown; roles?: unknown };
+      try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
+      if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return jsonResponse({ error: "body must be a JSON object" }, 400);
+      }
+      if (typeof body.profile !== "string" || !AURA_PROFILE_IDS.includes(body.profile as AuraProfileId)) {
+        return jsonResponse({ error: "profile must be saver, balanced, or quality" }, 400);
+      }
+      if (available.length === 0) return jsonResponse({ error: "no available models" }, 409);
+      if (body.roles !== undefined && (!body.roles || typeof body.roles !== "object" || Array.isArray(body.roles))) {
+        return jsonResponse({ error: "roles must be an object" }, 400);
+      }
+
+      const overrides: AuraProfileOverrides = {};
+      const roleBody = (body.roles ?? {}) as Record<string, unknown>;
+      for (const key of Object.keys(roleBody)) {
+        if (!AURA_ROLES.includes(key as typeof AURA_ROLES[number])) {
+          return jsonResponse({ error: `unknown Aura role "${key}"` }, 400);
+        }
+      }
+      const { isCodexReasoningEffort } = await import("../../reasoning-effort");
+      for (const role of AURA_ROLES) {
+        const raw = roleBody[role];
+        if (raw === undefined) continue;
+        if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+          return jsonResponse({ error: `roles.${role} must be an object` }, 400);
+        }
+        const assignment = raw as { model?: unknown; effort?: unknown };
+        const next: NonNullable<AuraProfileOverrides[typeof role]> = {};
+        if (assignment.model !== undefined) {
+          if (typeof assignment.model !== "string" || !available.includes(assignment.model)) {
+            return jsonResponse({ error: `roles.${role}.model must be an available model` }, 400);
+          }
+          next.model = assignment.model;
+        }
+        if (assignment.effort !== undefined) {
+          if (typeof assignment.effort !== "string" || !isCodexReasoningEffort(assignment.effort)) {
+            return jsonResponse({ error: `roles.${role}.effort must be a supported reasoning effort` }, 400);
+          }
+          next.effort = assignment.effort as NonNullable<typeof next.effort>;
+        }
+        overrides[role] = next;
+      }
+
+      const profile = buildAuraProfile(body.profile as AuraProfileId, available, overrides);
+      applyAuraProfile(config, profile);
+      saveConfig(config);
+      await refreshCodexCatalogBestEffort();
+      await syncClaudeAgentDefsBestEffort();
+      return jsonResponse({
+        ok: true,
+        activeProfile: profile.id,
+        profile,
+        profiles: AURA_PROFILE_IDS,
+        roles: AURA_ROLES,
+        available,
+      });
+    }
+  }
 
   // multi_agent_v2 surface toggle. GET reports the flag + the agents.max_threads
   // boot conflict; PUT flips it via the official `codex features` CLI and RESYNCS

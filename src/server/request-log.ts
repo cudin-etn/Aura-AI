@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import type { ResponsesTerminalStatus } from "../bridge";
 import {
   classifyError,
@@ -31,6 +32,10 @@ import {
 export interface RequestLogContext {
   model: string;
   provider: string;
+  threadKey?: string;
+  auraProfile?: "saver" | "balanced" | "quality";
+  auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
+  auraRouteReason?: "profile_match" | "manual_override";
   /** TTFT: ms from request start to the first non-empty model output delta (WP4, devlog 040). */
   firstOutputMs?: number;
   surface?: "claude";
@@ -71,9 +76,13 @@ export interface RequestLogContext {
 
 export interface RequestLogEntry {
   requestId: string;
+  threadKey?: string;
   timestamp: number;
   model: string;
   provider: string;
+  auraProfile?: "saver" | "balanced" | "quality";
+  auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
+  auraRouteReason?: "profile_match" | "manual_override";
   /** TTFT: ms from request start to the first non-empty model output delta; unset for non-streaming/tool-only. */
   firstOutputMs?: number;
   surface?: "claude";
@@ -111,6 +120,16 @@ let requestLogSeq = 0;
 /** True after hydrateRequestLogsFromDisk ran once in this process. */
 let requestLogsHydratedFromDisk = false;
 
+export function requestThreadKey(headers: Headers): string | undefined {
+  const raw = [
+    "x-codex-parent-thread-id",
+    "x-claude-code-session-id",
+    "x-session-id",
+    "session-id",
+  ].map(name => headers.get(name)?.trim()).find(Boolean);
+  return raw ? createHash("sha256").update(raw).digest("hex").slice(0, 16) : undefined;
+}
+
 function asTerminalStatus(value: string | undefined): ResponsesTerminalStatus | undefined {
   if (value === "completed" || value === "failed" || value === "incomplete") return value;
   return undefined;
@@ -135,9 +154,13 @@ export function requestLogEntryFromPersistedUsage(entry: PersistedUsageEntry): R
   const closeReason = asCloseReason(entry.closeReason);
   return {
     requestId: entry.requestId,
+    ...(entry.threadKey ? { threadKey: entry.threadKey } : {}),
     timestamp: entry.timestamp,
     model: entry.model,
     provider: entry.provider,
+    ...(entry.auraProfile ? { auraProfile: entry.auraProfile } : {}),
+    ...(entry.auraRole ? { auraRole: entry.auraRole } : {}),
+    ...(entry.auraRouteReason ? { auraRouteReason: entry.auraRouteReason } : {}),
     ...(entry.firstOutputMs !== undefined ? { firstOutputMs: entry.firstOutputMs } : {}),
     ...(entry.surface === "claude" ? { surface: entry.surface } : {}),
     ...(entry.requestedModel ? { requestedModel: entry.requestedModel } : {}),
@@ -212,9 +235,13 @@ export function addRequestLog(entry: RequestLogEntry) {
       : {};
     appendUsageEntry({
       requestId: entry.requestId,
+      ...(entry.threadKey ? { threadKey: entry.threadKey } : {}),
       timestamp: entry.timestamp,
       provider: entry.provider,
       model: entry.model,
+      ...(entry.auraProfile ? { auraProfile: entry.auraProfile } : {}),
+      ...(entry.auraRole ? { auraRole: entry.auraRole } : {}),
+      ...(entry.auraRouteReason ? { auraRouteReason: entry.auraRouteReason } : {}),
       ...(entry.surface === "claude" ? { surface: entry.surface } : {}),
       ...(entry.resolvedModel ? { resolvedModel: entry.resolvedModel } : {}),
       ...(entry.requestedModel ? { requestedModel: entry.requestedModel } : {}),
@@ -573,9 +600,13 @@ export function addFinalRequestLog(
   const totalTokens = aggregate?.totalTokens ?? existing.totalTokens;
   addLog({
     requestId,
+    ...(logCtx.threadKey ? { threadKey: logCtx.threadKey } : {}),
     timestamp: start,
     model: isCombo ? logCtx.requestedModel! : logCtx.model,
     provider: isCombo ? "combo" : logCtx.provider,
+    ...(logCtx.auraProfile ? { auraProfile: logCtx.auraProfile } : {}),
+    ...(logCtx.auraRole ? { auraRole: logCtx.auraRole } : {}),
+    ...(logCtx.auraRouteReason ? { auraRouteReason: logCtx.auraRouteReason } : {}),
     ...(logCtx.surface ? { surface: logCtx.surface } : {}),
     ...(logCtx.requestedModel ? { requestedModel: logCtx.requestedModel } : {}),
     ...(logCtx.requestedEffort ? { requestedEffort: logCtx.requestedEffort } : {}),

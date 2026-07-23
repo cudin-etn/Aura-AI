@@ -589,6 +589,13 @@ export async function handleResponses(
   logCtx.requestedSpeedLabel = requestLogSpeedLabel(parsed.options.serviceTier);
   logCtx.configuredServiceTier = readConfiguredCodexServiceTier();
   logCtx.configuredSpeedLabel = requestLogSpeedLabel(logCtx.configuredServiceTier);
+  {
+    const { auraRouteMetadata } = await import("../../policy/aura-profiles");
+    const metadata = auraRouteMetadata(config, req.headers, parsed.modelId);
+    logCtx.auraProfile = metadata.profile;
+    logCtx.auraRole = metadata.role;
+    logCtx.auraRouteReason = metadata.reason;
+  }
 
   // Shadow call intercept: rewrite Codex's hard-coded helper calls
   // (gpt-5.4-mini on older clients, gpt-5.6-luna on 0.145.0+)

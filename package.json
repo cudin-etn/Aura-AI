@@ -39,6 +39,7 @@
     "test": "bun scripts/test.ts",
     "typecheck": "bun x tsc --noEmit",
     "privacy:scan": "bun scripts/privacy-scan.ts",
+    "compat:aura": "bun scripts/aura-compat.ts",
     "generate:jawcode-metadata": "bun scripts/generate-jawcode-metadata.ts",
     "build:gui": "cd gui && bun install --frozen-lockfile && bun run build && cd .. && bun run prepare:package",
     "prepare:package": "bun scripts/prepare-package.ts",

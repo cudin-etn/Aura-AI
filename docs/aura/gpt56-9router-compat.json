@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-23T16:35:20.846Z",
+  "fixture": "fixtures/aura/gpt56-basic.json",
+  "provider": "9router",
+  "directModel": "cx/gpt-5.6-sol",
+  "proxyModel": "9router/cx-gpt-5.6-sol",
+  "proxyVersion": "2.7.36",
+  "mode": "proxy",
+  "repeat": 1,
+  "capability": {
+    "grade": "Compatible",
+    "reasons": [
+      "translation_required"
+    ]
+  },
+  "compatible": true,
+  "cases": [
+    {
+      "id": "responses-json",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [],
+          "outputDigest": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+          "outputChars": 2,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 2489,
+            "output_tokens": 5,
+            "total_tokens": 2494
+          },
+          "error": null,
+          "headersMs": 1763,
+          "totalMs": 1765
+        }
+      ]
+    },
+    {
+      "id": "responses-stream",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.content_part.added",
+            "response.output_text.delta",
+            "response.output_text.done",
+            "response.content_part.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+          "outputChars": 2,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 2489,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 1792
+            },
+            "output_tokens": 5,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 2494
+          },
+          "error": null,
+          "headersMs": 1498,
+          "totalMs": 1656
+        }
+      ]
+    },
+    {
+      "id": "responses-tool-call",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.function_call_arguments.delta",
+            "response.function_call_arguments.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [
+            "ping"
+          ],
+          "usage": {
+            "input_tokens": 2518,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 2532
+          },
+          "error": null,
+          "headersMs": 2227,
+          "totalMs": 2409
+        }
+      ]
+    },
+    {
+      "id": "responses-tool-result",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [],
+          "outputDigest": "95784973cc639977bff93619700168505cb8f7855e44fa643d34622a43706c87",
+          "outputChars": 4,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 403,
+            "output_tokens": 6,
+            "total_tokens": 409
+          },
+          "error": null,
+          "headersMs": 1499,
+          "totalMs": 1499
+        }
+      ]
+    },
+    {
+      "id": "responses-compact",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": "725f886239967866d7ccd2f8854df617e94ec2a07a36c98f6fa58ec300d23337",
+          "outputChars": 827,
+          "toolNames": [],
+          "usage": null,
+          "error": null,
+          "headersMs": 4715,
+          "totalMs": 4715
+        }
+      ]
+    },
+    {
+      "id": "responses-error",
+      "expect": {
+        "status": 400,
+        "error": true
+      },
+      "proxy": [
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "responses parse error: [\n  {\n    \"expected\": \"boolean\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"stream\"\n    ],\n    \"message\": \"Invalid input: expected boolean, received string\"\n  }\n]",
+          "headersMs": 2,
+          "totalMs": 3
+        }
+      ]
+    },
+    {
+      "id": "responses-cancellation",
+      "expect": {
+        "aborted": true
+      },
+      "proxy": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "client_abort",
+          "headersMs": 2,
+          "totalMs": 2
+        }
+      ]
+    }
+  ]
+}
