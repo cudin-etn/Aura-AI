@@ -21,11 +21,20 @@ describe("Aura client registry", () => {
     expect(AURA_CLIENT_ADAPTERS.find(client => client.id === "zcode")).toMatchObject({
       maturity: "experimental",
       configurable: false,
-      protocols: [],
+      protocols: ["chat-completions"],
     });
     expect(auraClientLogFields("/v1/messages")).toEqual({
       auraClient: "claude-code",
       auraProtocol: "messages",
+    });
+    expect(AURA_CLIENT_ADAPTERS.find(client => client.id === "factory")).toMatchObject({
+      maturity: "basic",
+      configurable: true,
+      protocols: ["responses"],
+    });
+    expect(AURA_CLIENT_ADAPTERS.find(client => client.id === "generic")).toMatchObject({
+      maturity: "basic",
+      configurable: false,
     });
   });
 });

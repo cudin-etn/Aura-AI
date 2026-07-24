@@ -1,7 +1,7 @@
 import { auraProtocolForPath, type AuraProtocolId } from "../protocols/registry";
 export type { AuraProtocolId } from "../protocols/registry";
 
-export type AuraClientId = "codex" | "claude-code" | "opencode" | "zcode";
+export type AuraClientId = "codex" | "claude-code" | "opencode" | "zcode" | "factory" | "generic";
 export type AuraClientMaturity = "production" | "basic" | "experimental";
 
 export type AuraClientAdapter = {
@@ -42,8 +42,24 @@ export const AURA_CLIENT_ADAPTERS: AuraClientAdapter[] = [
     id: "zcode",
     label: "ZCode",
     maturity: "experimental",
-    protocols: [],
-    endpoints: [],
+    protocols: ["chat-completions"],
+    endpoints: ["/v1/chat/completions"],
+    configurable: false,
+  },
+  {
+    id: "factory",
+    label: "Factory Droid",
+    maturity: "basic",
+    protocols: ["responses"],
+    endpoints: ["/v1/responses"],
+    configurable: true,
+  },
+  {
+    id: "generic",
+    label: "Other AI agent",
+    maturity: "basic",
+    protocols: ["responses", "chat-completions", "messages"],
+    endpoints: ["/v1/responses", "/v1/chat/completions", "/v1/messages"],
     configurable: false,
   },
 ];

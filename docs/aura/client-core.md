@@ -9,8 +9,9 @@ around them:
 
 - `src/protocols/registry.ts` owns the public Responses, Chat Completions, and
   Messages surfaces.
-- `src/clients/registry.ts` maps those surfaces to Codex, Claude Code, and
-  OpenCode without duplicating the protocol implementations.
+- `src/clients/registry.ts` maps those surfaces to Codex, Claude Code, OpenCode,
+  Factory Droid, ZCode, and a generic compatible-agent surface without
+  duplicating the protocol implementations.
 - `src/providers/aura.ts` exposes credential-free provider authentication,
   discovery, and declared capability metadata.
 - request and usage logs record the client and protocol selected at the public
@@ -50,8 +51,18 @@ Setup → Clients is the unified client control surface:
   settings available on demand.
 - OpenCode selects a normalized routed model, previews only the target and
   changed paths, then applies or restores through the guarded transaction.
+- Factory Droid uses the documented `customModels` settings schema. Aura adds
+  one `openai` custom model pointing to the local Responses endpoint, writes
+  atomically, verifies the resulting entry, and restores only when the file
+  still has Aura's applied-byte hash. Existing non-Aura custom models are
+  preserved.
 - ZCode remains visibly experimental and manual-only rather than presenting an
-  unsafe automatic setup action.
+  unsafe automatic setup action. Its card now exposes the compatible
+  Chat Completions endpoint, model, authentication, and recovery instructions.
+- Other AI agents receive the same copy-ready guide for Responses, Chat
+  Completions, and Messages. This is the compatibility fallback for products
+  such as ZCode, OpenCode, and future agent clients without a stable local
+  settings file.
 
 ## Unified setup wizard
 
@@ -70,7 +81,7 @@ consumes Aura's local Responses catalog and needs no separate client-file
 write. The original advanced provider, role, and client controls remain
 available below the wizard.
 
-## ZCode spike
+## ZCode and generic compatibility guide
 
 ZCode remains explicit but experimental. Its current official setup flow
 documents provider/model configuration through the application UI, including
@@ -78,9 +89,11 @@ OpenAI and OpenRouter options, but does not document a stable external
 configuration file or local management API that Aura can safely edit and
 restore.
 
-Aura therefore makes no production compatibility claim and exposes no ZCode
-configuration action. Add an adapter only after a versioned, machine-editable
-integration surface can be verified with backup and restore tests.
+Aura therefore makes no production auto-config claim for ZCode. The guided
+manual path is intentionally simple: choose the supported protocol, set the
+matching `/v1` endpoint, choose an Aura model, and provide an API key only when
+local Aura authentication is enabled. It also explains how to recover by
+restoring the previous client settings.
 
 References:
 

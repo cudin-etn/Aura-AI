@@ -89,6 +89,19 @@ Priority:
   unsupported, and unstable surfaces.
   - Done when: no production promise remains based on assumptions.
 
+- [x] `CLT-005` P1 Add a guarded Factory Droid adapter for the documented
+  `customModels` settings schema, including preview, backup, verification, and
+  restore without overwriting later user edits.
+  - Depends on: `CLT-003`, `CFG-001`.
+
+- [x] `CLT-006` P1 Turn ZCode's verified manual flow into a guided onboarding
+  path with protocol, endpoint, model, authentication, and recovery steps.
+  - Depends on: `CLT-004`, `GUI-003`.
+
+- [x] `CLT-007` P1 Add a generic AI-agent compatibility guide for Responses,
+  Chat Completions, and Messages clients, with copy-ready local Aura endpoints.
+  - Depends on: `CORE-002`, `GUI-004`.
+
 ## M2.5 — Aura UX Foundation
 
 - [x] `UX-001` P0 Define product personality, information architecture, and
@@ -140,9 +153,9 @@ Priority:
   assignment.
   - Depends on: `PRV-003`.
 
-- [x] `GUI-003` P1 Build Connect Clients with Codex, Claude Code, and OpenCode
-  toggles.
-  - Depends on: `CLT-001`, `CLT-002`, `CLT-003`, `CFG-001`.
+- [x] `GUI-003` P1 Build Connect Clients with Codex, Claude Code, OpenCode,
+  Factory Droid, ZCode guided setup, and a generic compatibility flow.
+  - Depends on: `CLT-001` through `CLT-007`, `CFG-001`.
 
 - [x] `GUI-004` P1 Build health, configuration diff, apply, restore, and
   diagnostics views.
@@ -268,6 +281,9 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   `docs/aura/client-core.md`. The isolated full regression gate passes 3,842
   tests, and Aura Setup exposes the client registry without changing the
   inherited Codex and Claude protocol behavior.
+- `CLT-005` through `CLT-007`: complete. Factory Droid now has guarded
+  auto-configuration; ZCode and other compatible coding agents have a
+  copy-ready manual guide with explicit protocol and authentication steps.
 - `UX-001` through `UX-007`: complete; see `docs/aura/ux-foundation.md`. The
   five-area shell preserves legacy hashes, adds persistent Focus/Canvas
   workspaces, icon pill navigation, a visually guided setup/profile/optimizer
@@ -280,11 +296,11 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   metadata and a live discovery probe; Routing exposes profile and per-role
   model assignment.
 - `GUI-003`, `GUI-004`, and `ONB-001`: complete. Setup → Clients now shows Codex,
-  Claude Code, OpenCode, and ZCode maturity/connection state; exposes Claude
-  connection and advanced settings; and provides OpenCode model selection,
-  sanitized changed-path preview, guarded apply, and restore. Aura Setup adds
-  a four-step provider/model/client/profile wizard with provider-aware model
-  selection, connection testing, and a non-mutating review step.
+  Claude Code, OpenCode, Factory Droid, ZCode, and a generic agent surface;
+  exposes guarded auto-config where the client schema is known and a guided
+  manual path elsewhere. Aura Setup adds a four-step provider/model/client/
+  profile wizard with provider-aware model selection, connection testing, and a
+  non-mutating review step.
 - M3 is complete. Next: finish the remaining smart-routing policy in M4.
 - `POL-001` through `POL-007` and `GUI-005`: complete; see
   `docs/aura/smart-routing.md`. Aura reuses bounded account affinity, key

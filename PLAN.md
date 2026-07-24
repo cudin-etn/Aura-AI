@@ -276,7 +276,9 @@ accessibility.
 Implement provider onboarding, model discovery, capability grades, role
 assignment, client connection, config preview, backup, apply, and restore.
 
-Exit: a user can configure Codex and OpenCode without editing files.
+Exit: a user can configure Codex, OpenCode, and Factory Droid without editing
+files; ZCode and other compatible agents have a copy-ready guided manual path
+with explicit protocol and recovery steps.
 
 ### M4 — Smart Profiles
 

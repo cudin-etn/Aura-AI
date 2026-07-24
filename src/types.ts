@@ -450,6 +450,13 @@ export interface OcxConfig {
         appliedAt: number;
         appliedHash?: string;
       };
+      factory?: {
+        path: string;
+        backupPath?: string;
+        created: boolean;
+        appliedAt: number;
+        appliedHash?: string;
+      };
     };
   };
   /** OpenAI provider-contract migration marker (v2 = single `openai` provider with account mode). */

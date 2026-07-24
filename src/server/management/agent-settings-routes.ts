@@ -71,6 +71,11 @@ import {
   previewOpenCodeConnection,
   restoreOpenCodeConnection,
 } from "../../clients/opencode";
+import {
+  applyFactoryConnection,
+  previewFactoryConnection,
+  restoreFactoryConnection,
+} from "../../clients/factory";
 
 import { isPlainRecord, parseDebugLogQuery, tokPerSecondResult, unavailableCostReason, costResult, requestLogDto, stripRegistryOnlyStaticHeaders, fetchAllModels } from "./shared";
 import type { MetricUnavailableReason, TokPerSecondResult, CostEstimateReason, CostResult, MetricSource } from "./shared";
@@ -103,7 +108,8 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
         ...client,
         connected: client.id === "codex"
           || (client.id === "claude-code" && config.claudeCode?.enabled !== false)
-          || (client.id === "opencode" && !!config.aura?.clients?.opencode),
+          || (client.id === "opencode" && !!config.aura?.clients?.opencode)
+          || (client.id === "factory" && !!config.aura?.clients?.factory),
       })),
     });
   }
@@ -163,6 +169,88 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
       }
       return jsonResponse({ ok: true, restored: true });
     }
+  }
+
+  if (url.pathname === "/api/aura/clients/factory") {
+    const baseUrl = `http://127.0.0.1:${config.port}/v1`;
+    if (req.method === "GET") {
+      const model = url.searchParams.get("model")?.trim();
+      if (!model) return jsonResponse({ error: "model query parameter is required" }, 400);
+      try {
+        return jsonResponse(previewFactoryConnection(baseUrl, model));
+      } catch (err) {
+        return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 400);
+      }
+    }
+
+    if (req.method === "PUT") {
+      let body: { model?: unknown; apiKey?: unknown };
+      try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
+      if (typeof body.model !== "string" || !body.model.trim()) {
+        return jsonResponse({ error: "model must be a non-empty string" }, 400);
+      }
+      if (body.apiKey !== undefined && typeof body.apiKey !== "string") {
+        return jsonResponse({ error: "apiKey must be a string when provided" }, 400);
+      }
+      const model = body.model.trim();
+      const apiKey = typeof body.apiKey === "string" ? body.apiKey : undefined;
+      const previous = config.aura?.clients?.factory;
+      let state;
+      try {
+        state = applyFactoryConnection(baseUrl, model, apiKey);
+        config.aura = {
+          ...config.aura,
+          clients: { ...config.aura?.clients, factory: state },
+        };
+        saveConfig(config);
+      } catch (err) {
+        if (state) restoreFactoryConnection(state);
+        if (previous) {
+          config.aura = {
+            ...config.aura,
+            clients: { ...config.aura?.clients, factory: previous },
+          };
+        }
+        return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 400);
+      }
+      return jsonResponse({ ok: true, ...state, model });
+    }
+
+    if (req.method === "DELETE") {
+      const state = config.aura?.clients?.factory;
+      if (!state) return jsonResponse({ error: "Factory has no Aura-managed configuration" }, 404);
+      try {
+        restoreFactoryConnection(state);
+        const clients = { ...config.aura?.clients };
+        delete clients.factory;
+        config.aura = { ...config.aura, clients };
+        saveConfig(config);
+      } catch (err) {
+        return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 500);
+      }
+      return jsonResponse({ ok: true, restored: true });
+    }
+  }
+
+  if (url.pathname === "/api/aura/client-guide" && req.method === "GET") {
+    const model = url.searchParams.get("model")?.trim() || "YOUR_MODEL";
+    const baseUrl = `http://127.0.0.1:${config.port}/v1`;
+    return jsonResponse({
+      baseUrl,
+      model,
+      protocols: {
+        responses: `${baseUrl}/responses`,
+        chatCompletions: `${baseUrl}/chat/completions`,
+        messages: `${baseUrl}/messages`,
+      },
+      authHeader: "x-opencodex-api-key",
+      authEnv: "OPENCODEX_API_AUTH_TOKEN",
+      notes: [
+        "Use the protocol your client supports.",
+        "Leave the API key empty when Aura local authentication is disabled.",
+        "Use an Aura API key or OPENCODEX_API_AUTH_TOKEN when local authentication is enabled.",
+      ],
+    });
   }
 
   if (url.pathname === "/api/aura/profile") {

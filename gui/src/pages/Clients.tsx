@@ -4,7 +4,7 @@ import { Notice } from "../ui";
 import { useT, type TKey } from "../i18n";
 
 type ClientRow = {
-  id: "codex" | "claude-code" | "opencode" | "zcode";
+  id: "codex" | "claude-code" | "opencode" | "zcode" | "factory" | "generic";
   label: string;
   maturity: "production" | "basic" | "experimental";
   protocols: string[];
@@ -21,12 +21,23 @@ type OpenCodePreview = {
   provider: string;
   changes: string[];
 };
+type ClientPreview = OpenCodePreview;
+type ClientGuide = {
+  baseUrl: string;
+  model: string;
+  protocols: { responses: string; chatCompletions: string; messages: string };
+  authHeader: string;
+  authEnv: string;
+  notes: string[];
+};
 
 const CLIENT_HINT_KEYS: Record<ClientRow["id"], TKey> = {
   codex: "clients.codex.hint",
   "claude-code": "clients.claude-code.hint",
   opencode: "clients.opencode.hint",
   zcode: "clients.zcode.hint",
+  factory: "clients.factory.hint",
+  generic: "clients.generic.hint",
 };
 
 export default function Clients({ apiBase }: { apiBase: string }) {
@@ -35,6 +46,8 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   const [models, setModels] = useState<string[]>([]);
   const [model, setModel] = useState("");
   const [preview, setPreview] = useState<OpenCodePreview | null>(null);
+  const [factoryPreview, setFactoryPreview] = useState<ClientPreview | null>(null);
+  const [guide, setGuide] = useState<ClientGuide | null>(null);
   const [status, setStatus] = useState("");
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -126,6 +139,99 @@ export default function Clients({ apiBase }: { apiBase: string }) {
     }
   };
 
+  const previewFactory = async () => {
+    if (!model) return;
+    setBusy("factory-preview");
+    setStatus("");
+    try {
+      const response = await fetch(`${apiBase}/api/aura/clients/factory?model=${encodeURIComponent(model)}`);
+      const body = await response.json() as ClientPreview & { error?: string };
+      if (!response.ok) throw new Error(body.error || t("clients.previewFailed"));
+      setFactoryPreview(body);
+      setOk(true);
+      setStatus(t("clients.previewReady"));
+    } catch (error) {
+      setOk(false);
+      setStatus(error instanceof Error ? error.message : t("clients.previewFailed"));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const applyFactory = async () => {
+    if (!model) return;
+    setBusy("factory-apply");
+    setStatus("");
+    try {
+      const response = await fetch(`${apiBase}/api/aura/clients/factory`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model }),
+      });
+      const body = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(body.error || t("aura.actionFail"));
+      setFactoryPreview(null);
+      setOk(true);
+      setStatus(t("clients.factoryConnected"));
+      await load();
+    } catch (error) {
+      setOk(false);
+      setStatus(error instanceof Error ? error.message : t("aura.actionFail"));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const restoreFactory = async () => {
+    setBusy("factory-restore");
+    setStatus("");
+    try {
+      const response = await fetch(`${apiBase}/api/aura/clients/factory`, { method: "DELETE" });
+      const body = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(body.error || t("aura.actionFail"));
+      setFactoryPreview(null);
+      setOk(true);
+      setStatus(t("clients.factoryRestored"));
+      await load();
+    } catch (error) {
+      setOk(false);
+      setStatus(error instanceof Error ? error.message : t("aura.actionFail"));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const loadGuide = async () => {
+    setBusy("guide");
+    try {
+      const response = await fetch(`${apiBase}/api/aura/client-guide?model=${encodeURIComponent(model || "YOUR_MODEL")}`);
+      const body = await response.json() as ClientGuide & { error?: string };
+      if (!response.ok) throw new Error(body.error || t("clients.guideFailed"));
+      setGuide(body);
+    } catch (error) {
+      setOk(false);
+      setStatus(error instanceof Error ? error.message : t("clients.guideFailed"));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const copyGuide = async () => {
+    if (!guide) return;
+    const text = [
+      `${t("clients.guideAuraBaseUrl")}: ${guide.baseUrl}`,
+      `${t("clients.guideResponses")}: ${guide.protocols.responses}`,
+      `${t("clients.guideChatCompletions")}: ${guide.protocols.chatCompletions}`,
+      `${t("clients.guideMessages")}: ${guide.protocols.messages}`,
+      `${t("clients.guideModel")}: ${guide.model}`,
+      `${t("clients.guideAuthHeader")}: ${guide.authHeader}`,
+      `${t("clients.guideAuthEnv")}: ${guide.authEnv}`,
+    ].join("\n");
+    await navigator.clipboard.writeText(text);
+    setOk(true);
+    setStatus(t("clients.guideCopied"));
+  };
+
   const toggleClaude = async (connected: boolean) => {
     setBusy("claude-code");
     setStatus("");
@@ -208,6 +314,49 @@ export default function Clients({ apiBase }: { apiBase: string }) {
             )}
 
             {client.id === "zcode" && <span className="muted text-label">{t("clients.experimental")}</span>}
+
+            {client.id === "factory" && (
+              <div className="stack" style={{ gap: 8 }}>
+                <select className="input" value={model} onChange={event => { setModel(event.target.value); setFactoryPreview(null); }} aria-label={t("aura.factoryModel")}>
+                  {models.length === 0 && <option value="">{t("models.noRouted")}</option>}
+                  {models.map(candidate => <option value={candidate} key={candidate}>{candidate}</option>)}
+                </select>
+                <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                  <button className="btn btn-ghost" onClick={() => void previewFactory()} disabled={!model || busy !== null}>{t("clients.preview")}</button>
+                  <button className="btn btn-primary" onClick={() => void applyFactory()} disabled={!model || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connectFactory")}</button>
+                  {client.connected && <button className="btn btn-ghost" onClick={() => void restoreFactory()} disabled={busy !== null}>{t("aura.restoreFactory")}</button>}
+                </div>
+                {factoryPreview && (
+                  <div className="notice notice-ok text-label">
+                    <div><strong>{t("clients.previewPath")}:</strong> <code>{factoryPreview.path}</code></div>
+                    <div><strong>{t("clients.previewChanges")}:</strong> <code>{factoryPreview.changes.join(", ")}</code></div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {(client.id === "zcode" || client.id === "generic") && (
+              <div className="stack" style={{ gap: 8 }}>
+                <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                  <button className="btn btn-primary" onClick={() => void loadGuide()} disabled={busy !== null}>{t("clients.openGuide")}</button>
+                  {guide && <button className="btn btn-ghost" onClick={() => void copyGuide()}>{t("clients.copyGuide")}</button>}
+                </div>
+                {guide && (
+                  <div className="notice notice-ok text-label">
+                    <div><strong>{t("clients.guideBaseUrl")}:</strong> <code>{guide.baseUrl}</code></div>
+                    <div><strong>{t("clients.guideModel")}:</strong> <code>{guide.model}</code></div>
+                    <details style={{ marginTop: 8 }}>
+                      <summary>{t("clients.guideSteps")}</summary>
+                      <ol style={{ margin: "8px 0 0 18px" }}>
+                        <li>{t("clients.guideStepOne")}</li>
+                        <li>{t("clients.guideStepTwo")}</li>
+                        <li>{t("clients.guideStepThree")}</li>
+                      </ol>
+                    </details>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
         ))}
       </div>
