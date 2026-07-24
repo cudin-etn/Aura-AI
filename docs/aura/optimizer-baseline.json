@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "mode": "unoptimized",
+  "tasks": [
+    {
+      "id": "trivial-doc-label",
+      "class": "trivial",
+      "chars": 96,
+      "estimatedTokens": 24,
+      "outputChars": 96,
+      "outputEstimatedTokens": 24,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "trivial-null-guard",
+      "class": "trivial",
+      "chars": 113,
+      "estimatedTokens": 29,
+      "outputChars": 113,
+      "outputEstimatedTokens": 29,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "routine-provider-preset",
+      "class": "routine",
+      "chars": 121,
+      "estimatedTokens": 31,
+      "outputChars": 121,
+      "outputEstimatedTokens": 31,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "routine-client-restore",
+      "class": "routine",
+      "chars": 109,
+      "estimatedTokens": 28,
+      "outputChars": 109,
+      "outputEstimatedTokens": 28,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "debug-stream-parameter",
+      "class": "debugging",
+      "chars": 123,
+      "estimatedTokens": 31,
+      "outputChars": 123,
+      "outputEstimatedTokens": 31,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "debug-retry-accounting",
+      "class": "debugging",
+      "chars": 142,
+      "estimatedTokens": 36,
+      "outputChars": 142,
+      "outputEstimatedTokens": 36,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "architecture-client-boundary",
+      "class": "architecture",
+      "chars": 127,
+      "estimatedTokens": 32,
+      "outputChars": 127,
+      "outputEstimatedTokens": 32,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "architecture-routing-policy",
+      "class": "architecture",
+      "chars": 118,
+      "estimatedTokens": 30,
+      "outputChars": 118,
+      "outputEstimatedTokens": 30,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "security-config-restore",
+      "class": "security",
+      "chars": 122,
+      "estimatedTokens": 31,
+      "outputChars": 122,
+      "outputEstimatedTokens": 31,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "security-local-api",
+      "class": "security",
+      "chars": 107,
+      "estimatedTokens": 27,
+      "outputChars": 107,
+      "outputEstimatedTokens": 27,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "large-repo-cross-cutting",
+      "class": "large_repository",
+      "chars": 159,
+      "estimatedTokens": 40,
+      "outputChars": 159,
+      "outputEstimatedTokens": 40,
+      "savedTokens": 0,
+      "byteIdentical": true
+    },
+    {
+      "id": "large-repo-migration",
+      "class": "large_repository",
+      "chars": 133,
+      "estimatedTokens": 34,
+      "outputChars": 133,
+      "outputEstimatedTokens": 34,
+      "savedTokens": 0,
+      "byteIdentical": true
+    }
+  ],
+  "totals": {
+    "chars": 1470,
+    "estimatedTokens": 373,
+    "savedTokens": 0
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "trivial-doc-label",
+      "class": "trivial",
+      "description": "Correct one visible label without changing behavior.",
+      "fixture": "Button label: Conect provider\\nExpected label: Connect provider\\nDo not alter the click handler.",
+      "requiredChecks": ["label-correct", "handler-unchanged"]
+    },
+    {
+      "id": "trivial-null-guard",
+      "class": "trivial",
+      "description": "Add a local null guard with a focused test.",
+      "fixture": "export function label(model?: Model) { return model.name.trim(); }\\nFailure: Cannot read properties of undefined.",
+      "requiredChecks": ["null-safe", "focused-test"],
+      "protectedContent": ["source", "stack_trace"]
+    },
+    {
+      "id": "routine-provider-preset",
+      "class": "routine",
+      "description": "Add a provider preset while preserving custom-provider behavior.",
+      "fixture": "Preset fields: adapter, baseUrl, auth mode, discovery mode. Existing custom presets must remain byte-for-byte compatible.",
+      "requiredChecks": ["preset-discoverable", "custom-compatible", "secret-safe"]
+    },
+    {
+      "id": "routine-client-restore",
+      "class": "routine",
+      "description": "Apply and restore a client configuration transaction.",
+      "fixture": "Preview changed paths, back up original bytes, write atomically, verify, and refuse restore after user edits.",
+      "requiredChecks": ["preview", "atomic-apply", "guarded-restore"],
+      "protectedContent": ["source"]
+    },
+    {
+      "id": "debug-stream-parameter",
+      "class": "debugging",
+      "description": "Diagnose a stateful stream compatibility failure.",
+      "fixture": "Attempt 1: 200 response.completed. Attempt 2: 400 invalid_request_error Unknown parameter: stream. Direct request succeeds.",
+      "requiredChecks": ["reproduced", "layer-identified", "regression-test"],
+      "protectedContent": ["stack_trace"]
+    },
+    {
+      "id": "debug-retry-accounting",
+      "class": "debugging",
+      "description": "Fix duplicate token accounting across retries.",
+      "fixture": "Logical request has two physical attempts. Attempt one reports 100 input tokens and fails; attempt two reports 120 input and 20 output tokens.",
+      "requiredChecks": ["attempts-preserved", "logical-total-defined", "no-double-count"]
+    },
+    {
+      "id": "architecture-client-boundary",
+      "class": "architecture",
+      "description": "Extract a client adapter without duplicating protocol code.",
+      "fixture": "Codex uses Responses, Claude Code uses Messages, OpenCode consumes an OpenAI-compatible endpoint. Existing handlers are mature.",
+      "requiredChecks": ["registry-boundary", "behavior-preserved", "adapter-tested"]
+    },
+    {
+      "id": "architecture-routing-policy",
+      "class": "architecture",
+      "description": "Compile role profiles into existing routing controls.",
+      "fixture": "Roles: orchestrator explorer worker reviewer tester docs. Profiles must remain deterministic and manually overridable.",
+      "requiredChecks": ["roles-complete", "deterministic", "manual-override", "route-trace"]
+    },
+    {
+      "id": "security-config-restore",
+      "class": "security",
+      "description": "Prevent a restore operation from overwriting later user edits.",
+      "fixture": "Applied hash differs from current file hash. Backup path may be attacker-controlled. Existing config can contain API keys.",
+      "requiredChecks": ["hash-guard", "path-guard", "no-secret-log"],
+      "protectedContent": ["security", "source"]
+    },
+    {
+      "id": "security-local-api",
+      "class": "security",
+      "description": "Verify local API origin and authentication boundaries.",
+      "fixture": "Requests may arrive with hostile Origin and Host headers. Non-loopback binding requires an admission token.",
+      "requiredChecks": ["origin-rejected", "host-validated", "remote-auth-required"],
+      "protectedContent": ["security"]
+    },
+    {
+      "id": "large-repo-cross-cutting",
+      "class": "large_repository",
+      "description": "Change routing metadata across runtime, persistence, API, and GUI.",
+      "fixture": "Update shared types, request logging, JSONL projection, management API, GUI detail view, locale files, and regression tests without editing generated metadata.",
+      "requiredChecks": ["runtime", "persistence", "gui", "locales", "full-tests"],
+      "protectedContent": ["source"]
+    },
+    {
+      "id": "large-repo-migration",
+      "class": "large_repository",
+      "description": "Ship a backward-compatible configuration migration.",
+      "fixture": "Old configs omit the new section. New writes must be atomic. Downgrade must not destroy unknown keys. Windows and macOS paths differ.",
+      "requiredChecks": ["old-config-loads", "unknown-keys-preserved", "atomic-write", "cross-platform"],
+      "protectedContent": ["migration", "source"]
+    }
+  ]
+}
+

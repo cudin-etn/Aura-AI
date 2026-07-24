@@ -171,7 +171,7 @@ Priority:
 
 ## M5 — Token Optimizer
 
-- [ ] `OPT-001` P0 Establish unoptimized benchmark baselines before enabling any
+- [x] `OPT-001` P0 Establish unoptimized benchmark baselines before enabling any
   transformation.
   - Depends on: `OBS-003`, `EVAL-001`.
 
@@ -196,10 +196,10 @@ Priority:
 
 ## M6 — Evaluation and Release
 
-- [ ] `EVAL-001` P0 Define a representative benchmark corpus with trivial,
+- [x] `EVAL-001` P0 Define a representative benchmark corpus with trivial,
   routine, debugging, architecture, security, and large-repository tasks.
 
-- [ ] `EVAL-002` P0 Implement repeatable task scoring and verification.
+- [x] `EVAL-002` P0 Implement repeatable task scoring and verification.
   - Depends on: `EVAL-001`, `OBS-003`.
 
 - [ ] `EVAL-003` P0 Compare always-Sol, Saver, Balanced, and Quality using cost
@@ -282,3 +282,10 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   and reported-token budgets fail closed and are visible with each profile.
 - M4 is complete. Next: establish the unoptimized benchmark baseline before
   enabling token transformations in M5.
+- `EVAL-001`, `EVAL-002`, and `OPT-001`: complete; see
+  `docs/aura/benchmarking.md` and `docs/aura/optimizer-baseline.json`. The
+  corpus covers all six required task classes, scoring fails on incomplete
+  strategy coverage, and the frozen unoptimized baseline is byte-identical
+  with zero claimed savings.
+- Next: implement protected repeated-output deduplication and bounded log
+  reduction, then run live always-Sol/profile comparisons for `EVAL-003`.
