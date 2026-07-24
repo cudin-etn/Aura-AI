@@ -38,7 +38,7 @@ type Config = {
   providers: Record<string, { disabled?: boolean }>;
 };
 
-type WizardClient = "codex" | "claude-code" | "opencode";
+type WizardClient = "codex" | "claude-code" | "opencode" | "factory" | "zcode" | "generic";
 const WIZARD_DONE_KEY = "aura-setup-complete";
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -209,6 +209,14 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
         });
         const clientBody = await clientResponse.json() as { error?: string };
         if (!clientResponse.ok) throw new Error(clientBody.error || t("aura.actionFail"));
+      } else if (wizardClient === "factory") {
+        const clientResponse = await fetch(`${apiBase}/api/aura/clients/factory`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ model: effectiveWizardModel }),
+        });
+        const clientBody = await clientResponse.json() as { error?: string };
+        if (!clientResponse.ok) throw new Error(clientBody.error || t("aura.actionFail"));
       } else if (wizardClient === "claude-code") {
         const clientResponse = await fetch(`${apiBase}/api/claude-code`, {
           method: "PUT",
@@ -325,9 +333,13 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
           <div className="stack" style={{ gap: 10 }}>
             <div className="text-label">{t("wizard.client")}</div>
             <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-              {(["codex", "claude-code", "opencode"] as const).map(client => (
+              {(["codex", "claude-code", "opencode", "factory", "zcode", "generic"] as const).map(client => (
                 <button type="button" key={client} className={`btn ${wizardClient === client ? "btn-primary" : "btn-ghost"}`} onClick={() => setWizardClient(client)}>
-                  {client === "codex" ? "Codex" : client === "claude-code" ? "Claude Code" : "OpenCode"}
+                  {client === "codex" ? "Codex"
+                    : client === "claude-code" ? "Claude Code"
+                      : client === "opencode" ? "OpenCode"
+                        : client === "factory" ? "Factory Droid"
+                          : client === "zcode" ? "ZCode" : "Other AI agent"}
                 </button>
               ))}
             </div>
@@ -352,6 +364,7 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
               </div>
             </div>
             <Notice tone="ok">{t("wizard.reviewHint")}</Notice>
+            {(wizardClient === "zcode" || wizardClient === "generic") && <Notice tone="ok">{t("wizard.manualClientHint")}</Notice>}
             <div className="row" style={{ gap: 8 }}>
               <button type="button" className="btn btn-ghost" onClick={() => setWizardStep(2)}>{t("wizard.back")}</button>
               <button type="button" className="btn btn-primary" onClick={() => void applyWizard()} disabled={!!busy}>{t("wizard.apply")}</button>
@@ -360,7 +373,11 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
         )}
           </div>
           <AuraRoutePreview
-            client={wizardClient === "claude-code" ? "Claude Code" : wizardClient === "opencode" ? "OpenCode" : "Codex"}
+            client={wizardClient === "claude-code" ? "Claude Code"
+              : wizardClient === "opencode" ? "OpenCode"
+                : wizardClient === "factory" ? "Factory Droid"
+                  : wizardClient === "zcode" ? "ZCode"
+                    : wizardClient === "generic" ? "Other AI agent" : "Codex"}
             provider={wizardProvider}
             model={effectiveWizardModel}
             profile={wizardProfile}

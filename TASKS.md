@@ -111,6 +111,11 @@ Priority:
   controls from Aura Setup.
   - Depends on: `OPT-002` through `OPT-005`, `GUI-006`.
 
+- [x] `ONB-002` P1 Include Factory Droid, ZCode, and generic compatible
+  agents in the Quick Setup Wizard, with auto-apply or explicit manual-guide
+  handoff.
+  - Depends on: `CLT-005` through `CLT-007`, `ONB-001`.
+
 ## M2.5 — Aura UX Foundation
 
 - [x] `UX-001` P0 Define product personality, information architecture, and
@@ -296,6 +301,8 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
 - `CAP-001` and `CAP-002`: complete. Aura Setup now exposes a truthful
   capability matrix and Lite/Full/Ultra Token Saver controls backed by the
   existing measured optimizer.
+- `ONB-002`: complete. Quick Setup now covers all supported client paths and
+  clearly separates automatic configuration from manual completion.
 - `UX-001` through `UX-007`: complete; see `docs/aura/ux-foundation.md`. The
   five-area shell preserves legacy hashes, adds persistent Focus/Canvas
   workspaces, icon pill navigation, a visually guided setup/profile/optimizer

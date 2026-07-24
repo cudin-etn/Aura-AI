@@ -112,6 +112,7 @@ export const vi = {
   "wizard.continue": "Tiếp tục",
   "wizard.back": "Quay lại",
   "wizard.reviewHint": "Aura sẽ áp dụng hồ sơ đã chọn và dùng mô hình này để điều phối.",
+  "wizard.manualClientHint": "Aura sẽ lưu hồ sơ trước. Sau khi áp dụng, hãy hoàn tất kết nối ứng dụng theo hướng dẫn.",
   "wizard.apply": "Áp dụng thiết lập",
   "wizard.applied": "Đã áp dụng thiết lập Aura.",
   "wizard.readyTitle": "Aura đã sẵn sàng",

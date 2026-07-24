@@ -9,6 +9,8 @@ export type AuraCapability = {
 };
 
 export const AURA_CAPABILITIES: AuraCapability[] = [
+  { id: "model-discovery", label: "Model discovery", status: "available", endpoint: "/v1/models", note: "Discover normalized models from configured providers." },
+  { id: "fallback-combos", label: "Provider fallback combos", status: "available", endpoint: "/api/combos", note: "Route through ordered targets with cooldown and failover controls." },
   { id: "chat", label: "Chat & code generation", status: "available", endpoint: "/v1/chat/completions", note: "OpenAI Chat Completions, Responses, and Anthropic Messages are available." },
   { id: "image", label: "Image generation", status: "available", endpoint: "/v1/images/generations", note: "Relayed through a configured OpenAI-compatible image provider." },
   { id: "vision", label: "Vision input", status: "partial", endpoint: "/v1/chat/completions", note: "Use image content with a model that declares vision support." },

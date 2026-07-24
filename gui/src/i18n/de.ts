@@ -1263,6 +1263,7 @@ export const de = {
   "aura.tokenSaver.full": "Full",
   "aura.tokenSaver.ultra": "Ultra",
   "aura.optimizerSaved": "Token Saver settings saved.",
+  "wizard.manualClientHint": "Aura will save the profile now. Finish the client connection from the guided setup instructions after applying.",
   "clients.guideAuraBaseUrl": "Aura base URL",
   "clients.guideResponses": "Responses",
   "clients.guideChatCompletions": "Chat Completions",

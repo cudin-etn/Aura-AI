@@ -112,6 +112,7 @@ export const en = {
   "wizard.continue": "Continue",
   "wizard.back": "Back",
   "wizard.reviewHint": "Aura will apply the selected profile and use this model for orchestration.",
+  "wizard.manualClientHint": "Aura will save the profile now. Finish the client connection from the guided setup instructions after applying.",
   "wizard.apply": "Apply setup",
   "wizard.applied": "Aura setup applied.",
   "wizard.readyTitle": "Aura is ready",

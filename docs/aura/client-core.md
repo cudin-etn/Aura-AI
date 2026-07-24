@@ -72,14 +72,17 @@ Aura Setup provides a four-step onboarding path:
    test;
 2. select a model, narrowed to the selected provider when namespaced models
    are available;
-3. choose Codex, Claude Code, or OpenCode;
+3. choose Codex, Claude Code, OpenCode, Factory Droid, ZCode, or a generic
+   compatible agent;
 4. review the provider, model, client, and routing profile before applying.
 
 Apply compiles the selected model into the orchestrator role. OpenCode and
-Claude Code additionally use their guarded client adapters; Codex already
+Factory Droid additionally use their guarded client adapters; Codex already
 consumes Aura's local Responses catalog and needs no separate client-file
-write. The original advanced provider, role, and client controls remain
-available below the wizard.
+write. Claude Code is enabled through its inbound settings. ZCode and generic
+agents receive an explicit manual-guide handoff because their local settings
+surface is not safely machine-editable. The original advanced provider, role,
+and client controls remain available below the wizard.
 
 ## ZCode and generic compatibility guide
 
