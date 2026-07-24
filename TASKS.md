@@ -136,6 +136,10 @@ Priority:
   diagnostics views.
   - Depends on: `CFG-001`, `OBS-002`.
 
+- [x] `ONB-001` P1 Build a unified provider, model, client, and routing-profile
+  setup wizard with connection testing and a final review step.
+  - Depends on: `GUI-001` through `GUI-004`.
+
 ## M4 — Smart Profiles and Routing
 
 - [x] `POL-001` P0 Define universal roles and model capability requirements.
@@ -262,10 +266,12 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   guarded restore. Provider model views expose declared protocol/capability
   metadata and a live discovery probe; Routing exposes profile and per-role
   model assignment.
-- `GUI-003` and `GUI-004`: complete. Setup → Clients now shows Codex,
+- `GUI-003`, `GUI-004`, and `ONB-001`: complete. Setup → Clients now shows Codex,
   Claude Code, OpenCode, and ZCode maturity/connection state; exposes Claude
   connection and advanced settings; and provides OpenCode model selection,
-  sanitized changed-path preview, guarded apply, and restore.
+  sanitized changed-path preview, guarded apply, and restore. Aura Setup adds
+  a four-step provider/model/client/profile wizard with provider-aware model
+  selection, connection testing, and a non-mutating review step.
 - M3 is complete. Next: finish the remaining smart-routing policy in M4.
 - `POL-001` through `POL-004` and `POL-006`: complete; see
   `docs/aura/smart-routing.md`. Aura reuses bounded account affinity, key
