@@ -104,6 +104,18 @@ Priority:
 - [x] `UX-004` P1 Verify responsive navigation, keyboard focus, all locales,
   and representative legacy pages.
 
+- [x] `UX-005` P1 Add selectable Focus and Canvas workspace layouts.
+  - Done when: Focus preserves a readable single-column flow, Canvas expands
+    cards responsively, both persist, and neither creates mobile overflow.
+
+- [x] `UX-006` P1 Move contextual navigation into icon-labelled pill controls
+  and place page content on a rounded elevated workspace surface.
+
+- [x] `UX-007` P1 Complete Vietnamese coverage and add functional routing,
+  profile, and token-saving visuals with reduced-motion support.
+  - Done when: every English key has a Vietnamese value with matching
+    placeholders and the locale cannot silently fall back to English.
+
 ## M3 — Provider and Client GUI
 
 - [x] `PRV-001` P0 Define the generic provider/account/model configuration
@@ -253,12 +265,13 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   `docs/aura/observability.md`, `docs/aura/compatibility.md`, and the sanitized
   live report in `docs/aura/gpt56-9router-compat.json`.
 - `CORE-001` through `CLT-004`: complete; see
-  `docs/aura/client-core.md`. The isolated full regression gate passes 3,813
+  `docs/aura/client-core.md`. The isolated full regression gate passes 3,842
   tests, and Aura Setup exposes the client registry without changing the
   inherited Codex and Claude protocol behavior.
-- `UX-001` through `UX-004`: complete; see `docs/aura/ux-foundation.md`. The
-  five-area shell preserves legacy hashes, passes locale lint, and has desktop
-  and mobile browser verification for Setup and Routing.
+- `UX-001` through `UX-007`: complete; see `docs/aura/ux-foundation.md`. The
+  five-area shell preserves legacy hashes, adds persistent Focus/Canvas
+  workspaces, icon pill navigation, a visually guided setup/profile/optimizer
+  flow, complete Vietnamese coverage, and desktop/mobile browser verification.
 - `PRV-001` through `PRV-003`, `CFG-001`, `GUI-001`, and `GUI-002`: complete; see
   `docs/aura/provider-core.md`. Aura reuses the normalized provider registry,
   adds a first-class 9router preset with synthetic GPT-5.6 compact, and protects

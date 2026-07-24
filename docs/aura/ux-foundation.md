@@ -23,7 +23,7 @@ the mobile advertisement layout.
 - Typography: strong geometric headings, highly legible UI text, monospace
   reserved for model ids, metrics, logs, and commands.
 - Motion: short, functional transitions; no decorative motion in data-heavy
-  workflows.
+  workflows; honor `prefers-reduced-motion`.
 
 ## Information architecture
 
@@ -41,6 +41,40 @@ and deep links continue to work.
 The sidebar shows only the five areas. A contextual navigation row exposes the
 pages inside the active area. This keeps advanced controls discoverable without
 turning the global navigation into a long inventory of implementation details.
+The sidebar shares the application background while the active page sits on a
+rounded, lightly elevated workspace panel. Contextual pages use icon-labelled
+pill controls instead of an unstructured row of text links.
+
+## Workspace layouts
+
+- **Focus** constrains the page to a readable 980 px single-column flow.
+- **Canvas** expands to 1480 px and lets compatible grids form multiple columns.
+- The choice is stored locally and applies immediately.
+- Narrow windows collapse both layouts to one column, remove the desktop panel
+  radius, keep contextual pills horizontally reachable, and avoid page-level
+  horizontal overflow.
+
+The two layouts intentionally share the same components and actions. They are
+presentation choices, not divergent product skins.
+
+## Guided visuals
+
+- Setup previews the route from coding client through Aura to model/provider
+  and collapses to a compact ready state after successful onboarding.
+- Routing profiles show the efficiency, quality, autonomy, concurrency, and
+  token-budget consequences of a selection.
+- Insights compares tokens before and after optimization and shows the measured
+  saving rate.
+
+These visuals explain actual settings and measurements. They do not imply model
+quality or savings that have not been benchmarked.
+
+## Localization
+
+Aura ships complete Vietnamese coverage alongside English, German, Japanese,
+Korean, Russian, and Chinese. A regression test enforces exact key parity and
+placeholder preservation and prevents Vietnamese from silently importing the
+English dictionary as a fallback.
 
 ## Visual tokens
 

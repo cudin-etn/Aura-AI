@@ -6,7 +6,7 @@ Date: 2026-07-24
 
 - complete TypeScript and GUI typecheck;
 - full Bun test suite;
-- GUI lint and six-locale parity;
+- GUI lint and seven-locale parity, including complete Vietnamese coverage;
 - production GUI/package preparation;
 - credential/privacy scan;
 - npm package dry-run;
@@ -47,4 +47,3 @@ Before the first independent Aura release:
 - `REL-001`/`REL-004`: no exact-SHA public CI evidence;
 - independent package identifiers cannot be verified until repository and npm
   names are owned.
-

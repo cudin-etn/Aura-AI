@@ -261,9 +261,15 @@ Exit: Codex and Claude Code still pass the baseline through explicit adapters.
 Define Aura's product personality and five-area information architecture, then
 replace the inherited long-form navigation with a light-first application shell
 and contextual page navigation. Preserve existing routes and functionality.
+Offer a readable single-column Focus layout and a responsive multi-column
+Canvas layout so users can choose density without maintaining separate apps.
+Use functional motion and small route/profile/token visuals to explain state;
+respect reduced-motion preferences and never animate decoration at the expense
+of data clarity.
 
 Exit: Home, Setup, Routing, Insights, and Settings organize every inherited
-surface without breaking deep links, responsive navigation, or accessibility.
+surface without breaking deep links, responsive navigation, localization, or
+accessibility.
 
 ### M3 — Provider and Client GUI
 
