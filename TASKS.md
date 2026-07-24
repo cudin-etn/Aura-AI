@@ -138,23 +138,23 @@ Priority:
 
 ## M4 — Smart Profiles and Routing
 
-- [ ] `POL-001` P0 Define universal roles and model capability requirements.
+- [x] `POL-001` P0 Define universal roles and model capability requirements.
 
-- [ ] `POL-002` P1 Implement Saver, Balanced, and Quality profile schemas.
+- [x] `POL-002` P1 Implement Saver, Balanced, and Quality profile schemas.
   - Depends on: `POL-001`.
 
-- [ ] `POL-003` P0 Implement sticky parent model and account affinity per
+- [x] `POL-003` P0 Implement sticky parent model and account affinity per
   thread.
   - Depends on: `OBS-002`.
 
-- [ ] `POL-004` P1 Implement role-based subagent model selection.
+- [x] `POL-004` P1 Implement role-based subagent model selection.
   - Depends on: `POL-001`, `POL-003`.
 
 - [ ] `POL-005` P1 Implement deterministic escalation after defined risk or
   verification signals.
   - Depends on: `POL-004`.
 
-- [ ] `POL-006` P1 Implement safe retry, same-model account failover, circuit
+- [x] `POL-006` P1 Implement safe retry, same-model account failover, circuit
   breaker, and compatible fallback.
   - Depends on: `PRV-003`, `POL-003`.
 
@@ -267,3 +267,9 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   connection and advanced settings; and provides OpenCode model selection,
   sanitized changed-path preview, guarded apply, and restore.
 - M3 is complete. Next: finish the remaining smart-routing policy in M4.
+- `POL-001` through `POL-004` and `POL-006`: complete; see
+  `docs/aura/smart-routing.md`. Aura reuses bounded account affinity, key
+  failover, combo cooldown/circuit behavior, and concurrency controls while
+  compiling universal roles and profiles into the existing subagent surfaces.
+- Next: deterministic runtime escalation (`POL-005`), per-task budgets
+  (`POL-007`), and the remaining controls in `GUI-005`.

@@ -93,6 +93,11 @@ interface LogAttempt {
 
 interface LogEntry {
   requestId?: string;
+  auraClient?: "codex" | "claude-code" | "opencode" | "zcode";
+  auraProtocol?: "responses" | "chat-completions" | "messages";
+  auraProfile?: "saver" | "balanced" | "quality";
+  auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
+  auraRouteReason?: "profile_match" | "manual_override";
   timestamp: number;
   model: string;
   provider: string;
@@ -584,6 +589,10 @@ function LogDetailDialog({
             </span>
             <span className="muted">{t("logs.col.model")}</span><span className="mono">{modelLabel(detail.resolvedModel ?? detail.model)}</span>
             <span className="muted">{t("logs.col.provider")}</span><span>{detail.provider}</span>
+            {detail.auraClient && (<><span className="muted">{t("logs.detail.auraClient")}</span><span className="mono">{detail.auraClient} / {detail.auraProtocol ?? "\u2014"}</span></>)}
+            {detail.auraProfile && (<><span className="muted">{t("logs.detail.auraProfile")}</span><span className="mono">{detail.auraProfile}</span></>)}
+            {detail.auraRole && (<><span className="muted">{t("logs.detail.auraRole")}</span><span className="mono">{detail.auraRole}</span></>)}
+            {detail.auraRouteReason && (<><span className="muted">{t("logs.detail.auraReason")}</span><span className="mono">{detail.auraRouteReason}</span></>)}
             {detail.errorCode && (<><span className="muted">{t("logs.col.error")}</span><span className="mono">{detail.errorCode}</span></>)}
             {detail.upstreamError && (<><span className="muted">{t("logs.col.upstreamReason")}</span><span className="mono log-detail-break">{detail.upstreamError}</span></>)}
           </div>

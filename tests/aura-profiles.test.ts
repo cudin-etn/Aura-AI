@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   applyAuraProfile,
+  AURA_ROLE_REQUIREMENTS,
   auraRouteMetadata,
   buildAuraProfile,
   inferAuraRole,
@@ -25,6 +26,19 @@ function config(): OcxConfig {
 }
 
 describe("Aura profiles", () => {
+  test("defines conservative capability requirements for every universal role", () => {
+    expect(Object.keys(AURA_ROLE_REQUIREMENTS)).toEqual([
+      "orchestrator", "explorer", "worker", "reviewer", "tester", "docs",
+    ]);
+    expect(AURA_ROLE_REQUIREMENTS.reviewer).toEqual({
+      minTier: "sol",
+      reasoning: "high",
+      tools: true,
+      vision: "optional",
+    });
+    expect(AURA_ROLE_REQUIREMENTS.docs.tools).toBe(false);
+  });
+
   test("Balanced uses Terra for parent/work, Luna for exploration, and Sol for review", () => {
     const profile = buildAuraProfile("balanced", models);
     expect(profile.roles).toMatchObject({

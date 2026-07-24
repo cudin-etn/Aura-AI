@@ -6,6 +6,23 @@ export type AuraProfileId = typeof AURA_PROFILE_IDS[number];
 export const AURA_ROLES = ["orchestrator", "explorer", "worker", "reviewer", "tester", "docs"] as const;
 export type AuraRole = typeof AURA_ROLES[number];
 
+export type AuraRoleRequirement = {
+  minTier: "luna" | "terra" | "sol";
+  reasoning: "low" | "medium" | "high";
+  tools: boolean;
+  vision: "optional" | "required";
+};
+
+/** Minimum conservative capability contract used by profile defaults and the GUI. */
+export const AURA_ROLE_REQUIREMENTS: Record<AuraRole, AuraRoleRequirement> = {
+  orchestrator: { minTier: "terra", reasoning: "medium", tools: true, vision: "optional" },
+  explorer: { minTier: "luna", reasoning: "low", tools: true, vision: "optional" },
+  worker: { minTier: "luna", reasoning: "low", tools: true, vision: "optional" },
+  reviewer: { minTier: "sol", reasoning: "high", tools: true, vision: "optional" },
+  tester: { minTier: "terra", reasoning: "low", tools: true, vision: "optional" },
+  docs: { minTier: "luna", reasoning: "low", tools: false, vision: "optional" },
+};
+
 export type AuraRoleAssignment = {
   model: string;
   effort: "low" | "medium" | "high" | "xhigh" | "max" | "ultra";
@@ -120,4 +137,3 @@ export function auraRouteMetadata(
     reason: assigned === requestedModel ? "profile_match" : "manual_override",
   };
 }
-
