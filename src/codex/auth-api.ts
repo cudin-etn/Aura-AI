@@ -663,7 +663,21 @@ export async function handleCodexAuthAPI(
         let completed = false;
         for (let i = 0; i < 150; i++) {
           await new Promise(r => setTimeout(r, 2000));
+          const ownFlow = codexAuthLoginState.get(flowId);
+          if (!ownFlow || ownFlow.status !== "pending") {
+            completed = true;
+            break;
+          }
           const st = getLoginStatus("chatgpt");
+          if (!st) {
+            codexAuthLoginState.set(flowId, {
+              status: "error",
+              error: "OAuth login state expired. Please start again.",
+              doneAt: Date.now(),
+            });
+            completed = true;
+            break;
+          }
           if (st.done && st.loggedIn) {
             const { getCredential } = await import("../oauth/store");
             const cred = getCredential("chatgpt");

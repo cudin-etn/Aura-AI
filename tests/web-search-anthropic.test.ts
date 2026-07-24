@@ -1,9 +1,4 @@
-import { afterEach, describe, expect, mock, test } from "bun:test";
-import * as oauthModule from "../src/oauth";
-
-// Stub the stored-OAuth token fetch so the anthropic executor request-shape test is deterministic
-// and never touches the real credential store or network (mirrors tests/destination-policy-resolved).
-mock.module("../src/oauth", () => ({ ...oauthModule, getValidAccessToken: async () => "test-token-xyz" }));
+import { afterEach, describe, expect, test } from "bun:test";
 
 import { parseRequest } from "../src/responses/parser";
 import {
@@ -187,6 +182,8 @@ describe("runAnthropicWebSearch request shape", () => {
       "anthropic",
       anthropicProvider,
       { model: "claude-sonnet-5", reasoning: "low", timeoutMs: 5000, describeImages: false },
+      undefined,
+      { getAccessToken: async () => "test-token-xyz" },
     );
     expect(out.error).toBeUndefined();
     expect(out.text).toBe("ok");

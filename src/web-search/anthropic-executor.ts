@@ -119,12 +119,15 @@ export async function runAnthropicWebSearch(
   provider: OcxProviderConfig,
   settings: SidecarSettings,
   abortSignal?: AbortSignal,
+  dependencies: {
+    getAccessToken?: typeof getValidAccessToken;
+  } = {},
 ): Promise<SidecarOutcome> {
   const base = provider.baseUrl.replace(/\/v1\/?$/, "");
   const url = `${base}/v1/messages`;
   let token: string;
   try {
-    token = await getValidAccessToken(providerName);
+    token = await (dependencies.getAccessToken ?? getValidAccessToken)(providerName);
   } catch (e) {
     return { text: "", sources: [], error: `anthropic sidecar auth failed: ${e instanceof Error ? e.message : String(e)}` };
   }
