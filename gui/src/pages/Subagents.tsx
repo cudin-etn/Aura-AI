@@ -4,6 +4,7 @@ import { IconArrowUp, IconArrowDown, IconX, IconCheck, IconSearch, IconBot, Icon
 import { useT } from "../i18n/shared";
 import { Trans } from "../i18n/provider";
 import { modelLabel } from "../model-display";
+import { AuraProfileVisual } from "../components/AuraVisuals";
 
 type AuraProfileId = "saver" | "balanced" | "quality";
 type AuraRole = "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
@@ -151,6 +152,8 @@ export default function Subagents({ apiBase }: { apiBase: string }) {
         <section className="card" style={{ padding: 16, marginBottom: 18 }}>
           <div className="h-section" style={{ marginTop: 0 }}>{t("sub.auraTitle")}</div>
           <p className="muted leading-body">{t("sub.auraSubtitle")}</p>
+          <div className="aura-profile-overview">
+            <div>
           <div className="row" style={{ gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
             {aura.profiles.map(profile => (
               <button
@@ -174,6 +177,13 @@ export default function Subagents({ apiBase }: { apiBase: string }) {
               tokens: aura.profile.tokenBudgetPerTask.toLocaleString(),
             })}
           </p>
+            </div>
+            <AuraProfileVisual
+              profile={aura.activeProfile}
+              maxSubagents={aura.profile.maxSubagents}
+              tokenBudget={aura.profile.tokenBudgetPerTask}
+            />
+          </div>
           <div className="stack" style={{ gap: 8, marginTop: 12 }}>
             {aura.roles.map(role => (
               <div key={role} className="row" style={{ gap: 10, alignItems: "center" }}>

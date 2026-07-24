@@ -1,18 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import Dashboard from "./pages/Dashboard";
-import Providers from "./pages/Providers";
-import Models from "./pages/Models";
-import Combos from "./pages/Combos";
-import Subagents from "./pages/Subagents";
-import Logs from "./pages/Logs";
-import Usage from "./pages/Usage";
-import Storage from "./pages/Storage";
-import CodexAuth from "./pages/CodexAuth";
-import ApiKeys from "./pages/ApiKeys";
-import Clients from "./pages/Clients";
-import Startup from "./pages/Startup";
-import AuraSetup from "./pages/AuraSetup";
-import Appearance, { type LayoutSkin } from "./pages/Appearance";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import type { LayoutSkin } from "./pages/Appearance";
 import ErrorBoundary from "./components/ErrorBoundary";
 import {
   IconGrid, IconServer, IconBot, IconActivity, IconGithub, IconMenu, IconSun,
@@ -24,6 +11,21 @@ import { Select } from "./ui";
 import { installApiAuthFetch } from "./api";
 
 installApiAuthFetch();
+
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Providers = lazy(() => import("./pages/Providers"));
+const Models = lazy(() => import("./pages/Models"));
+const Combos = lazy(() => import("./pages/Combos"));
+const Subagents = lazy(() => import("./pages/Subagents"));
+const Logs = lazy(() => import("./pages/Logs"));
+const Usage = lazy(() => import("./pages/Usage"));
+const Storage = lazy(() => import("./pages/Storage"));
+const CodexAuth = lazy(() => import("./pages/CodexAuth"));
+const ApiKeys = lazy(() => import("./pages/ApiKeys"));
+const Clients = lazy(() => import("./pages/Clients"));
+const Startup = lazy(() => import("./pages/Startup"));
+const AuraSetup = lazy(() => import("./pages/AuraSetup"));
+const Appearance = lazy(() => import("./pages/Appearance"));
 
 type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude" | "appearance";
 type Section = "home" | "setup" | "routing" | "insights" | "settings";
@@ -462,6 +464,7 @@ export default function App() {
             detailsLabel={t("errorBoundary.details")}
             reloadLabel={t("errorBoundary.reload")}
           >
+            <Suspense fallback={<div className="page-loading"><span className="spin" />{t("common.loading")}</div>}>
             {page === "dashboard" && <Dashboard apiBase={API_BASE} />}
             {page === "aura" && <AuraSetup apiBase={API_BASE} />}
             {page === "startup" && <Startup apiBase={API_BASE} />}
@@ -476,6 +479,7 @@ export default function App() {
             {page === "api" && <ApiKeys apiBase={API_BASE} />}
             {page === "claude" && <Clients apiBase={API_BASE} />}
             {page === "appearance" && <Appearance layoutSkin={layoutSkin} onLayoutSkinChange={setLayoutSkin} />}
+            </Suspense>
           </ErrorBoundary>
         </div>
       </main>

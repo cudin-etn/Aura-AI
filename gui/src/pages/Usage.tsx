@@ -279,6 +279,9 @@ function UsageSummaryCards({
   locale: Locale;
   t: TFn;
 }) {
+  const savedTokens = summary.optimizerSavedTokens ?? 0;
+  const beforeOptimization = summary.totalTokens + savedTokens;
+  const savingRate = beforeOptimization > 0 ? Math.min(100, Math.round((savedTokens / beforeOptimization) * 100)) : 0;
   return (
     <>
     <div className="usage-cards usage-cards-3x2" role="group" aria-label={t("usage.title")}>
@@ -311,17 +314,29 @@ function UsageSummaryCards({
           )}
         </div>
       )}
-      <div className="usage-cost-row" role="note">
-        <span className="muted">{t("usage.optimizer.status")}</span>
-        <span className="stat-value mono usage-cost-value">
-          {optimizer.enabled ? t("usage.optimizer.enabled") : t("usage.optimizer.disabled")}
-        </span>
-        <span className="muted text-caption">
-          {t("usage.optimizer.saved", {
-            tokens: formatTokens(summary.optimizerSavedTokens ?? 0, locale),
-            actions: summary.optimizerActions ?? 0,
-          })}
-        </span>
+      <div className={`optimizer-visual${optimizer.enabled ? " enabled" : ""}`} role="note">
+        <div
+          className="optimizer-ring"
+          style={{ background: `conic-gradient(var(--accent) ${savingRate}%, var(--raised) ${savingRate}% 100%)` }}
+          aria-label={t("visual.savingRate", { n: savingRate })}
+        >
+          <span>{savingRate}%</span>
+        </div>
+        <div className="optimizer-copy">
+          <span className="muted">{t("usage.optimizer.status")}</span>
+          <strong>{optimizer.enabled ? t("usage.optimizer.enabled") : t("usage.optimizer.disabled")}</strong>
+          <small>
+            {t("usage.optimizer.saved", {
+              tokens: formatTokens(savedTokens, locale),
+              actions: summary.optimizerActions ?? 0,
+            })}
+          </small>
+        </div>
+        <div className="optimizer-before-after" aria-hidden>
+          <span>{formatTokens(beforeOptimization, locale)}<small>{t("visual.before")}</small></span>
+          <i>→</i>
+          <span>{formatTokens(summary.totalTokens, locale)}<small>{t("visual.after")}</small></span>
+        </div>
       </div>
     </>
   );

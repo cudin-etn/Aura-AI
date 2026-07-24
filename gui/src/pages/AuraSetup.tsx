@@ -4,6 +4,7 @@ import { IconCheck, IconServer, IconBot, IconSparkle } from "../icons";
 import { useT } from "../i18n";
 import { modelLabel } from "../model-display";
 import AddProviderModal from "../components/AddProviderModal";
+import { AuraRoutePreview } from "../components/AuraVisuals";
 
 type ProfileId = "saver" | "balanced" | "quality";
 type AuraProfile = {
@@ -25,6 +26,7 @@ type Config = {
 };
 
 type WizardClient = "codex" | "claude-code" | "opencode";
+const WIZARD_DONE_KEY = "aura-setup-complete";
 
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -47,6 +49,9 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
   const [wizardProfile, setWizardProfile] = useState<ProfileId>("balanced");
   const [providerModalOpen, setProviderModalOpen] = useState(false);
   const [providerProbe, setProviderProbe] = useState<{ ok: boolean; text: string } | null>(null);
+  const [wizardCollapsed, setWizardCollapsed] = useState(() => {
+    try { return localStorage.getItem(WIZARD_DONE_KEY) === "1"; } catch { return false; }
+  });
 
   const load = useCallback(async () => {
     try {
@@ -177,6 +182,8 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
       await load();
       setNotice({ ok: true, text: t("wizard.applied") });
       setWizardStep(0);
+      setWizardCollapsed(true);
+      try { localStorage.setItem(WIZARD_DONE_KEY, "1"); } catch { /* ignore */ }
     } catch (error) {
       setNotice({ ok: false, text: error instanceof Error ? error.message : t("aura.actionFail") });
     } finally {
@@ -191,6 +198,9 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
   const wizardProviderModels = profile?.available.filter(item => item.startsWith(`${wizardProvider}/`)) ?? [];
   const wizardModels = wizardProviderModels.length > 0 ? wizardProviderModels : profile?.available ?? [];
   const effectiveWizardModel = wizardModels.includes(wizardModel) ? wizardModel : wizardModels[0] ?? "";
+  const setupReady = enabledProviders > 0
+    && Boolean(effectiveWizardModel)
+    && clients.some(client => client.connected && client.maturity === "production");
 
   const selectWizardProvider = (provider: string) => {
     setWizardProvider(provider);
@@ -207,15 +217,29 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
       <p className="page-sub">{t("aura.subtitle")}</p>
       {notice && <Notice tone={notice.ok ? "ok" : "err"}>{notice.text}</Notice>}
 
-      <section className="card" style={{ padding: 18, marginBottom: 18 }}>
-        <div className="row" style={{ justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <section className={`onboarding-card${wizardCollapsed ? " collapsed" : ""}`}>
+        <div className="onboarding-head">
           <div>
-            <div className="h-section" style={{ margin: 0 }}>{t("wizard.title")}</div>
-            <p className="muted" style={{ marginBottom: 0 }}>{t("wizard.subtitle")}</p>
+            <div className="onboarding-title">
+              <span className={`onboarding-status${setupReady ? " ready" : ""}`}><IconSparkle /></span>
+              <span>
+                <strong>{wizardCollapsed && setupReady ? t("wizard.readyTitle") : t("wizard.title")}</strong>
+                <small>{wizardCollapsed && setupReady ? t("wizard.readyHint") : t("wizard.subtitle")}</small>
+              </span>
+            </div>
           </div>
-          <span className="badge badge-accent">{t("wizard.step", { current: wizardStep + 1, total: 4 })}</span>
+          <div className="onboarding-head-actions">
+            {!wizardCollapsed && <span className="badge badge-accent">{t("wizard.step", { current: wizardStep + 1, total: 4 })}</span>}
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWizardCollapsed(value => !value)}>
+              {wizardCollapsed ? t("wizard.change") : t("wizard.collapse")}
+            </button>
+          </div>
         </div>
-        <div className="row" style={{ gap: 6, margin: "16px 0", flexWrap: "wrap" }}>
+
+        {!wizardCollapsed && <div className="onboarding-workspace">
+          <div className="onboarding-form">
+        <div className="wizard-progress" aria-hidden><i style={{ width: `${((wizardStep + 1) / 4) * 100}%` }} /></div>
+        <div className="wizard-steps">
           {[t("wizard.provider"), t("wizard.model"), t("wizard.client"), t("wizard.review")].map((label, index) => (
             <button
               type="button"
@@ -294,6 +318,16 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
             </div>
           </div>
         )}
+          </div>
+          <AuraRoutePreview
+            client={wizardClient === "claude-code" ? "Claude Code" : wizardClient === "opencode" ? "OpenCode" : "Codex"}
+            provider={wizardProvider}
+            model={effectiveWizardModel}
+            profile={wizardProfile}
+            activeStep={wizardStep}
+            ready={setupReady}
+          />
+        </div>}
       </section>
 
       <div className="grid-2" style={{ alignItems: "start" }}>
