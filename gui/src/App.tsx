@@ -13,7 +13,7 @@ import ClaudeCode from "./pages/ClaudeCode";
 import Startup from "./pages/Startup";
 import AuraSetup from "./pages/AuraSetup";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { IconGrid, IconServer, IconBoxes, IconBot, IconList, IconActivity, IconHardDrive, IconKey, IconGithub, IconMenu, IconSun, IconMoon, IconMonitor, IconGlobe, IconPower, IconSparkle, IconX } from "./icons";
+import { IconGrid, IconServer, IconBot, IconActivity, IconGithub, IconMenu, IconSun, IconMoon, IconMonitor, IconGlobe, IconPower, IconSparkle, IconX } from "./icons";
 import { useI18n, useT, LOCALES, type Locale, type TKey } from "./i18n";
 import { Select } from "./ui";
 import { installApiAuthFetch } from "./api";
@@ -21,6 +21,7 @@ import { installApiAuthFetch } from "./api";
 installApiAuthFetch();
 
 type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude";
+type Section = "home" | "setup" | "routing" | "insights" | "settings";
 type Theme = "light" | "dark" | "system";
 
 const VALID_PAGES = new Set<Page>(["dashboard", "aura", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude"]);
@@ -80,19 +81,75 @@ function providersHashForPage(): string {
   return readProvidersViewPreference() === "workspace" ? "providers/workspace" : "providers";
 }
 
-const NAV: { id: Page; tkey: TKey; Icon: typeof IconGrid }[] = [
-  { id: "dashboard", tkey: "nav.dashboard", Icon: IconGrid },
-  { id: "aura", tkey: "nav.aura", Icon: IconSparkle },
-  { id: "providers", tkey: "nav.providers", Icon: IconServer },
-  { id: "models", tkey: "nav.models", Icon: IconBoxes },
-  { id: "subagents", tkey: "nav.subagents", Icon: IconBot },
-  { id: "logs", tkey: "nav.logs", Icon: IconList },
-  { id: "usage", tkey: "nav.usage", Icon: IconActivity },
-  { id: "storage", tkey: "nav.storage", Icon: IconHardDrive },
-  { id: "codex-auth", tkey: "nav.codexAuth", Icon: IconKey },
-  { id: "api", tkey: "nav.api", Icon: IconGlobe },
-  { id: "claude", tkey: "nav.claude", Icon: IconSparkle },
+function writePageHash(page: Page): void {
+  window.location.hash = page === "providers" ? providersHashForPage() : page;
+}
+
+type SectionConfig = {
+  id: Section;
+  tkey: TKey;
+  Icon: typeof IconGrid;
+  defaultPage: Page;
+  pages: { id: Page; tkey: TKey }[];
+};
+
+const SECTION_NAV: SectionConfig[] = [
+  {
+    id: "home",
+    tkey: "nav.home",
+    Icon: IconGrid,
+    defaultPage: "dashboard",
+    pages: [{ id: "dashboard", tkey: "nav.dashboard" }],
+  },
+  {
+    id: "setup",
+    tkey: "nav.setup",
+    Icon: IconServer,
+    defaultPage: "aura",
+    pages: [
+      { id: "aura", tkey: "nav.overview" },
+      { id: "providers", tkey: "nav.providers" },
+      { id: "models", tkey: "nav.models" },
+      { id: "codex-auth", tkey: "nav.accounts" },
+      { id: "claude", tkey: "nav.clients" },
+    ],
+  },
+  {
+    id: "routing",
+    tkey: "nav.routing",
+    Icon: IconBot,
+    defaultPage: "subagents",
+    pages: [
+      { id: "subagents", tkey: "nav.profiles" },
+      { id: "combos", tkey: "nav.fallback" },
+    ],
+  },
+  {
+    id: "insights",
+    tkey: "nav.insights",
+    Icon: IconActivity,
+    defaultPage: "usage",
+    pages: [
+      { id: "usage", tkey: "nav.usage" },
+      { id: "logs", tkey: "nav.logs" },
+    ],
+  },
+  {
+    id: "settings",
+    tkey: "nav.settings",
+    Icon: IconMonitor,
+    defaultPage: "startup",
+    pages: [
+      { id: "startup", tkey: "nav.startup" },
+      { id: "storage", tkey: "nav.storage" },
+      { id: "api", tkey: "nav.api" },
+    ],
+  },
 ];
+
+function sectionForPage(page: Page): SectionConfig {
+  return SECTION_NAV.find(section => section.pages.some(item => item.id === page)) ?? SECTION_NAV[0];
+}
 
 const THEME_ICON = { light: IconSun, dark: IconMoon, system: IconMonitor } as const;
 const THEME_TKEY: Record<Theme, TKey> = { light: "theme.light", dark: "theme.dark", system: "theme.system" };
@@ -205,6 +262,7 @@ export default function App() {
   const cycleTheme = () => setTheme(t => (t === "light" ? "dark" : t === "dark" ? "system" : "light"));
   const ThemeIcon = THEME_ICON[theme];
   const displayedVersion = runtimeVersion ?? __APP_VERSION__;
+  const activeSection = sectionForPage(page);
 
   const [stopping, setStopping] = useState(false);
   // Sidebar "Claude ON" toggle — literal label in every locale (product name).
@@ -267,11 +325,18 @@ export default function App() {
     setStopping(true);
     try { await fetch(`${API_BASE}/api/stop`, { method: "POST" }); } catch { /* connection drops */ }
   };
+  const navigateToPage = (nextPage: Page) => {
+    writePageHash(nextPage);
+    setPageState(nextPage);
+    setNavOpen(false);
+  };
 
   const brand = (
     <div className="brand">
-      <span className="brand-logo" role="img" aria-label={t("app.logoAria")} />
-      <span className="name">opencodex</span>
+      <span className="brand-mark">
+        <span className="brand-logo" role="img" aria-label={t("app.logoAria")} />
+      </span>
+      <span className="name">{t("app.brandName")}</span>
       <span className="ver">v{displayedVersion}</span>
     </div>
   );
@@ -300,16 +365,11 @@ export default function App() {
             <IconX />
           </button>
         </div>
-        <nav>
-          {NAV.map(({ id, tkey, Icon }) => (
-            <button key={id} className={`nav-item${page === id ? " active" : ""}`} data-page={id}
-              onClick={() => {
-                // Always sync the hash on nav click so Providers restores Classic/Workspace preference.
-                window.location.hash = id === "providers" ? providersHashForPage() : id;
-                setPageState(id);
-                setNavOpen(false);
-              }}
-              aria-current={page === id ? "page" : undefined}>
+        <nav aria-label={t("nav.primary")}>
+          {SECTION_NAV.map(({ id, tkey, Icon, defaultPage }) => (
+            <button key={id} className={`nav-item${activeSection.id === id ? " active" : ""}`} data-section={id}
+              onClick={() => navigateToPage(defaultPage)}
+              aria-current={activeSection.id === id ? "page" : undefined}>
               <Icon /> {t(tkey)}
             </button>
           ))}
@@ -348,6 +408,26 @@ export default function App() {
       </aside>
 
       <main className="main" inert={navOpen}>
+        {activeSection.pages.length > 1 && (
+          <div className="context-nav-shell">
+            <nav className="context-nav" aria-label={t("nav.section")}>
+              <span className="context-nav-title">{t(activeSection.tkey)}</span>
+              <div className="context-nav-items">
+                {activeSection.pages.map(item => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className={`context-nav-item${page === item.id ? " active" : ""}`}
+                    onClick={() => navigateToPage(item.id)}
+                    aria-current={page === item.id ? "page" : undefined}
+                  >
+                    {t(item.tkey)}
+                  </button>
+                ))}
+              </div>
+            </nav>
+          </div>
+        )}
         <div className={`main-inner${page === "combos" ? " main-inner--combos" : ""}`}>
           <ErrorBoundary
             key={page}

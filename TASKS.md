@@ -89,6 +89,21 @@ Priority:
   unsupported, and unstable surfaces.
   - Done when: no production promise remains based on assumptions.
 
+## M2.5 — Aura UX Foundation
+
+- [x] `UX-001` P0 Define product personality, information architecture, and
+  visual design dials before restructuring the GUI.
+  - Done when: the five primary areas and legacy-page mapping are documented.
+
+- [x] `UX-002` P0 Build the five-area application shell while preserving all
+  existing hashes and management actions.
+
+- [x] `UX-003` P1 Add Aura light/dark design tokens and reusable navigation
+  primitives inspired by the approved visual reference.
+
+- [x] `UX-004` P1 Verify responsive navigation, keyboard focus, all locales,
+  and representative legacy pages.
+
 ## M3 — Provider and Client GUI
 
 - [ ] `PRV-001` P0 Define the generic provider/account/model configuration
@@ -237,5 +252,8 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   `docs/aura/client-core.md`. The isolated full regression gate passes 3,813
   tests, and Aura Setup exposes the client registry without changing the
   inherited Codex and Claude protocol behavior.
+- `UX-001` through `UX-004`: complete; see `docs/aura/ux-foundation.md`. The
+  five-area shell preserves legacy hashes, passes locale lint, and has desktop
+  and mobile browser verification for Setup and Routing.
 - Next: finish the generic provider schema and transactional configuration
-  layer before expanding the Aura onboarding GUI.
+  layer in M3 using the Aura shell.

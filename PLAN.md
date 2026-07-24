@@ -256,6 +256,15 @@ while preserving behavior.
 
 Exit: Codex and Claude Code still pass the baseline through explicit adapters.
 
+### M2.5 — Aura UX Foundation
+
+Define Aura's product personality and five-area information architecture, then
+replace the inherited long-form navigation with a light-first application shell
+and contextual page navigation. Preserve existing routes and functionality.
+
+Exit: Home, Setup, Routing, Insights, and Settings organize every inherited
+surface without breaking deep links, responsive navigation, or accessibility.
+
 ### M3 — Provider and Client GUI
 
 Implement provider onboarding, model discovery, capability grades, role
