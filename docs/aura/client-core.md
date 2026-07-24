@@ -39,6 +39,20 @@ The management API never accepts an arbitrary filesystem path. Tests redirect
 the connector with `OPENCODE_CONFIG` so verification cannot modify the user's
 real OpenCode configuration.
 
+## Clients workspace
+
+Setup → Clients is the unified client control surface:
+
+- Codex reports its production Responses connection and links to account/model
+  controls.
+- Claude Code reports Messages connection state, supports connect/disconnect,
+  and keeps the inherited advanced aliases, context, sidecar, and launch
+  settings available on demand.
+- OpenCode selects a normalized routed model, previews only the target and
+  changed paths, then applies or restores through the guarded transaction.
+- ZCode remains visibly experimental and manual-only rather than presenting an
+  unsafe automatic setup action.
+
 ## ZCode spike
 
 ZCode remains explicit but experimental. Its current official setup flow

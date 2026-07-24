@@ -113,7 +113,7 @@ Priority:
   OpenAI-compatible, and optional 9router upstream presets.
   - Depends on: `PRV-001`, `CORE-003`.
 
-- [ ] `PRV-003` P1 Implement model discovery, normalization, deduplication, and
+- [x] `PRV-003` P1 Implement model discovery, normalization, deduplication, and
   capability probes.
   - Depends on: `PRV-002`, `CMP-003`.
 
@@ -124,15 +124,15 @@ Priority:
 - [x] `GUI-001` P1 Build Add Provider and authentication flow.
   - Depends on: `PRV-002`, `CFG-001`.
 
-- [ ] `GUI-002` P1 Build model selection, compatibility report, and role
+- [x] `GUI-002` P1 Build model selection, compatibility report, and role
   assignment.
   - Depends on: `PRV-003`.
 
-- [ ] `GUI-003` P1 Build Connect Clients with Codex, Claude Code, and OpenCode
+- [x] `GUI-003` P1 Build Connect Clients with Codex, Claude Code, and OpenCode
   toggles.
   - Depends on: `CLT-001`, `CLT-002`, `CLT-003`, `CFG-001`.
 
-- [ ] `GUI-004` P1 Build health, configuration diff, apply, restore, and
+- [x] `GUI-004` P1 Build health, configuration diff, apply, restore, and
   diagnostics views.
   - Depends on: `CFG-001`, `OBS-002`.
 
@@ -255,10 +255,15 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
 - `UX-001` through `UX-004`: complete; see `docs/aura/ux-foundation.md`. The
   five-area shell preserves legacy hashes, passes locale lint, and has desktop
   and mobile browser verification for Setup and Routing.
-- `PRV-001`, `PRV-002`, `CFG-001`, and `GUI-001`: complete; see
+- `PRV-001` through `PRV-003`, `CFG-001`, `GUI-001`, and `GUI-002`: complete; see
   `docs/aura/provider-core.md`. Aura reuses the normalized provider registry,
   adds a first-class 9router preset with synthetic GPT-5.6 compact, and protects
   client configuration with preview, atomic apply, verification, rollback, and
-  guarded restore.
-- Next: surface capability probes and model/role compatibility in Setup, then
-  complete the unified client connection workflow.
+  guarded restore. Provider model views expose declared protocol/capability
+  metadata and a live discovery probe; Routing exposes profile and per-role
+  model assignment.
+- `GUI-003` and `GUI-004`: complete. Setup → Clients now shows Codex,
+  Claude Code, OpenCode, and ZCode maturity/connection state; exposes Claude
+  connection and advanced settings; and provides OpenCode model selection,
+  sanitized changed-path preview, guarded apply, and restore.
+- M3 is complete. Next: finish the remaining smart-routing policy in M4.

@@ -7,9 +7,31 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useT } from "../../i18n";
 import type { WorkspaceItem } from "../../provider-workspace/catalog";
 import { filterModels } from "../../provider-workspace/report";
+import { Notice } from "../../ui";
+
+type CapabilityDescriptor = {
+  id: string;
+  protocol: "responses" | "chat-completions" | "messages";
+  authentication: { kind: string; keyOptional: boolean };
+  discovery: { live: boolean; models: string[] };
+  capabilities: {
+    compact: "native" | "synthetic";
+    reasoningDeclared: boolean;
+    visionDeclared: boolean;
+  };
+};
+
+type ProbeResult = {
+  ok: boolean;
+  latencyMs?: number;
+  models?: number;
+  message?: string;
+  error?: string;
+};
 
 export default function ProviderModels({
   item,
+  apiBase,
   availableModels,
   selectedModels,
   modelsLoading = false,
@@ -19,6 +41,7 @@ export default function ProviderModels({
   onOpenAccounts,
 }: {
   item: WorkspaceItem;
+  apiBase: string;
   availableModels: string[];
   selectedModels: string[];
   modelsLoading?: boolean;
@@ -31,6 +54,9 @@ export default function ProviderModels({
   const t = useT();
   const [query, setQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [capability, setCapability] = useState<CapabilityDescriptor | null>(null);
+  const [probe, setProbe] = useState<ProbeResult | null>(null);
+  const [probeBusy, setProbeBusy] = useState(false);
   const copyResetRef = useRef<number | null>(null);
   const selectedSet = useMemo(() => new Set(selectedModels), [selectedModels]);
   const configuredModels = useMemo(() => item.models ?? [], [item.models]);
@@ -42,6 +68,33 @@ export default function ProviderModels({
   useEffect(() => () => {
     if (copyResetRef.current != null) window.clearTimeout(copyResetRef.current);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${apiBase}/api/aura/providers`)
+      .then(response => response.ok ? response.json() : Promise.reject(new Error(String(response.status))))
+      .then((body: { providers?: CapabilityDescriptor[] }) => {
+        if (!cancelled) setCapability(body.providers?.find(provider => provider.id === item.name) ?? null);
+      })
+      .catch(() => { if (!cancelled) setCapability(null); });
+    return () => { cancelled = true; };
+  }, [apiBase, item.name]);
+
+  const runProbe = async () => {
+    setProbeBusy(true);
+    setProbe(null);
+    try {
+      const response = await fetch(`${apiBase}/api/providers/test?name=${encodeURIComponent(item.name)}`, {
+        method: "POST",
+      });
+      const body = await response.json() as ProbeResult;
+      setProbe(response.ok ? body : { ...body, ok: false });
+    } catch {
+      setProbe({ ok: false, error: t("pws.capabilityProbeNetwork") });
+    } finally {
+      setProbeBusy(false);
+    }
+  };
 
   const copyModelId = async (modelId: string) => {
     try {
@@ -70,10 +123,33 @@ export default function ProviderModels({
     <div className="pws-section">
       <div className="pws-section-head">
         <h3 className="pws-section-title">{t("pws.tab.models")}</h3>
-        {models.length > 0 && (
-          <span className="muted">{t("pws.modelsAvailable", { count: models.length })}</span>
-        )}
+        <div className="row" style={{ gap: 8 }}>
+          {models.length > 0 && (
+            <span className="muted">{t("pws.modelsAvailable", { count: models.length })}</span>
+          )}
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => void runProbe()} disabled={probeBusy}>
+            {probeBusy ? t("pws.capabilityProbing") : t("pws.capabilityProbe")}
+          </button>
+        </div>
       </div>
+      {capability && (
+        <div className="card" style={{ padding: 12, marginBottom: 12 }}>
+          <strong className="text-label">{t("pws.capabilityTitle")}</strong>
+          <div className="row text-label" style={{ gap: 14, flexWrap: "wrap", marginTop: 8 }}>
+            <span>{t("pws.capabilityProtocol")}: <code>{capability.protocol}</code></span>
+            <span>{t("pws.capabilityCompact")}: <code>{capability.capabilities.compact}</code></span>
+            <span>{t("pws.capabilityReasoning")}: {capability.capabilities.reasoningDeclared ? t("pws.capabilityDeclared") : t("pws.capabilityUnknown")}</span>
+            <span>{t("pws.capabilityVision")}: {capability.capabilities.visionDeclared ? t("pws.capabilityDeclared") : t("pws.capabilityUnknown")}</span>
+          </div>
+        </div>
+      )}
+      {probe && (
+        <Notice tone={probe.ok ? "ok" : "err"}>
+          {probe.ok
+            ? (probe.message ?? t("pws.capabilityProbeOk", { latency: probe.latencyMs ?? 0 }))
+            : (probe.error ?? t("pws.capabilityProbeFailed"))}
+        </Notice>
+      )}
       {needsReauth && (
         <div className="pws-inline-error" role="status">
           <span>{t("pws.modelsNeedsReauth")}</span>

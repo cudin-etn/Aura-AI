@@ -20,6 +20,19 @@ of introducing a second provider format:
 The GUI receives credential-free presets. API keys are accepted only on the
 provider write boundary and are represented elsewhere as `hasApiKey`.
 
+Each provider's Models view combines two evidence levels without overstating
+them:
+
+- declared protocol, compact mode, reasoning, and vision metadata from the
+  normalized Aura provider descriptor;
+- an explicit live discovery probe that calls the provider's real `/models`
+  route and reports latency or a sanitized failure.
+
+The live probe is not presented as a full tool/streaming compatibility grade.
+Those grades remain owned by the sanitized A/B compatibility harness and its
+fixtures. Routing's profile editor consumes the same deduplicated model catalog
+for per-role assignments.
+
 ## 9router preset
 
 Aura includes a first-class local `9router` preset:
