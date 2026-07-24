@@ -9,6 +9,7 @@ import {
 import { CODEX_CONFIG_PATH, readRootTomlString } from "../codex/paths";
 import { readCodexCatalogPath } from "../codex/catalog";
 import type { OcxUsage } from "../types";
+import type { AuraClientId, AuraProtocolId } from "../clients/registry";
 import { redactSecretString } from "../lib/redact";
 import {
   appendUsageEntry,
@@ -32,6 +33,8 @@ import {
 export interface RequestLogContext {
   model: string;
   provider: string;
+  auraClient?: AuraClientId;
+  auraProtocol?: AuraProtocolId;
   threadKey?: string;
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
@@ -76,6 +79,8 @@ export interface RequestLogContext {
 
 export interface RequestLogEntry {
   requestId: string;
+  auraClient?: AuraClientId;
+  auraProtocol?: AuraProtocolId;
   threadKey?: string;
   timestamp: number;
   model: string;
@@ -154,6 +159,8 @@ export function requestLogEntryFromPersistedUsage(entry: PersistedUsageEntry): R
   const closeReason = asCloseReason(entry.closeReason);
   return {
     requestId: entry.requestId,
+    ...(entry.auraClient ? { auraClient: entry.auraClient } : {}),
+    ...(entry.auraProtocol ? { auraProtocol: entry.auraProtocol } : {}),
     ...(entry.threadKey ? { threadKey: entry.threadKey } : {}),
     timestamp: entry.timestamp,
     model: entry.model,
@@ -235,6 +242,8 @@ export function addRequestLog(entry: RequestLogEntry) {
       : {};
     appendUsageEntry({
       requestId: entry.requestId,
+      ...(entry.auraClient ? { auraClient: entry.auraClient } : {}),
+      ...(entry.auraProtocol ? { auraProtocol: entry.auraProtocol } : {}),
       ...(entry.threadKey ? { threadKey: entry.threadKey } : {}),
       timestamp: entry.timestamp,
       provider: entry.provider,
@@ -600,6 +609,8 @@ export function addFinalRequestLog(
   const totalTokens = aggregate?.totalTokens ?? existing.totalTokens;
   addLog({
     requestId,
+    ...(logCtx.auraClient ? { auraClient: logCtx.auraClient } : {}),
+    ...(logCtx.auraProtocol ? { auraProtocol: logCtx.auraProtocol } : {}),
     ...(logCtx.threadKey ? { threadKey: logCtx.threadKey } : {}),
     timestamp: start,
     model: isCombo ? logCtx.requestedModel! : logCtx.model,

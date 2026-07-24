@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { getConfigDir } from "../config";
 import { usageDisplayTotalTokens } from "./totals";
 import type { OcxUsage } from "../types";
+import type { AuraClientId, AuraProtocolId } from "../clients/registry";
 
 export type UsageStatus = "reported" | "unreported" | "unsupported" | "estimated";
 
@@ -33,6 +34,8 @@ export interface PersistedUsageAttempt {
 
 export interface PersistedUsageEntry {
   requestId: string;
+  auraClient?: AuraClientId;
+  auraProtocol?: AuraProtocolId;
   threadKey?: string;
   timestamp: number;
   provider: string;
@@ -218,6 +221,8 @@ function normalizeUsageEntry(entry: PersistedUsageEntry): PersistedUsageEntry {
   const attempts = normalizedAttempts(entry.attempts);
   return {
     requestId: entry.requestId,
+    ...(entry.auraClient ? { auraClient: entry.auraClient } : {}),
+    ...(entry.auraProtocol ? { auraProtocol: entry.auraProtocol } : {}),
     ...(typeof entry.threadKey === "string" && entry.threadKey
       ? { threadKey: capMetadataString(entry.threadKey) }
       : {}),

@@ -431,6 +431,14 @@ export interface OcxConfig {
       { model: string; effort: "low" | "medium" | "high" | "xhigh" | "max" | "ultra" }
     >>;
     maxSubagents?: number;
+    clients?: {
+      opencode?: {
+        path: string;
+        backupPath?: string;
+        created: boolean;
+        appliedAt: number;
+      };
+    };
   };
   /** OpenAI provider-contract migration marker (v2 = single `openai` provider with account mode). */
   openaiProviderTierVersion?: 1 | 2;

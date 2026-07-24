@@ -11,6 +11,7 @@ import CodexAuth from "./pages/CodexAuth";
 import ApiKeys from "./pages/ApiKeys";
 import ClaudeCode from "./pages/ClaudeCode";
 import Startup from "./pages/Startup";
+import AuraSetup from "./pages/AuraSetup";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { IconGrid, IconServer, IconBoxes, IconBot, IconList, IconActivity, IconHardDrive, IconKey, IconGithub, IconMenu, IconSun, IconMoon, IconMonitor, IconGlobe, IconPower, IconSparkle, IconX } from "./icons";
 import { useI18n, useT, LOCALES, type Locale, type TKey } from "./i18n";
@@ -19,13 +20,14 @@ import { installApiAuthFetch } from "./api";
 
 installApiAuthFetch();
 
-type Page = "dashboard" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude";
+type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude";
 type Theme = "light" | "dark" | "system";
 
-const VALID_PAGES = new Set<Page>(["dashboard", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude"]);
+const VALID_PAGES = new Set<Page>(["dashboard", "aura", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude"]);
 
 const PAGE_TKEY: Record<Page, TKey> = {
   dashboard: "nav.dashboard",
+  aura: "nav.aura",
   startup: "nav.startup",
   providers: "nav.providers",
   models: "nav.models",
@@ -80,6 +82,7 @@ function providersHashForPage(): string {
 
 const NAV: { id: Page; tkey: TKey; Icon: typeof IconGrid }[] = [
   { id: "dashboard", tkey: "nav.dashboard", Icon: IconGrid },
+  { id: "aura", tkey: "nav.aura", Icon: IconSparkle },
   { id: "providers", tkey: "nav.providers", Icon: IconServer },
   { id: "models", tkey: "nav.models", Icon: IconBoxes },
   { id: "subagents", tkey: "nav.subagents", Icon: IconBot },
@@ -355,6 +358,7 @@ export default function App() {
             reloadLabel={t("errorBoundary.reload")}
           >
             {page === "dashboard" && <Dashboard apiBase={API_BASE} />}
+            {page === "aura" && <AuraSetup apiBase={API_BASE} />}
             {page === "startup" && <Startup apiBase={API_BASE} />}
             {page === "providers" && <Providers apiBase={API_BASE} />}
             {page === "models" && <Models apiBase={API_BASE} />}

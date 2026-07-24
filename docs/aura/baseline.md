@@ -23,7 +23,7 @@ repository URL for `origin`.
 | `bun install --frozen-lockfile` | Pass |
 | `gui: bun install --frozen-lockfile` | Pass |
 | `bun run typecheck` | Pass |
-| `bun run test` | Pass: 3,788 tests, 0 failures |
+| `bun test --parallel=1` | Pass: 3,813 tests, 0 failures |
 | `bun run lint:gui` | Pass |
 | `bun run build:gui` | Pass; existing ~999 kB JS chunk warning |
 | `bun run privacy:scan` | Pass |
@@ -34,6 +34,10 @@ The first full test run exposed a Bun/macOS test-helper race: dynamically
 created executable command shims intermittently failed with `EACCES`. The
 helper now uses one stable fixture plus symlinks on POSIX, reducing duplicated
 test code and making the full suite deterministic.
+
+The suite also contains process-global mocks and environment variables across
+test files. `--parallel=1` isolates each file in a worker and is the canonical
+full regression gate; targeted tests may still use the default runner.
 
 React Doctor's three inherited errors are impure React state updaters in
 `AddCodexAccountModal.tsx` and `Models.tsx`. They are recorded as baseline GUI
@@ -86,4 +90,3 @@ Aura should add only the missing product layer:
 - GUI onboarding that combines provider, model, role, and client setup;
 - benchmark scoring and release evidence for macOS and Windows;
 - Aura naming/package identifiers after behavior stabilizes.
-

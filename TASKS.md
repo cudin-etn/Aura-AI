@@ -1,6 +1,6 @@
 # Aura AI — Execution Backlog
 
-Status: Draft for approval  
+Status: In progress
 Date: 2026-07-23
 
 Priority:
@@ -59,33 +59,33 @@ Priority:
 
 ## M2 — Generic Core
 
-- [ ] `CORE-001` P0 Freeze public behavior with regression tests before moving
+- [x] `CORE-001` P0 Freeze public behavior with regression tests before moving
   modules.
 
-- [ ] `CORE-002` P0 Extract protocol interfaces for Responses, Chat
+- [x] `CORE-002` P0 Extract protocol interfaces for Responses, Chat
   Completions, and Messages.
   - Depends on: `CORE-001`.
 
-- [ ] `CORE-003` P0 Extract provider discovery, authentication, and capability
+- [x] `CORE-003` P0 Extract provider discovery, authentication, and capability
   interfaces.
   - Depends on: `CORE-001`.
 
-- [ ] `CORE-004` P0 Extract client configuration and lifecycle interfaces.
+- [x] `CORE-004` P0 Extract client configuration and lifecycle interfaces.
   - Depends on: `CORE-001`.
 
-- [ ] `CLT-001` P0 Move existing Codex behavior behind the Codex client adapter
+- [x] `CLT-001` P0 Move existing Codex behavior behind the Codex client adapter
   without behavior changes.
   - Depends on: `CORE-002`, `CORE-004`.
 
-- [ ] `CLT-002` P1 Move existing Claude Code behavior behind the Claude client
+- [x] `CLT-002` P1 Move existing Claude Code behavior behind the Claude client
   adapter without behavior changes.
   - Depends on: `CORE-002`, `CORE-004`.
 
-- [ ] `CLT-003` P1 Add an OpenCode adapter for endpoint/model configuration and
+- [x] `CLT-003` P1 Add an OpenCode adapter for endpoint/model configuration and
   restore.
   - Depends on: `CORE-004`, `PRV-001`.
 
-- [ ] `CLT-004` P2 Run a ZCode integration spike and document supported,
+- [x] `CLT-004` P2 Run a ZCode integration spike and document supported,
   unsupported, and unstable surfaces.
   - Done when: no production promise remains based on assumptions.
 
@@ -233,5 +233,9 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
 - `OBS-001` through `CMP-003`: complete; see
   `docs/aura/observability.md`, `docs/aura/compatibility.md`, and the sanitized
   live report in `docs/aura/gpt56-9router-compat.json`.
-- Next: freeze the generic-core public behavior before extracting client and
-  protocol boundaries.
+- `CORE-001` through `CLT-004`: complete; see
+  `docs/aura/client-core.md`. The isolated full regression gate passes 3,813
+  tests, and Aura Setup exposes the client registry without changing the
+  inherited Codex and Claude protocol behavior.
+- Next: finish the generic provider schema and transactional configuration
+  layer before expanding the Aura onboarding GUI.

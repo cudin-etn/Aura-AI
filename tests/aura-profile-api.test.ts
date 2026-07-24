@@ -6,11 +6,14 @@ import { handleManagementAPI } from "../src/server/management-api";
 import type { OcxConfig } from "../src/types";
 
 const savedHome = process.env.OPENCODEX_HOME;
+const savedOpenCodeConfig = process.env.OPENCODE_CONFIG;
 let tempHome: string | null = null;
 
 afterEach(() => {
   if (savedHome === undefined) delete process.env.OPENCODEX_HOME;
   else process.env.OPENCODEX_HOME = savedHome;
+  if (savedOpenCodeConfig === undefined) delete process.env.OPENCODE_CONFIG;
+  else process.env.OPENCODE_CONFIG = savedOpenCodeConfig;
   if (tempHome) rmSync(tempHome, { recursive: true, force: true });
   tempHome = null;
 });
@@ -45,6 +48,72 @@ async function request(config: OcxConfig, method = "GET", body?: unknown): Promi
 }
 
 describe("/api/aura/profile", () => {
+  test("exposes normalized provider boundaries without credentials", async () => {
+    const target = config();
+    const req = new Request("http://localhost/api/aura/providers");
+    const response = (await handleManagementAPI(req, new URL(req.url), target))!;
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      providers: [{
+        id: "9router",
+        adapter: "openai-responses",
+        protocol: "responses",
+        authentication: { kind: "key", keyOptional: false },
+        discovery: {
+          live: false,
+          models: ["cx/gpt-5.6-luna", "cx/gpt-5.6-terra", "cx/gpt-5.6-sol"],
+        },
+        capabilities: {
+          compact: "native",
+          reasoningDeclared: false,
+          visionDeclared: false,
+        },
+      }],
+    });
+  });
+
+  test("lists explicit client adapters and does not overstate experimental support", async () => {
+    const target = config();
+    const req = new Request("http://localhost/api/aura/clients");
+    const response = (await handleManagementAPI(req, new URL(req.url), target))!;
+    const body = await response.json() as {
+      clients: { id: string; maturity: string; configurable: boolean }[];
+    };
+    expect(response.status).toBe(200);
+    expect(body.clients.find(client => client.id === "codex")).toMatchObject({
+      maturity: "production",
+      configurable: true,
+    });
+    expect(body.clients.find(client => client.id === "zcode")).toMatchObject({
+      maturity: "experimental",
+      configurable: false,
+    });
+  });
+
+  test("previews, applies, and restores OpenCode configuration", async () => {
+    const target = config();
+    process.env.OPENCODE_CONFIG = join(tempHome!, "opencode.jsonc");
+    const model = "9router/cx-gpt-5.6-terra";
+    const previewReq = new Request(`http://localhost/api/aura/clients/opencode?model=${encodeURIComponent(model)}`);
+    const preview = (await handleManagementAPI(previewReq, new URL(previewReq.url), target))!;
+    expect(preview.status).toBe(200);
+    expect(await preview.json()).toMatchObject({ exists: false, model: `aura/${model}` });
+
+    const applyReq = new Request("http://localhost/api/aura/clients/opencode", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ model }),
+    });
+    const applied = (await handleManagementAPI(applyReq, new URL(applyReq.url), target))!;
+    expect(applied.status).toBe(200);
+    expect(target.aura?.clients?.opencode?.created).toBe(true);
+
+    const restoreReq = new Request("http://localhost/api/aura/clients/opencode", { method: "DELETE" });
+    const restored = (await handleManagementAPI(restoreReq, new URL(restoreReq.url), target))!;
+    expect(restored.status).toBe(200);
+    expect(target.aura?.clients?.opencode).toBeUndefined();
+  });
+
   test("applies Balanced to the existing OpenCodex controls", async () => {
     const target = config();
     const response = await request(target, "PUT", { profile: "balanced" });

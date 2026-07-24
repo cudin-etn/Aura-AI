@@ -84,6 +84,7 @@ import {
   responseWithDeferredRequestLog,
   sanitizePassthroughHeaders,
 } from "./relay";
+import { auraClientLogFields } from "../clients/registry";
 export {
   consumeForInspection,
   relaySseWithFailedTail,
@@ -328,7 +329,12 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown", threadKey: requestThreadKey(req.headers) };
+        const logCtx: RequestLogContext = {
+          model: "unknown",
+          provider: "unknown",
+          threadKey: requestThreadKey(req.headers),
+          ...auraClientLogFields(url.pathname),
+        };
         let response: Response;
         try {
           response = await handleResponsesCompact(req, config, logCtx);
@@ -409,7 +415,12 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown", threadKey: requestThreadKey(req.headers) };
+        const logCtx: RequestLogContext = {
+          model: "unknown",
+          provider: "unknown",
+          threadKey: requestThreadKey(req.headers),
+          ...auraClientLogFields(url.pathname),
+        };
         let logged = false;
         const finalizeNativePassthroughLog = (
           status: number,
@@ -464,7 +475,12 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown", threadKey: requestThreadKey(req.headers) };
+        const logCtx: RequestLogContext = {
+          model: "unknown",
+          provider: "unknown",
+          threadKey: requestThreadKey(req.headers),
+          ...auraClientLogFields(url.pathname),
+        };
         // Logging is finalized inside handleClaudeMessages (Responses-vocab tap on the
         // pre-translation stream + native passthrough callbacks) — do not re-wrap the
         // translated Anthropic stream here.
@@ -486,7 +502,12 @@ export function startServer(port?: number) {
         }
         const start = Date.now();
         const requestId = nextRequestLogId(start);
-        const logCtx: RequestLogContext = { model: "unknown", provider: "unknown", threadKey: requestThreadKey(req.headers) };
+        const logCtx: RequestLogContext = {
+          model: "unknown",
+          provider: "unknown",
+          threadKey: requestThreadKey(req.headers),
+          ...auraClientLogFields(url.pathname),
+        };
         const response = await handleChatCompletions(req, config, logCtx, { requestId, start });
         return withCors(response, req, config);
       }
@@ -565,6 +586,7 @@ export function startServer(port?: number) {
           const start = Date.now();
           const requestId = nextRequestLogId(start);
           const logCtx: RequestLogContext = { model: "unknown", provider: "unknown" };
+          Object.assign(logCtx, auraClientLogFields("/v1/responses"));
           let logged = false;
           const finalizeLog = (
             status: number,

@@ -10,7 +10,7 @@ bun install --frozen-lockfile
 (cd gui && bun install --frozen-lockfile)
 bun run typecheck
 bun run lint:gui
-bun run test
+bun test --parallel=1
 bun run privacy:scan
 bun run build:gui
 ```
@@ -18,4 +18,3 @@ bun run build:gui
 Resolve upstream compatibility changes separately from Aura product changes
 when practical. Never publish a synced branch until the complete gate above
 passes.
-

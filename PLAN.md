@@ -1,7 +1,7 @@
 # Aura AI — Product and Engineering Plan
 
-Status: Draft for approval  
-Date: 2026-07-23  
+Status: In progress
+Date: 2026-07-23
 Product name: Aura AI
 
 ## 1. Product Goal

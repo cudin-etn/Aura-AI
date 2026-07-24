@@ -63,6 +63,13 @@ import {
   type AuraProfileId,
   type AuraProfileOverrides,
 } from "../../policy/aura-profiles";
+import { AURA_CLIENT_ADAPTERS } from "../../clients/registry";
+import { describeAuraProvider } from "../../providers/aura";
+import {
+  applyOpenCodeConnection,
+  previewOpenCodeConnection,
+  restoreOpenCodeConnection,
+} from "../../clients/opencode";
 
 import { isPlainRecord, parseDebugLogQuery, tokPerSecondResult, unavailableCostReason, costResult, requestLogDto, stripRegistryOnlyStaticHeaders, fetchAllModels } from "./shared";
 import type { MetricUnavailableReason, TokPerSecondResult, CostEstimateReason, CostResult, MetricSource } from "./shared";
@@ -70,6 +77,80 @@ import type { ManagementContext } from "./context";
 
 export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise<Response | null> {
   const { req, url, config, deps, refreshCodexCatalogBestEffort, syncClaudeAgentDefsBestEffort } = ctx;
+
+  if (url.pathname === "/api/aura/providers" && req.method === "GET") {
+    return jsonResponse({
+      providers: Object.entries(config.providers).map(([id, provider]) => describeAuraProvider(id, provider)),
+    });
+  }
+
+  if (url.pathname === "/api/aura/clients" && req.method === "GET") {
+    return jsonResponse({
+      clients: AURA_CLIENT_ADAPTERS.map(client => ({
+        ...client,
+        connected: client.id === "codex"
+          || (client.id === "claude-code" && config.claudeCode?.enabled !== false)
+          || (client.id === "opencode" && !!config.aura?.clients?.opencode),
+      })),
+    });
+  }
+
+  if (url.pathname === "/api/aura/clients/opencode") {
+    const baseUrl = `http://127.0.0.1:${config.port}/v1`;
+    if (req.method === "GET") {
+      const model = url.searchParams.get("model")?.trim();
+      if (!model) return jsonResponse({ error: "model query parameter is required" }, 400);
+      try {
+        return jsonResponse(previewOpenCodeConnection(baseUrl, model));
+      } catch (err) {
+        return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 400);
+      }
+    }
+
+    if (req.method === "PUT") {
+      let body: { model?: unknown };
+      try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
+      if (typeof body.model !== "string" || !body.model.trim()) {
+        return jsonResponse({ error: "model must be a non-empty string" }, 400);
+      }
+      const model = body.model.trim();
+      const previous = config.aura?.clients?.opencode;
+      let state;
+      try {
+        state = applyOpenCodeConnection(baseUrl, model);
+        config.aura = {
+          ...config.aura,
+          clients: { ...config.aura?.clients, opencode: state },
+        };
+        saveConfig(config);
+      } catch (err) {
+        if (state) restoreOpenCodeConnection(state);
+        if (previous) {
+          config.aura = {
+            ...config.aura,
+            clients: { ...config.aura?.clients, opencode: previous },
+          };
+        }
+        return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 400);
+      }
+      return jsonResponse({ ok: true, ...state, model: `aura/${model}` });
+    }
+
+    if (req.method === "DELETE") {
+      const state = config.aura?.clients?.opencode;
+      if (!state) return jsonResponse({ error: "OpenCode has no Aura-managed configuration" }, 404);
+      try {
+        restoreOpenCodeConnection(state);
+        const clients = { ...config.aura?.clients };
+        delete clients.opencode;
+        config.aura = { ...config.aura, clients };
+        saveConfig(config);
+      } catch (err) {
+        return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 500);
+      }
+      return jsonResponse({ ok: true, restored: true });
+    }
+  }
 
   if (url.pathname === "/api/aura/profile") {
     const models = await fetchAllModels(config);
