@@ -18,6 +18,7 @@ describe("install scripts", () => {
   test("npm package main is a Node-safe wrapper while Bun keeps the TypeScript API", async () => {
     const pkg = JSON.parse(await readText("package.json")) as {
       main?: string;
+      bin?: Record<string, string>;
       exports?: { "."?: { bun?: string; default?: string } };
       dependencies?: Record<string, string>;
       devDependencies?: Record<string, string>;
@@ -26,6 +27,8 @@ describe("install scripts", () => {
     };
 
     expect(pkg.main).toBe("./bin/package-main.mjs");
+    expect(pkg.bin?.aura).toBe("./bin/ocx.mjs");
+    expect(pkg.bin?.["aura-ai"]).toBe("./bin/ocx.mjs");
     expect(pkg.exports?.["."]?.bun).toBe("./src/index.ts");
     expect(pkg.exports?.["."]?.default).toBe("./bin/package-main.mjs");
     expect(pkg.dependencies?.zod).toBe("4.4.3");

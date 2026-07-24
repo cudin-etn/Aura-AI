@@ -206,10 +206,10 @@ Priority:
   per successful task.
   - Depends on: `EVAL-002`, `POL-002`, `OPT-005`.
 
-- [ ] `SEC-001` P0 Threat-model credentials, local APIs, config writes, logs,
+- [x] `SEC-001` P0 Threat-model credentials, local APIs, config writes, logs,
   OAuth callbacks, and provider-controlled content.
 
-- [ ] `SEC-002` P0 Test secret redaction, localhost binding, CSRF/origin rules,
+- [x] `SEC-002` P0 Test secret redaction, localhost binding, CSRF/origin rules,
   path safety, config rollback, and migration recovery.
   - Depends on: `SEC-001`, `CFG-001`, `OBS-001`.
 
@@ -217,10 +217,10 @@ Priority:
   - Done when: clean install, update, background service, restart, config
     restore, and uninstall pass on both platforms.
 
-- [ ] `REL-002` P1 Document install, provider onboarding, client connection,
+- [x] `REL-002` P1 Document install, provider onboarding, client connection,
   profiles, route trace, recovery, and OpenCodex migration.
 
-- [ ] `REL-003` P1 Verify Aura AI naming, package identifiers, executable names,
+- [x] `REL-003` P1 Verify Aura AI naming, package identifiers, executable names,
   repository names, and release metadata before public distribution.
 
 - [ ] `REL-004` P2 Verify Linux CLI, service lifecycle, package, and recovery
@@ -295,3 +295,11 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   encrypted, image, and patch output byte-for-byte.
 - M5 is complete. Next: live strategy evaluation, security gates, packaging,
   release documentation, and cross-platform release verification in M6.
+- `SEC-001`, `SEC-002`, `REL-002`, and `REL-003`: complete; see
+  `docs/aura/security.md`, `docs/aura/install-and-recovery.md`, and
+  `docs/aura/release-readiness.md`. Aura adds `aura`/`aura-ai` executable
+  aliases while preserving OpenCodex package and command compatibility for the
+  migration release.
+- Remaining external gates: live profile comparison (`EVAL-003`), Aura origin
+  completion (`FND-001`), and exact-SHA macOS/Windows/Linux CI and service
+  lifecycle evidence (`REL-001`, `REL-004`).

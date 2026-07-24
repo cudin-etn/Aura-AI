@@ -12,6 +12,8 @@
     "./package.json": "./package.json"
   },
   "bin": {
+    "aura": "./bin/ocx.mjs",
+    "aura-ai": "./bin/ocx.mjs",
     "opencodex": "./bin/ocx.mjs",
     "ocx": "./bin/ocx.mjs"
   },
