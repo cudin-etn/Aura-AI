@@ -131,6 +131,17 @@
 :root[data-theme="light"] { color-scheme: light; }
 :root[data-theme="dark"]  { color-scheme: dark; }
 
+/*
+ * OpenAI Sans and Korean-first fallbacks can split Vietnamese words across
+ * fonts when an extended Latin glyph is unavailable. Keep every Vietnamese
+ * title and body run on the platform UI family, which ships complete
+ * Vietnamese coverage and real 400–700 weights on macOS and Windows.
+ */
+:root[lang="vi"] {
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Segoe UI Variable", "Segoe UI", "Noto Sans", Arial, sans-serif;
+}
+
 /* glass material tokens: rail/nav layer only — content cards stay opaque */
 :root {
   --glass-rail:  light-dark(rgba(249, 249, 249, 0.66), rgba(23, 23, 23, 0.62));
