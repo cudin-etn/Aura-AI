@@ -66,6 +66,7 @@ import {
 import { AURA_CLIENT_ADAPTERS } from "../../clients/registry";
 import { describeAuraProvider } from "../../providers/aura";
 import { readAuraToolOutput } from "../../optimizer/output-store";
+import { AURA_CAPABILITIES } from "../../aura/capabilities";
 import {
   applyOpenCodeConnection,
   previewOpenCodeConnection,
@@ -88,6 +89,48 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
     return jsonResponse({
       providers: Object.entries(config.providers).map(([id, provider]) => describeAuraProvider(id, provider)),
     });
+  }
+
+  if (url.pathname === "/api/aura/capabilities" && req.method === "GET") {
+    return jsonResponse({ capabilities: AURA_CAPABILITIES });
+  }
+
+  if (url.pathname === "/api/aura/optimizer") {
+    if (req.method === "GET") {
+      const optimizer = config.aura?.optimizer;
+      return jsonResponse({
+        enabled: optimizer?.enabled === true,
+        deduplicate: optimizer?.deduplicate !== false,
+        reduceLogs: optimizer?.reduceLogs !== false,
+        preset: optimizer?.preset ?? "full",
+      });
+    }
+    if (req.method === "PUT") {
+      let body: { enabled?: unknown; deduplicate?: unknown; reduceLogs?: unknown; preset?: unknown };
+      try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
+      if (body.enabled !== undefined && typeof body.enabled !== "boolean") return jsonResponse({ error: "enabled must be boolean" }, 400);
+      if (body.deduplicate !== undefined && typeof body.deduplicate !== "boolean") return jsonResponse({ error: "deduplicate must be boolean" }, 400);
+      if (body.reduceLogs !== undefined && typeof body.reduceLogs !== "boolean") return jsonResponse({ error: "reduceLogs must be boolean" }, 400);
+      if (body.preset !== undefined && !["lite", "full", "ultra"].includes(String(body.preset))) return jsonResponse({ error: "preset must be lite, full, or ultra" }, 400);
+      const previous = config.aura?.optimizer;
+      const preset = body.preset as "lite" | "full" | "ultra" | undefined;
+      const enabled = body.enabled ?? previous?.enabled ?? true;
+      const next = {
+        ...previous,
+        enabled,
+        deduplicate: body.deduplicate ?? (preset === "lite" ? false : previous?.deduplicate ?? true),
+        reduceLogs: body.reduceLogs ?? previous?.reduceLogs ?? true,
+        ...(preset ? { preset } : {}),
+      };
+      config.aura = { ...config.aura, optimizer: next };
+      try {
+        saveConfig(config);
+      } catch (err) {
+        config.aura = { ...config.aura, optimizer: previous };
+        return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 500);
+      }
+      return jsonResponse(next);
+    }
   }
 
   if (url.pathname.startsWith("/api/aura/outputs/") && req.method === "GET") {

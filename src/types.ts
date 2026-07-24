@@ -437,6 +437,8 @@ export interface OcxConfig {
       enabled?: boolean;
       deduplicate?: boolean;
       reduceLogs?: boolean;
+      /** Preset label used by the GUI; runtime still uses the conservative booleans above. */
+      preset?: "lite" | "full" | "ultra";
       contextBudgets?: Partial<Record<
         "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs",
         number

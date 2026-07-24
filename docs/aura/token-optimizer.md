@@ -9,6 +9,19 @@ routed providers. Native OpenAI passthrough and compaction requests remain
 byte-identical. Users can disable the optimizer or either transformation in
 `aura.optimizer`.
 
+Aura Setup exposes the same controls as three simple presets:
+
+- `Lite` keeps the optimizer enabled but avoids repeated-output deduplication.
+- `Full` enables the conservative default transformations.
+- `Ultra` is a user-facing policy label for the strongest enabled reductions;
+  it still uses the same protected-content rules and does not introduce lossy
+  model-output compression.
+
+The UI also shows a capability matrix inspired by 9Router. It distinguishes
+available endpoints from partial support and planned contracts, so future TTS,
+STT, embeddings, and standalone web-fetch work can be added without claiming
+support before the provider adapters and response contracts exist.
+
 ## Conservative transformations
 
 Aura processes parsed tool-result context before provider translation:
@@ -54,4 +67,3 @@ savings beside existing cache and normalized-cost metrics. Route details show
 per-request optimizer actions. Saved-token estimates use the same conservative,
 CJK-aware estimator as existing usage fallback and are not presented as
 provider-billed tokens.
-

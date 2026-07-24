@@ -102,6 +102,15 @@ Priority:
   Chat Completions, and Messages clients, with copy-ready local Aura endpoints.
   - Depends on: `CORE-002`, `GUI-004`.
 
+- [x] `CAP-001` P1 Add a capability registry and GUI matrix for Chat, Image,
+  Vision, and Web Search, while marking unsupported 9Router-inspired surfaces
+  as planned.
+  - Depends on: `CORE-002`, `PRV-003`.
+
+- [x] `CAP-002` P1 Expose measured Token Saver presets and safe optimizer
+  controls from Aura Setup.
+  - Depends on: `OPT-002` through `OPT-005`, `GUI-006`.
+
 ## M2.5 — Aura UX Foundation
 
 - [x] `UX-001` P0 Define product personality, information architecture, and
@@ -284,6 +293,9 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
 - `CLT-005` through `CLT-007`: complete. Factory Droid now has guarded
   auto-configuration; ZCode and other compatible coding agents have a
   copy-ready manual guide with explicit protocol and authentication steps.
+- `CAP-001` and `CAP-002`: complete. Aura Setup now exposes a truthful
+  capability matrix and Lite/Full/Ultra Token Saver controls backed by the
+  existing measured optimizer.
 - `UX-001` through `UX-007`: complete; see `docs/aura/ux-foundation.md`. The
   five-area shell preserves legacy hashes, adds persistent Focus/Canvas
   workspaces, icon pill navigation, a visually guided setup/profile/optimizer

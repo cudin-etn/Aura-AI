@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Notice } from "../ui";
-import { IconCheck, IconServer, IconBot, IconSparkle } from "../icons";
+import { IconCheck, IconServer, IconBot, IconSparkle, IconGlobe, IconSliders } from "../icons";
 import { useT } from "../i18n";
 import { modelLabel } from "../model-display";
 import AddProviderModal from "../components/AddProviderModal";
@@ -14,11 +14,24 @@ type AuraProfile = {
   profile: { roles: { orchestrator: { model: string } } };
 };
 type AuraClient = {
-  id: "codex" | "claude-code" | "opencode" | "zcode";
+  id: "codex" | "claude-code" | "opencode" | "zcode" | "factory" | "generic";
   label: string;
   maturity: "production" | "basic" | "experimental";
   configurable: boolean;
   connected: boolean;
+};
+type AuraCapability = {
+  id: string;
+  label: string;
+  status: "available" | "partial" | "planned";
+  endpoint?: string;
+  note: string;
+};
+type AuraOptimizer = {
+  enabled: boolean;
+  deduplicate: boolean;
+  reduceLogs: boolean;
+  preset: "lite" | "full" | "ultra";
 };
 type Config = {
   defaultProvider: string;
@@ -39,6 +52,8 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
   const [config, setConfig] = useState<Config | null>(null);
   const [profile, setProfile] = useState<AuraProfile | null>(null);
   const [clients, setClients] = useState<AuraClient[]>([]);
+  const [capabilities, setCapabilities] = useState<AuraCapability[]>([]);
+  const [optimizer, setOptimizer] = useState<AuraOptimizer | null>(null);
   const [model, setModel] = useState("");
   const [busy, setBusy] = useState("");
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
@@ -55,14 +70,18 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
 
   const load = useCallback(async () => {
     try {
-      const [configData, profileData, clientData] = await Promise.all([
+      const [configData, profileData, clientData, capabilityData, optimizerData] = await Promise.all([
         fetchJson<Config>(`${apiBase}/api/config`),
         fetchJson<AuraProfile>(`${apiBase}/api/aura/profile`),
         fetchJson<{ clients: AuraClient[] }>(`${apiBase}/api/aura/clients`),
+        fetchJson<{ capabilities: AuraCapability[] }>(`${apiBase}/api/aura/capabilities`),
+        fetchJson<AuraOptimizer>(`${apiBase}/api/aura/optimizer`),
       ]);
       setConfig(configData);
       setProfile(profileData);
       setClients(clientData.clients);
+      setCapabilities(capabilityData.capabilities);
+      setOptimizer(optimizerData);
       setModel(current => current || profileData.profile.roles.orchestrator.model);
       setWizardProvider(current => current || configData.defaultProvider);
       setWizardModel(current => current || profileData.profile.roles.orchestrator.model);
@@ -91,6 +110,27 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
       setProfile(data);
       setModel(data.profile.roles.orchestrator.model);
       setNotice({ ok: true, text: t("aura.saved") });
+    } catch (error) {
+      setNotice({ ok: false, text: error instanceof Error ? error.message : t("aura.actionFail") });
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const updateOptimizer = async (patch: Partial<AuraOptimizer>) => {
+    if (!optimizer) return;
+    setBusy("optimizer");
+    setNotice(null);
+    try {
+      const response = await fetch(`${apiBase}/api/aura/optimizer`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      const data = await response.json() as AuraOptimizer & { error?: string };
+      if (!response.ok) throw new Error(data.error || t("aura.actionFail"));
+      setOptimizer(data);
+      setNotice({ ok: true, text: t("aura.optimizerSaved") });
     } catch (error) {
       setNotice({ ok: false, text: error instanceof Error ? error.message : t("aura.actionFail") });
     } finally {
@@ -424,6 +464,67 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
           </div>
         )}
       </section>
+
+      <div className="grid-2" style={{ alignItems: "start", marginTop: 18 }}>
+        <section className="card" style={{ padding: 16 }}>
+          <div className="row" style={{ gap: 10 }}>
+            <IconGlobe aria-hidden style={{ width: 20, height: 20, flexShrink: 0 }} />
+            <div>
+              <div className="h-section" style={{ margin: 0 }}>{t("aura.capabilitiesTitle")}</div>
+              <p className="muted">{t("aura.capabilitiesHint")}</p>
+            </div>
+          </div>
+          <div className="stack" style={{ gap: 8, marginTop: 12 }}>
+            {capabilities.map(capability => (
+              <div key={capability.id} className="row" style={{ justifyContent: "space-between", gap: 10 }}>
+                <div style={{ minWidth: 0 }}>
+                  <strong>{capability.label}</strong>
+                  <div className="muted text-label">{capability.endpoint ?? capability.note}</div>
+                </div>
+                <span className={`badge ${capability.status === "available" ? "badge-accent" : capability.status === "partial" ? "badge-warn" : "badge-muted"}`}>
+                  {t(`aura.capability.${capability.status}` as "aura.capability.available")}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="card" style={{ padding: 16 }}>
+          <div className="row" style={{ gap: 10 }}>
+            <IconSliders aria-hidden style={{ width: 20, height: 20, flexShrink: 0 }} />
+            <div>
+              <div className="h-section" style={{ margin: 0 }}>{t("aura.tokenSaverTitle")}</div>
+              <p className="muted">{t("aura.tokenSaverHint")}</p>
+            </div>
+          </div>
+          {optimizer && (
+            <div className="stack" style={{ gap: 10, marginTop: 12 }}>
+              <div className="row" style={{ justifyContent: "space-between", gap: 12 }}>
+                <div><strong>{t("aura.tokenSaverEnabled")}</strong><div className="muted text-label">{t("aura.tokenSaverMeasured")}</div></div>
+                <button type="button" className={`toggle ${optimizer.enabled ? "on" : ""}`} aria-pressed={optimizer.enabled} onClick={() => void updateOptimizer({ enabled: !optimizer.enabled })} disabled={!!busy}>
+                  <span className="toggle-knob" />
+                </button>
+              </div>
+              <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                {(["lite", "full", "ultra"] as const).map(preset => (
+                  <button key={preset} type="button" className={`btn ${optimizer.preset === preset ? "btn-primary" : "btn-ghost"}`} onClick={() => void updateOptimizer({ preset })} disabled={!!busy}>
+                    {t(`aura.tokenSaver.${preset}` as "aura.tokenSaver.lite")}
+                  </button>
+                ))}
+              </div>
+              <label className="row" style={{ gap: 8 }}>
+                <input type="checkbox" checked={optimizer.deduplicate} onChange={event => void updateOptimizer({ deduplicate: event.target.checked })} disabled={!!busy} />
+                <span>{t("aura.tokenSaverDedup")}</span>
+              </label>
+              <label className="row" style={{ gap: 8 }}>
+                <input type="checkbox" checked={optimizer.reduceLogs} onChange={event => void updateOptimizer({ reduceLogs: event.target.checked })} disabled={!!busy} />
+                <span>{t("aura.tokenSaverLogs")}</span>
+              </label>
+            </div>
+          )}
+        </section>
+      </div>
+
       {providerModalOpen && (
         <AddProviderModal
           apiBase={apiBase}
