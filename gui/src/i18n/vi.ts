@@ -21,6 +21,7 @@ export const vi = {
   "nav.routing": "Định tuyến",
   "nav.insights": "Phân tích",
   "nav.settings": "Cài đặt",
+  "nav.appearance": "Giao diện",
   "nav.overview": "Bắt đầu",
   "nav.accounts": "Tài khoản",
   "nav.clients": "Ứng dụng",
@@ -47,6 +48,15 @@ export const vi = {
   "theme.light": "Sáng",
   "theme.dark": "Tối",
   "theme.system": "Theo hệ thống",
+  "appearance.title": "Giao diện",
+  "appearance.subtitle": "Chọn cách Aura sử dụng không gian cửa sổ.",
+  "appearance.layoutTitle": "Bố cục nội dung",
+  "appearance.layoutHint": "Chuyển tức thì giữa luồng đọc tập trung và không gian làm việc nhiều cột thích ứng.",
+  "appearance.focus": "Tập trung",
+  "appearance.focusHint": "Luồng một cột gọn gàng với chiều rộng dễ đọc.",
+  "appearance.canvas": "Không gian rộng",
+  "appearance.canvasHint": "Bố cục thích ứng, tận dụng chiều rộng cho thẻ và nội dung so sánh.",
+  "appearance.live": "Áp dụng tức thì",
   "lang.label": "Ngôn ngữ",
   "errorBoundary.title": "Không thể tải trang",
   "errorBoundary.message": "Mục này gặp lỗi hiển thị. Hãy tải lại để thử lần nữa.",
@@ -274,4 +284,3 @@ export const vi = {
   "oauthTos.acknowledge": "Tôi hiểu rủi ro và vẫn muốn tiếp tục bằng OAuth.",
   "oauthTos.continue": "Tiếp tục với OAuth",
 } satisfies Record<TKey, string>;
-

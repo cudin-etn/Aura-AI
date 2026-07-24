@@ -12,19 +12,24 @@ import ApiKeys from "./pages/ApiKeys";
 import Clients from "./pages/Clients";
 import Startup from "./pages/Startup";
 import AuraSetup from "./pages/AuraSetup";
+import Appearance, { type LayoutSkin } from "./pages/Appearance";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { IconGrid, IconServer, IconBot, IconActivity, IconGithub, IconMenu, IconSun, IconMoon, IconMonitor, IconGlobe, IconPower, IconSparkle, IconX } from "./icons";
+import {
+  IconGrid, IconServer, IconBot, IconActivity, IconGithub, IconMenu, IconSun,
+  IconMoon, IconMonitor, IconGlobe, IconPower, IconSparkle, IconX, IconBoxes,
+  IconList, IconTerminal, IconHardDrive, IconKey, IconShuffle, IconSliders,
+} from "./icons";
 import { useI18n, useT, LOCALES, type Locale, type TKey } from "./i18n";
 import { Select } from "./ui";
 import { installApiAuthFetch } from "./api";
 
 installApiAuthFetch();
 
-type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude";
+type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude" | "appearance";
 type Section = "home" | "setup" | "routing" | "insights" | "settings";
 type Theme = "light" | "dark" | "system";
 
-const VALID_PAGES = new Set<Page>(["dashboard", "aura", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude"]);
+const VALID_PAGES = new Set<Page>(["dashboard", "aura", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude", "appearance"]);
 
 const PAGE_TKEY: Record<Page, TKey> = {
   dashboard: "nav.dashboard",
@@ -40,6 +45,7 @@ const PAGE_TKEY: Record<Page, TKey> = {
   "codex-auth": "nav.codexAuth",
   api: "nav.api",
   claude: "nav.claude",
+  appearance: "nav.appearance",
 };
 
 function readPageFromHash(): Page {
@@ -59,6 +65,7 @@ function hashBelongsToPage(rawHash: string, page: Page): boolean {
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 const THEME_KEY = "ocx-theme";
+const LAYOUT_KEY = "aura-layout-skin";
 const PROVIDERS_VIEW_KEY = "ocx-providers-view";
 
 function readProvidersViewPreference(): "classic" | "workspace" {
@@ -90,7 +97,7 @@ type SectionConfig = {
   tkey: TKey;
   Icon: typeof IconGrid;
   defaultPage: Page;
-  pages: { id: Page; tkey: TKey }[];
+  pages: { id: Page; tkey: TKey; Icon: typeof IconGrid }[];
 };
 
 const SECTION_NAV: SectionConfig[] = [
@@ -99,7 +106,7 @@ const SECTION_NAV: SectionConfig[] = [
     tkey: "nav.home",
     Icon: IconGrid,
     defaultPage: "dashboard",
-    pages: [{ id: "dashboard", tkey: "nav.dashboard" }],
+    pages: [{ id: "dashboard", tkey: "nav.dashboard", Icon: IconGrid }],
   },
   {
     id: "setup",
@@ -107,11 +114,11 @@ const SECTION_NAV: SectionConfig[] = [
     Icon: IconServer,
     defaultPage: "aura",
     pages: [
-      { id: "aura", tkey: "nav.overview" },
-      { id: "providers", tkey: "nav.providers" },
-      { id: "models", tkey: "nav.models" },
-      { id: "codex-auth", tkey: "nav.accounts" },
-      { id: "claude", tkey: "nav.clients" },
+      { id: "aura", tkey: "nav.overview", Icon: IconSparkle },
+      { id: "providers", tkey: "nav.providers", Icon: IconServer },
+      { id: "models", tkey: "nav.models", Icon: IconBoxes },
+      { id: "codex-auth", tkey: "nav.accounts", Icon: IconKey },
+      { id: "claude", tkey: "nav.clients", Icon: IconTerminal },
     ],
   },
   {
@@ -120,8 +127,8 @@ const SECTION_NAV: SectionConfig[] = [
     Icon: IconBot,
     defaultPage: "subagents",
     pages: [
-      { id: "subagents", tkey: "nav.profiles" },
-      { id: "combos", tkey: "nav.fallback" },
+      { id: "subagents", tkey: "nav.profiles", Icon: IconBot },
+      { id: "combos", tkey: "nav.fallback", Icon: IconShuffle },
     ],
   },
   {
@@ -130,19 +137,20 @@ const SECTION_NAV: SectionConfig[] = [
     Icon: IconActivity,
     defaultPage: "usage",
     pages: [
-      { id: "usage", tkey: "nav.usage" },
-      { id: "logs", tkey: "nav.logs" },
+      { id: "usage", tkey: "nav.usage", Icon: IconActivity },
+      { id: "logs", tkey: "nav.logs", Icon: IconList },
     ],
   },
   {
     id: "settings",
     tkey: "nav.settings",
     Icon: IconMonitor,
-    defaultPage: "startup",
+    defaultPage: "appearance",
     pages: [
-      { id: "startup", tkey: "nav.startup" },
-      { id: "storage", tkey: "nav.storage" },
-      { id: "api", tkey: "nav.api" },
+      { id: "appearance", tkey: "nav.appearance", Icon: IconSliders },
+      { id: "startup", tkey: "nav.startup", Icon: IconPower },
+      { id: "storage", tkey: "nav.storage", Icon: IconHardDrive },
+      { id: "api", tkey: "nav.api", Icon: IconKey },
     ],
   },
 ];
@@ -165,9 +173,18 @@ function readStoredTheme(): Theme {
   return t === "light" || t === "dark" ? t : "system";
 }
 
+function readStoredLayout(): LayoutSkin {
+  try {
+    return localStorage.getItem(LAYOUT_KEY) === "focus" ? "focus" : "canvas";
+  } catch {
+    return "canvas";
+  }
+}
+
 export default function App() {
   const [page, setPageState] = useState<Page>(readPageFromHash);
   const [theme, setTheme] = useState<Theme>(readStoredTheme);
+  const [layoutSkin, setLayoutSkin] = useState<LayoutSkin>(readStoredLayout);
   const [runtimeVersion, setRuntimeVersion] = useState<string | null>(null);
   const { locale, setLocale } = useI18n();
   const t = useT();
@@ -241,6 +258,10 @@ export default function App() {
     if (theme === "system") { el.removeAttribute("data-theme"); localStorage.removeItem(THEME_KEY); }
     else { el.setAttribute("data-theme", theme); localStorage.setItem(THEME_KEY, theme); }
   }, [theme]);
+
+  useEffect(() => {
+    try { localStorage.setItem(LAYOUT_KEY, layoutSkin); } catch { /* ignore */ }
+  }, [layoutSkin]);
 
   useEffect(() => {
     let cancelled = false;
@@ -342,7 +363,7 @@ export default function App() {
   );
 
   return (
-    <div className="app">
+    <div className={`app layout-${layoutSkin}`}>
       {/* inert while the drawer is open: keeps focus and assistive tech inside the drawer */}
       <header className="mobile-topbar" inert={navOpen}>
         <button ref={menuBtnRef} type="button" className="menu-toggle" onClick={() => setNavOpen(o => !o)}
@@ -413,7 +434,9 @@ export default function App() {
             <nav className="context-nav" aria-label={t("nav.section")}>
               <span className="context-nav-title">{t(activeSection.tkey)}</span>
               <div className="context-nav-items">
-                {activeSection.pages.map(item => (
+                {activeSection.pages.map(item => {
+                  const ItemIcon = item.Icon;
+                  return (
                   <button
                     key={item.id}
                     type="button"
@@ -421,9 +444,11 @@ export default function App() {
                     onClick={() => navigateToPage(item.id)}
                     aria-current={page === item.id ? "page" : undefined}
                   >
-                    {t(item.tkey)}
+                    <ItemIcon aria-hidden />
+                    <span>{t(item.tkey)}</span>
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </nav>
           </div>
@@ -450,6 +475,7 @@ export default function App() {
             {page === "codex-auth" && <CodexAuth apiBase={API_BASE} />}
             {page === "api" && <ApiKeys apiBase={API_BASE} />}
             {page === "claude" && <Clients apiBase={API_BASE} />}
+            {page === "appearance" && <Appearance layoutSkin={layoutSkin} onLayoutSkinChange={setLayoutSkin} />}
           </ErrorBoundary>
         </div>
       </main>
