@@ -104,7 +104,7 @@ export const ru: Record<TKey, string> = {
   "common.remove": "Удалить",
   "common.loading": "Загрузка…",
   "common.retry": "Повторить",
-  "app.logoAria": "Логотип opencodex",
+  "app.logoAria": "Логотип Aura AI",
   "app.brandName": "Aura AI",
   "app.claudeOn": "Claude ВКЛ",
   "app.claudeOff": "Claude ВЫКЛ",

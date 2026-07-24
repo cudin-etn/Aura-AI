@@ -864,7 +864,7 @@ export const zh: Record<TKey, string> = {
   "claude.none": "无",
   "common.close": "关闭",
   "common.ok": "确定",
-  "app.logoAria": "opencodex 徽标",
+  "app.logoAria": "Aura AI 徽标",
   "app.claudeOn": "Claude 开",
   "app.claudeOff": "Claude 关",
   "usage.dayMon": "一",

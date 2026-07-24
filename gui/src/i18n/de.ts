@@ -842,7 +842,7 @@ export const de = {
   "claude.none": "Keine",
   "common.close": "Schließen",
   "common.ok": "OK",
-  "app.logoAria": "opencodex-Logo",
+  "app.logoAria": "Aura AI-Logo",
   "app.claudeOn": "Claude AN",
   "app.claudeOff": "Claude AUS",
   "usage.dayMon": "Mo",

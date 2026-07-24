@@ -104,7 +104,7 @@ export const en = {
   "common.remove": "Remove",
   "common.loading": "Loading…",
   "common.retry": "Retry",
-  "app.logoAria": "opencodex logo",
+  "app.logoAria": "Aura AI logo",
   "app.brandName": "Aura AI",
   "app.claudeOn": "Claude ON",
   "app.claudeOff": "Claude OFF",
