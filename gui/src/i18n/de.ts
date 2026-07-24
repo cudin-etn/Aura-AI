@@ -1041,7 +1041,7 @@ export const de = {
   "modal.forwardHintPrefix": "Kein Schlüssel nötig — der Proxy leitet deine",
   "modal.forwardCredentials": "codex login",
   "modal.forwardHintSuffix": "Anmeldedaten an diesen Anbieter weiter.",
-  "modal.localHint": "Es wird kein API-Schlüssel gespeichert. Damit wird Cursors öffentlicher Modellkatalog für Codex hinzugefügt; live Cursor-Transport und native Datei-/Shell-Ausführung bleiben deaktiviert, bis sie geprüft sind.",
+  "modal.localHint": "Es wird kein API-Schlüssel gespeichert. Aura verbindet sich ausschließlich über den oben angegebenen lokalen Endpunkt mit diesem Anbieter.",
   "modal.getApiKey": "{label}-API-Schlüssel holen",
   "modal.apiKey": "API-Schlüssel",
   "modal.apiKeyPlaceholder": "sk-… (oder $ENV_VAR)",

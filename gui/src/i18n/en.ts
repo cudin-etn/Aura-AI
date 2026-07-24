@@ -887,7 +887,7 @@ export const en = {
   "modal.forwardHintPrefix": "No key needed — the proxy forwards your",
   "modal.forwardCredentials": "codex login",
   "modal.forwardHintSuffix": "credentials to this provider.",
-  "modal.localHint": "No API key is stored. This adds Cursor's static public model catalog for Codex, but live Cursor transport and native file/shell execution remain disabled until audited.",
+  "modal.localHint": "No API key is stored. Aura connects to this provider only through the local endpoint shown above.",
   "modal.getApiKey": "Get your {label} API key",
   "modal.apiKey": "API key",
   "modal.apiKeyPlaceholder": "sk-… (or $ENV_VAR)",

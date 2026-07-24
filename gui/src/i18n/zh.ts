@@ -1063,7 +1063,7 @@ export const zh: Record<TKey, string> = {
   "modal.forwardHintPrefix": "无需密钥 — 代理会转发你的",
   "modal.forwardCredentials": "codex login",
   "modal.forwardHintSuffix": "凭据到此提供方。",
-  "modal.localHint": "不会存储 API 密钥。这会为 Codex 添加 Cursor 的公开模型目录，但在审计完成前，实时 Cursor 传输与原生文件/Shell 执行仍保持禁用。",
+  "modal.localHint": "不会存储 API 密钥。Aura 仅通过上方显示的本地端点连接此提供商。",
   "modal.getApiKey": "获取 {label} API 密钥",
   "modal.apiKey": "API 密钥",
   "modal.apiKeyPlaceholder": "sk-…（或 $ENV_VAR）",

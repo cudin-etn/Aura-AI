@@ -15,6 +15,7 @@ export interface CatalogPreset {
   label: string;
   adapter: string;
   baseUrl: string;
+  compactMode?: "native" | "synthetic";
   defaultModel?: string;
   /** "oauth": account login · "forward": ChatGPT passthrough · "key": API key · "local": local scaffold. */
   auth: "oauth" | "forward" | "key" | "local";

@@ -141,6 +141,7 @@ export default function AddProviderModal({
       baseUrl: p.baseUrlChoices?.length
         ? baseUrlForChoice(p.baseUrlChoices, choiceId, p.baseUrl)
         : p.baseUrl,
+      compactMode: p.compactMode,
       authMode: p.auth,
       apiKey: "",
       defaultModel: p.defaultModel ?? "",

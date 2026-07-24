@@ -22,6 +22,8 @@ export interface ProviderRegistryEntry {
   label: string;
   adapter: string;
   baseUrl: string;
+  /** Prefer native compact, or synthesize a summary through the provider's normal response route. */
+  compactMode?: "native" | "synthetic";
   authKind: ProviderAuthKind;
   codexAccountMode?: CodexAccountMode;
   /** OAuth preset may explicitly honor a persisted API-key billing mode. */
@@ -87,7 +89,7 @@ export interface ProviderRegistryEntry {
 
 export type ProviderConfigSeed = Pick<
   OcxProviderConfig,
-  "adapter" | "baseUrl" | "authMode" | "keyOptional" | "freeTier" | "modelSuffixBracketStrip" | "defaultModel" | "models"
+  "adapter" | "baseUrl" | "compactMode" | "authMode" | "keyOptional" | "freeTier" | "modelSuffixBracketStrip" | "defaultModel" | "models"
   | "liveModels" | "contextWindow" | "modelContextWindows" | "modelInputModalities"
   | "modelMaxInputTokens" | "defaultMaxOutputTokens" | "modelMaxOutputTokens"
   | "reasoningEfforts" | "modelReasoningEfforts" | "modelDefaultReasoningEfforts" | "reasoningEffortMap" | "modelReasoningEffortMap"
@@ -343,6 +345,19 @@ export const PROVIDER_REGISTRY: readonly ProviderRegistryEntry[] = [
     codexAccountMode: "pool",
     featured: true,
     note: "Codex login account pool (default) or Direct main-account mode via codexAccountMode",
+  },
+  {
+    id: "9router",
+    label: "9router (local)",
+    adapter: "openai-responses",
+    baseUrl: "http://127.0.0.1:20128/v1",
+    compactMode: "synthetic",
+    authKind: "local",
+    allowPrivateNetworkByDefault: true,
+    allowBaseUrlOverride: true,
+    featured: true,
+    liveModels: true,
+    note: "Local multi-provider router. Aura uses synthetic compact by default for GPT-5.6 compatibility.",
   },
   {
     id: "cursor",

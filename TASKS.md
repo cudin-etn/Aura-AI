@@ -106,10 +106,10 @@ Priority:
 
 ## M3 — Provider and Client GUI
 
-- [ ] `PRV-001` P0 Define the generic provider/account/model configuration
+- [x] `PRV-001` P0 Define the generic provider/account/model configuration
   schema and migrations.
 
-- [ ] `PRV-002` P1 Implement direct OpenAI, Anthropic, xAI, OpenRouter, custom
+- [x] `PRV-002` P1 Implement direct OpenAI, Anthropic, xAI, OpenRouter, custom
   OpenAI-compatible, and optional 9router upstream presets.
   - Depends on: `PRV-001`, `CORE-003`.
 
@@ -117,11 +117,11 @@ Priority:
   capability probes.
   - Depends on: `PRV-002`, `CMP-003`.
 
-- [ ] `CFG-001` P0 Implement atomic config backup, preview, apply, verification,
+- [x] `CFG-001` P0 Implement atomic config backup, preview, apply, verification,
   rollback, and restore.
   - Done when: an interrupted write cannot destroy a client's original config.
 
-- [ ] `GUI-001` P1 Build Add Provider and authentication flow.
+- [x] `GUI-001` P1 Build Add Provider and authentication flow.
   - Depends on: `PRV-002`, `CFG-001`.
 
 - [ ] `GUI-002` P1 Build model selection, compatibility report, and role
@@ -255,5 +255,10 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
 - `UX-001` through `UX-004`: complete; see `docs/aura/ux-foundation.md`. The
   five-area shell preserves legacy hashes, passes locale lint, and has desktop
   and mobile browser verification for Setup and Routing.
-- Next: finish the generic provider schema and transactional configuration
-  layer in M3 using the Aura shell.
+- `PRV-001`, `PRV-002`, `CFG-001`, and `GUI-001`: complete; see
+  `docs/aura/provider-core.md`. Aura reuses the normalized provider registry,
+  adds a first-class 9router preset with synthetic GPT-5.6 compact, and protects
+  client configuration with preview, atomic apply, verification, rollback, and
+  guarded restore.
+- Next: surface capability probes and model/role compatibility in Setup, then
+  complete the unified client connection workflow.

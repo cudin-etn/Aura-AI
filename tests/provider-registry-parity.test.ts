@@ -465,7 +465,7 @@ describe("provider registry parity", () => {
   test("base URL override permission is registry-only and limited to opted-in providers", () => {
     const optedIn = PROVIDER_REGISTRY.filter(entry => entry.allowBaseUrlOverride);
 
-    expect(optedIn.map(entry => entry.id)).toEqual(["ollama", "vllm", "lm-studio", "qwen-cloud", "alibaba-token-plan-intl", "litellm"]);
+    expect(optedIn.map(entry => entry.id)).toEqual(["9router", "ollama", "vllm", "lm-studio", "qwen-cloud", "alibaba-token-plan-intl", "litellm"]);
     for (const entry of optedIn) {
       expect(providerConfigSeed(entry)).not.toHaveProperty("allowBaseUrlOverride");
     }
@@ -632,7 +632,7 @@ describe("provider registry parity", () => {
   test("GUI preset projection preserves current featured set plus key catalog and custom", () => {
     const featured = deriveFeaturedProviderIds();
     expect(featured).toEqual([
-      "openai", "xai", "anthropic", "anthropic-apikey", "kimi", "openai-apikey", "umans", "opencode-go", "openrouter",
+      "openai", "9router", "xai", "anthropic", "anthropic-apikey", "kimi", "openai-apikey", "umans", "opencode-go", "openrouter",
       "groq", "google", "azure-openai", "ollama", "vllm", "lm-studio", "opencode-free",
       "mimo-free",
     ]);

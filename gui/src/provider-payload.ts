@@ -2,6 +2,7 @@ export interface ProviderPayloadForm {
   name: string;
   adapter: string;
   baseUrl: string;
+  compactMode?: "native" | "synthetic";
   authMode: "key" | "forward" | "oauth" | "local";
   apiKey: string;
   defaultModel: string;
@@ -28,6 +29,7 @@ export function codexPresetDescriptionKey(preset: ProviderPostPreset): CodexPres
 export interface ProviderPayload {
   adapter: string;
   baseUrl: string;
+  compactMode?: "native" | "synthetic";
   apiKey?: string;
   defaultModel?: string;
   authMode?: "key" | "forward" | "oauth";
@@ -41,6 +43,9 @@ export function buildProviderPayload(form: ProviderPayloadForm): ProviderPayload
     baseUrl: form.baseUrl.trim(),
   };
 
+  if (form.compactMode) {
+    provider.compactMode = form.compactMode;
+  }
   if (form.authMode === "key" || form.authMode === "forward") {
     provider.authMode = form.authMode;
   }

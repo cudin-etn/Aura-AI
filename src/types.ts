@@ -437,6 +437,7 @@ export interface OcxConfig {
         backupPath?: string;
         created: boolean;
         appliedAt: number;
+        appliedHash?: string;
       };
     };
   };

@@ -6,6 +6,7 @@ import {
   applyOpenCodeConnection,
   buildOpenCodeConnection,
   defaultOpenCodeConfigPath,
+  previewOpenCodeConnection,
   restoreOpenCodeConnection,
 } from "../src/clients/opencode";
 
@@ -49,6 +50,7 @@ describe("Aura OpenCode connector", () => {
     const state = applyOpenCodeConnection("http://127.0.0.1:10100/v1", "cx/gpt-5.6-terra");
     expect(defaultOpenCodeConfigPath()).toBe(path);
     expect(state.created).toBe(false);
+    expect(state.appliedHash).toMatch(/^[0-9a-f]{64}$/);
     expect(state.backupPath && existsSync(state.backupPath)).toBe(true);
     expect(Bun.JSONC.parse(readFileSync(path, "utf8"))).toMatchObject({
       model: "aura/cx/gpt-5.6-terra",
@@ -64,5 +66,40 @@ describe("Aura OpenCode connector", () => {
     expect(existsSync(path)).toBe(true);
     restoreOpenCodeConnection(state);
     expect(existsSync(path)).toBe(false);
+  });
+
+  test("previews only changed paths and never returns existing config values", () => {
+    const path = target();
+    writeFileSync(path, '{"privateToken":"must-not-leak"}\n');
+    const preview = previewOpenCodeConnection("http://127.0.0.1:10100/v1", "model");
+    expect(preview).toEqual({
+      path,
+      exists: true,
+      model: "aura/model",
+      provider: "aura",
+      changes: ["provider.aura", "model"],
+    });
+    expect(JSON.stringify(preview)).not.toContain("must-not-leak");
+  });
+
+  test("refuses to overwrite user edits made after Aura applied", () => {
+    const path = target();
+    const original = '{"provider":{"existing":{"npm":"package"}}}\n';
+    writeFileSync(path, original);
+    const state = applyOpenCodeConnection("http://127.0.0.1:10100/v1", "model");
+    writeFileSync(path, '{"userChanged":true}\n');
+
+    expect(() => restoreOpenCodeConnection(state)).toThrow("refusing to overwrite user edits");
+    expect(readFileSync(path, "utf8")).toBe('{"userChanged":true}\n');
+    expect(readFileSync(state.backupPath!, "utf8")).toBe(original);
+  });
+
+  test("rejects a tampered backup path before reading it", () => {
+    const path = target();
+    writeFileSync(path, '{"original":true}\n');
+    const state = applyOpenCodeConnection("http://127.0.0.1:10100/v1", "model");
+
+    expect(() => restoreOpenCodeConnection({ ...state, backupPath: join(root!, "other-secret") }))
+      .toThrow("backup is missing or unsafe");
   });
 });

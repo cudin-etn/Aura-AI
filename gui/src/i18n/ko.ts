@@ -1063,7 +1063,7 @@ export const ko: Record<TKey, string> = {
   "modal.forwardHintPrefix": "키 불필요 — 프록시가",
   "modal.forwardCredentials": "codex login",
   "modal.forwardHintSuffix": "자격 증명을 이 프로바이더로 전달합니다.",
-  "modal.localHint": "API 키는 저장되지 않습니다. Cursor의 공개 모델 카탈로그만 Codex에 추가되며, live Cursor 전송과 네이티브 파일/셸 실행은 검토 전까지 비활성입니다.",
+  "modal.localHint": "API 키는 저장되지 않습니다. Aura는 위에 표시된 로컬 엔드포인트를 통해서만 이 제공자에 연결합니다.",
   "modal.getApiKey": "{label} API 키 받기",
   "modal.apiKey": "API 키",
   "modal.apiKeyPlaceholder": "sk-… (또는 $ENV_VAR)",

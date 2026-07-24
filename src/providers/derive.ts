@@ -51,6 +51,7 @@ export interface DerivedProviderPreset {
   label: string;
   adapter: string;
   baseUrl: string;
+  compactMode?: "native" | "synthetic";
   defaultModel?: string;
   auth: "oauth" | "forward" | "key" | "local";
   codexAccountMode?: CodexAccountMode;
@@ -85,6 +86,7 @@ export function providerConfigSeed(entry: ProviderRegistryEntry): OcxProviderCon
   return {
     adapter: entry.adapter,
     baseUrl: entry.baseUrl,
+    ...(entry.compactMode ? { compactMode: entry.compactMode } : {}),
     authMode: entry.authKind === "local" ? undefined : entry.authKind,
     ...(entry.codexAccountMode ? { codexAccountMode: entry.codexAccountMode } : {}),
     ...(entry.keyOptional !== undefined ? { keyOptional: entry.keyOptional } : {}),
@@ -201,6 +203,7 @@ export function enrichProviderFromRegistry(name: string, prov: OcxProviderConfig
   const entry = PROVIDER_REGISTRY.find(row => row.id === name);
   if (!entry) return;
   const seed = providerConfigSeed(entry);
+  if (prov.compactMode === undefined && seed.compactMode !== undefined) prov.compactMode = seed.compactMode;
   if (!prov.defaultModel && seed.defaultModel) prov.defaultModel = seed.defaultModel;
   // Fill mode only when absent: an explicit persisted `direct` must never be overwritten.
   if (prov.codexAccountMode === undefined && seed.codexAccountMode !== undefined) prov.codexAccountMode = seed.codexAccountMode;
@@ -260,6 +263,7 @@ function entryToPreset(entry: ProviderRegistryEntry): DerivedProviderPreset {
     label: entry.label,
     adapter: entry.adapter,
     baseUrl: entry.baseUrl,
+    ...(entry.compactMode ? { compactMode: entry.compactMode } : {}),
     auth: entry.authKind === "forward" ? "forward" : entry.authKind === "oauth" ? "oauth" : entry.authKind === "local" ? "local" : "key",
     ...(entry.codexAccountMode ? { codexAccountMode: entry.codexAccountMode } : {}),
     ...(entry.codexAccountMode ? { provider: providerConfigSeed(entry) } : {}),

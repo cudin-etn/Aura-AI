@@ -43,7 +43,7 @@ export function describeAuraProvider(id: string, provider: OcxProviderConfig): A
       models: provider.models ?? registry?.models ?? [],
     },
     capabilities: {
-      compact: provider.compactMode ?? "native",
+      compact: provider.compactMode ?? registry?.compactMode ?? "native",
       reasoningDeclared: Boolean(
         provider.reasoningEfforts?.length
         || Object.keys(provider.modelReasoningEfforts ?? {}).length

@@ -29,7 +29,11 @@ The connector:
 3. previews the intended provider and model;
 4. creates a byte-for-byte backup before replacing an existing file;
 5. writes atomically;
-6. restores the original bytes, or removes only a file Aura created.
+6. reads back and verifies Aura's provider/model fields;
+7. rolls back the original bytes if apply or verification fails;
+8. restores only while the applied-byte hash still matches, so later user
+   edits are never overwritten;
+9. restores the original bytes, or removes only a file Aura created.
 
 The management API never accepts an arbitrary filesystem path. Tests redirect
 the connector with `OPENCODE_CONFIG` so verification cannot modify the user's

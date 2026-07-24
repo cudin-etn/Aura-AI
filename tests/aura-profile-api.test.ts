@@ -58,13 +58,13 @@ describe("/api/aura/profile", () => {
         id: "9router",
         adapter: "openai-responses",
         protocol: "responses",
-        authentication: { kind: "key", keyOptional: false },
+          authentication: { kind: "local", keyOptional: false },
         discovery: {
           live: false,
           models: ["cx/gpt-5.6-luna", "cx/gpt-5.6-terra", "cx/gpt-5.6-sol"],
         },
         capabilities: {
-          compact: "native",
+          compact: "synthetic",
           reasoningDeclared: false,
           visionDeclared: false,
         },
