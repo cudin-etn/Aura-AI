@@ -17,6 +17,7 @@ describe("Codex auth modal status feedback", () => {
       "gui/src/i18n/ja.ts",
       "gui/src/i18n/ko.ts",
       "gui/src/i18n/ru.ts",
+      "gui/src/i18n/vi.ts",
       "gui/src/i18n/zh.ts",
     ];
     const locales = await Promise.all(localePaths.map(path => Bun.file(path).text()));

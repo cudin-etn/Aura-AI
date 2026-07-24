@@ -5,11 +5,12 @@ import { ko } from "./ko";
 import { zh } from "./zh";
 import { ru } from "./ru";
 import { ja } from "./ja";
+import { vi } from "./vi";
 
-export type Locale = "en" | "de" | "ko" | "zh" | "ru" | "ja";
+export type Locale = "en" | "de" | "ko" | "zh" | "ru" | "ja" | "vi";
 export type { TKey };
 
-export const DICTS: Record<Locale, Record<TKey, string>> = { en, de, ko, zh, ru, ja };
+export const DICTS: Record<Locale, Record<TKey, string>> = { en, de, ko, zh, ru, ja, vi };
 
 export const LOCALES: { code: Locale; name: string; htmlLang: string }[] = [
   { code: "en", name: "English", htmlLang: "en" },
@@ -18,6 +19,7 @@ export const LOCALES: { code: Locale; name: string; htmlLang: string }[] = [
   { code: "zh", name: "中文", htmlLang: "zh-CN" },
   { code: "ru", name: "Русский", htmlLang: "ru" },
   { code: "ja", name: "日本語", htmlLang: "ja" },
+  { code: "vi", name: "Tiếng Việt", htmlLang: "vi" },
 ];
 
 const LANG_KEY = "ocx-lang";
@@ -25,7 +27,7 @@ const LANG_KEY = "ocx-lang";
 export function detectInitial(): Locale {
   try {
     const stored = localStorage.getItem(LANG_KEY);
-    if (stored === "en" || stored === "de" || stored === "ko" || stored === "zh" || stored === "ru" || stored === "ja") return stored;
+    if (stored === "en" || stored === "de" || stored === "ko" || stored === "zh" || stored === "ru" || stored === "ja" || stored === "vi") return stored;
   } catch { /* ignore */ }
   const nav = typeof navigator !== "undefined" ? navigator.language.toLowerCase() : "en";
   if (nav.startsWith("de")) return "de";
@@ -33,6 +35,7 @@ export function detectInitial(): Locale {
   if (nav.startsWith("zh")) return "zh";
   if (nav.startsWith("ru")) return "ru";
   if (nav.startsWith("ja")) return "ja";
+  if (nav.startsWith("vi")) return "vi";
   return "en";
 }
 
