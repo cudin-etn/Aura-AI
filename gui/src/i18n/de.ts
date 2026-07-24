@@ -462,6 +462,7 @@ export const de = {
   "sub.auraTitle": "Aura-Profile",
   "sub.auraSubtitle": "Wendet einen rollenbasierten Modellplan auf die vorhandenen OpenCodex-Steuerungen an.",
   "sub.auraParent": "Empfohlenes Hauptmodell",
+  "sub.auraLimits": "{agents} gleichzeitige Subagenten · {tokens} gemeldete Token pro Aufgabe",
   "sub.auraApply": "Rollenzuweisungen anwenden",
   "sub.auraSaved": "Aura-Profil angewendet. Für den vollständigen Routingplan eine neue Codex-Sitzung starten.",
   "sub.auraSaveFailed": "Das Aura-Profil konnte nicht angewendet werden.",

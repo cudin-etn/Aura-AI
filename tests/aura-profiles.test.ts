@@ -5,6 +5,7 @@ import {
   auraRouteMetadata,
   buildAuraProfile,
   inferAuraRole,
+  resolveAuraRoute,
 } from "../src/policy/aura-profiles";
 import type { OcxConfig } from "../src/types";
 import { addFinalRequestLog, requestLogEntryFromPersistedUsage, type RequestLogEntry } from "../src/server/request-log";
@@ -57,6 +58,8 @@ describe("Aura profiles", () => {
     expect(target.injectionEffort).toBe("medium");
     expect(target.injectionPrompt).toContain("Never exceed 3 concurrent subagents.");
     expect(target.aura?.activeProfile).toBe("balanced");
+    expect(target.aura?.maxSubagents).toBe(3);
+    expect(target.aura?.tokenBudgetPerTask).toBe(500_000);
   });
 
   test("role inference is deterministic and route metadata exposes manual overrides", () => {
@@ -75,6 +78,41 @@ describe("Aura profiles", () => {
       profile: "balanced",
       role: "reviewer",
       reason: "manual_override",
+    });
+  });
+
+  test("escalates only on explicit bounded risk and verification signals", () => {
+    const target = config();
+    applyAuraProfile(target, buildAuraProfile("balanced", models));
+
+    expect(resolveAuraRoute(target, new Headers({
+      "x-aura-risk": "security",
+      "x-aura-role": "worker",
+    }), models[1])).toEqual({
+      profile: "balanced",
+      role: "reviewer",
+      reason: "risk_escalation",
+      model: models[2],
+    });
+    expect(resolveAuraRoute(target, new Headers({
+      "x-codex-turn-metadata": JSON.stringify({
+        aura_role: "tester",
+        aura_verification_failures: 2,
+      }),
+    }), models[1])).toEqual({
+      profile: "balanced",
+      role: "reviewer",
+      reason: "verification_escalation",
+      model: models[2],
+    });
+    expect(resolveAuraRoute(target, new Headers({
+      "x-aura-risk": "hard-looking-task",
+      "x-aura-verification-failures": "1",
+    }), models[1])).toEqual({
+      profile: "balanced",
+      role: "orchestrator",
+      reason: "profile_match",
+      model: models[1],
     });
   });
 

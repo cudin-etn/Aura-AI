@@ -431,6 +431,8 @@ export interface OcxConfig {
       { model: string; effort: "low" | "medium" | "high" | "xhigh" | "max" | "ultra" }
     >>;
     maxSubagents?: number;
+    /** Hard cumulative reported-token ceiling for one correlated task/thread. */
+    tokenBudgetPerTask?: number;
     clients?: {
       opencode?: {
         path: string;

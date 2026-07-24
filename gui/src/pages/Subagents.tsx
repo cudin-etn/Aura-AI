@@ -12,6 +12,7 @@ type AuraProfile = {
   id: AuraProfileId;
   roles: Record<AuraRole, AuraAssignment>;
   maxSubagents: number;
+  tokenBudgetPerTask: number;
 };
 type AuraProfileResponse = {
   activeProfile: AuraProfileId;
@@ -166,6 +167,12 @@ export default function Subagents({ apiBase }: { apiBase: string }) {
           <p className="muted text-label">
             {t("sub.auraParent")}: <code>{modelLabel(aura.profile.roles.orchestrator.model)}</code>
             {" · "}{aura.profile.roles.orchestrator.effort}
+          </p>
+          <p className="muted text-label">
+            {t("sub.auraLimits", {
+              agents: aura.profile.maxSubagents,
+              tokens: aura.profile.tokenBudgetPerTask.toLocaleString(),
+            })}
           </p>
           <div className="stack" style={{ gap: 8, marginTop: 12 }}>
             {aura.roles.map(role => (

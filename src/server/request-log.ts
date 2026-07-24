@@ -10,6 +10,8 @@ import { CODEX_CONFIG_PATH, readRootTomlString } from "../codex/paths";
 import { readCodexCatalogPath } from "../codex/catalog";
 import type { OcxUsage } from "../types";
 import type { AuraClientId, AuraProtocolId } from "../clients/registry";
+import type { AuraRouteReason } from "../policy/aura-profiles";
+import { completeAuraTaskBudget, type AuraBudgetAdmission } from "../policy/aura-budget";
 import { redactSecretString } from "../lib/redact";
 import {
   appendUsageEntry,
@@ -38,7 +40,9 @@ export interface RequestLogContext {
   threadKey?: string;
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
-  auraRouteReason?: "profile_match" | "manual_override";
+  auraRouteReason?: AuraRouteReason;
+  /** Internal per-task admission; consumed exactly once when the request log finalizes. */
+  auraBudgetAdmission?: AuraBudgetAdmission;
   /** TTFT: ms from request start to the first non-empty model output delta (WP4, devlog 040). */
   firstOutputMs?: number;
   surface?: "claude";
@@ -87,7 +91,7 @@ export interface RequestLogEntry {
   provider: string;
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
-  auraRouteReason?: "profile_match" | "manual_override";
+  auraRouteReason?: AuraRouteReason;
   /** TTFT: ms from request start to the first non-empty model output delta; unset for non-streaming/tool-only. */
   firstOutputMs?: number;
   surface?: "claude";
@@ -643,6 +647,8 @@ export function addFinalRequestLog(
     ...(logCtx.transportPhase ? { transportPhase: logCtx.transportPhase } : {}),
     ...(logCtx.terminalSource ? { terminalSource: logCtx.terminalSource } : {}),
   });
+  completeAuraTaskBudget(logCtx.auraBudgetAdmission, totalTokens);
+  logCtx.auraBudgetAdmission = undefined;
   if (isUsageDebugEnabled()) {
     appendUsageDebug({
       ts: Date.now(),

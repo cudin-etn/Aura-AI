@@ -4,6 +4,7 @@ import { getConfigDir } from "../config";
 import { usageDisplayTotalTokens } from "./totals";
 import type { OcxUsage } from "../types";
 import type { AuraClientId, AuraProtocolId } from "../clients/registry";
+import type { AuraRouteReason } from "../policy/aura-profiles";
 
 export type UsageStatus = "reported" | "unreported" | "unsupported" | "estimated";
 
@@ -42,7 +43,7 @@ export interface PersistedUsageEntry {
   model: string;
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
-  auraRouteReason?: "profile_match" | "manual_override";
+  auraRouteReason?: AuraRouteReason;
   surface?: "claude";
   resolvedModel?: string;
   requestedModel?: string;

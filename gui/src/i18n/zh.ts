@@ -474,6 +474,7 @@ export const zh: Record<TKey, string> = {
   "sub.auraTitle": "Aura 配置",
   "sub.auraSubtitle": "将基于角色的模型方案应用到现有 OpenCodex 子代理和推理强度控制。",
   "sub.auraParent": "推荐主模型",
+  "sub.auraLimits": "并发子代理 {agents} 个 · 每个任务已报告令牌 {tokens} 个",
   "sub.auraApply": "应用角色分配",
   "sub.auraSaved": "Aura 配置已应用。请新建 Codex 会话以使用完整路由方案。",
   "sub.auraSaveFailed": "无法应用 Aura 配置。",

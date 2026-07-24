@@ -85,6 +85,8 @@ import {
   sanitizePassthroughHeaders,
 } from "./relay";
 import { auraClientLogFields } from "../clients/registry";
+import { admitAuraTaskBudget } from "../policy/aura-budget";
+import { isThreadSpawnRequest } from "./effort-policy";
 export {
   consumeForInspection,
   relaySseWithFailedTail,
@@ -481,6 +483,13 @@ export function startServer(port?: number) {
           threadKey: requestThreadKey(req.headers),
           ...auraClientLogFields(url.pathname),
         };
+        const budget = admitAuraTaskBudget(config, logCtx.threadKey, isThreadSpawnRequest(req.headers));
+        if (!budget.ok) {
+          logCtx.upstreamError = budget.message;
+          addFinalRequestLog(requestId, start, logCtx, 429, { closeReason: "non_stream" });
+          return withCors(anthropicErrorResponse(429, budget.message, "rate_limit_error"), req, config);
+        }
+        logCtx.auraBudgetAdmission = budget.admission;
         // Logging is finalized inside handleClaudeMessages (Responses-vocab tap on the
         // pre-translation stream + native passthrough callbacks) — do not re-wrap the
         // translated Anthropic stream here.
@@ -508,6 +517,13 @@ export function startServer(port?: number) {
           threadKey: requestThreadKey(req.headers),
           ...auraClientLogFields(url.pathname),
         };
+        const budget = admitAuraTaskBudget(config, logCtx.threadKey, isThreadSpawnRequest(req.headers));
+        if (!budget.ok) {
+          logCtx.upstreamError = budget.message;
+          addFinalRequestLog(requestId, start, logCtx, 429, { closeReason: "non_stream" });
+          return withCors(formatErrorResponse(429, budget.code, budget.message), req, config);
+        }
+        logCtx.auraBudgetAdmission = budget.admission;
         const response = await handleChatCompletions(req, config, logCtx, { requestId, start });
         return withCors(response, req, config);
       }

@@ -444,6 +444,7 @@ export const ja: Record<TKey, string> = {
   "sub.auraTitle": "Aura プロファイル",
   "sub.auraSubtitle": "ロール別モデル計画を既存の OpenCodex サブエージェントと推論強度設定へ適用します。",
   "sub.auraParent": "推奨親モデル",
+  "sub.auraLimits": "同時サブエージェント {agents} 件 · タスクごとの報告済みトークン {tokens}",
   "sub.auraApply": "ロール割り当てを適用",
   "sub.auraSaved": "Aura プロファイルを適用しました。完全なルーティング計画は新しい Codex セッションで有効になります。",
   "sub.auraSaveFailed": "Aura プロファイルを適用できませんでした。",

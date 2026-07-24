@@ -97,7 +97,7 @@ interface LogEntry {
   auraProtocol?: "responses" | "chat-completions" | "messages";
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
-  auraRouteReason?: "profile_match" | "manual_override";
+  auraRouteReason?: "profile_match" | "manual_override" | "risk_escalation" | "verification_escalation";
   timestamp: number;
   model: string;
   provider: string;

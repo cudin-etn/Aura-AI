@@ -154,7 +154,7 @@ Priority:
 - [x] `POL-004` P1 Implement role-based subagent model selection.
   - Depends on: `POL-001`, `POL-003`.
 
-- [ ] `POL-005` P1 Implement deterministic escalation after defined risk or
+- [x] `POL-005` P1 Implement deterministic escalation after defined risk or
   verification signals.
   - Depends on: `POL-004`.
 
@@ -162,10 +162,10 @@ Priority:
   breaker, and compatible fallback.
   - Depends on: `PRV-003`, `POL-003`.
 
-- [ ] `POL-007` P1 Add concurrency and per-task budget limits.
+- [x] `POL-007` P1 Add concurrency and per-task budget limits.
   - Depends on: `POL-004`.
 
-- [ ] `GUI-005` P1 Build profile picker, advanced role editor, manual override,
+- [x] `GUI-005` P1 Build profile picker, advanced role editor, manual override,
   and route trace.
   - Depends on: `POL-002` through `POL-007`.
 
@@ -273,9 +273,12 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   a four-step provider/model/client/profile wizard with provider-aware model
   selection, connection testing, and a non-mutating review step.
 - M3 is complete. Next: finish the remaining smart-routing policy in M4.
-- `POL-001` through `POL-004` and `POL-006`: complete; see
+- `POL-001` through `POL-007` and `GUI-005`: complete; see
   `docs/aura/smart-routing.md`. Aura reuses bounded account affinity, key
   failover, combo cooldown/circuit behavior, and concurrency controls while
   compiling universal roles and profiles into the existing subagent surfaces.
-- Next: deterministic runtime escalation (`POL-005`), per-task budgets
-  (`POL-007`), and the remaining controls in `GUI-005`.
+  Explicit security, concurrency, migration, data-loss, and repeated
+  verification signals escalate to the reviewer model; per-task concurrency
+  and reported-token budgets fail closed and are visible with each profile.
+- M4 is complete. Next: establish the unoptimized benchmark baseline before
+  enabling token transformations in M5.

@@ -96,6 +96,8 @@ import {
 } from "../relay";
 import { hasResponsesItemIdRepair, relaySseWithResponsesItemIdRepair } from "../responses-item-id-repair";
 import type { EffectiveSubagentRoster, SpawnAgentSurface } from "../../codex/catalog";
+import { admitAuraTaskBudget } from "../../policy/aura-budget";
+import { isThreadSpawnRequest } from "../effort-policy";
 
 import { buildToolBridgeMaps, collabSurface, injectDeveloperMessage, multiAgentGuidanceText } from "./collaboration";
 import { hasUnreadableEncryptedAgentTask, looksLikeBackendCiphertext, sanitizeEncryptedContentInPlace } from "./encrypted-payload";
@@ -548,6 +550,14 @@ export async function handleResponses(
   } catch (err) {
     return decodeRequestErrorResponse(err, "responses");
   }
+  if (!options.comboAttempt) {
+    const budget = admitAuraTaskBudget(config, logCtx.threadKey, isThreadSpawnRequest(req.headers));
+    if (!budget.ok) {
+      logCtx.upstreamError = budget.message;
+      return formatErrorResponse(429, budget.code, budget.message);
+    }
+    logCtx.auraBudgetAdmission = budget.admission;
+  }
   const comboId = !options.comboAttempt ? comboIdFromRawBody(body, config) : null;
   if (comboId && Object.hasOwn(config.combos ?? {}, comboId)) {
     return handleComboResponses(req, body, comboId, config, logCtx, options);
@@ -590,11 +600,17 @@ export async function handleResponses(
   logCtx.configuredServiceTier = readConfiguredCodexServiceTier();
   logCtx.configuredSpeedLabel = requestLogSpeedLabel(logCtx.configuredServiceTier);
   {
-    const { auraRouteMetadata } = await import("../../policy/aura-profiles");
-    const metadata = auraRouteMetadata(config, req.headers, parsed.modelId);
-    logCtx.auraProfile = metadata.profile;
-    logCtx.auraRole = metadata.role;
-    logCtx.auraRouteReason = metadata.reason;
+    const { resolveAuraRoute } = await import("../../policy/aura-profiles");
+    const decision = resolveAuraRoute(config, req.headers, parsed.modelId);
+    logCtx.auraProfile = decision.profile;
+    logCtx.auraRole = decision.role;
+    logCtx.auraRouteReason = decision.reason;
+    if (decision.model !== parsed.modelId) {
+      parsed.modelId = decision.model;
+      if (parsed._rawBody && typeof parsed._rawBody === "object") {
+        (parsed._rawBody as { model?: string }).model = decision.model;
+      }
+    }
   }
 
   // Shadow call intercept: rewrite Codex's hard-coded helper calls

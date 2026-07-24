@@ -479,6 +479,7 @@ export const en = {
   "sub.auraTitle": "Aura profiles",
   "sub.auraSubtitle": "Apply one role-based model plan across the existing OpenCodex subagent and effort controls.",
   "sub.auraParent": "Recommended parent",
+  "sub.auraLimits": "{agents} concurrent subagents · {tokens} reported tokens per task",
   "sub.auraApply": "Apply role assignments",
   "sub.auraSaved": "Aura profile applied. Start a new Codex session for the full routing plan.",
   "sub.auraSaveFailed": "Could not apply the Aura profile.",

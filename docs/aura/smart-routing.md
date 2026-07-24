@@ -41,14 +41,33 @@ Sanitized request/usage logs persist:
 The Logs detail view surfaces the Aura route fields alongside provider/model
 and the ordered fallback attempts.
 
-## Still open
+## Deterministic escalation
 
-Two controls are intentionally not claimed complete:
+Aura does not spend an extra model call classifying task difficulty. It
+escalates to the configured reviewer model only when a client supplies one of
+these bounded machine-readable signals:
 
-- automatic escalation needs runtime verification/risk signals, not only prompt
-  guidance;
-- per-task token/subagent budgets need a task identity and enforcement counter,
-  not only the existing process-wide concurrency setting.
+- `x-aura-risk` (or `aura_risk` in Codex turn metadata) is `security`,
+  `concurrency`, `migration`, or `data_loss`;
+- `x-aura-verification-failures` (or
+  `aura_verification_failures` in turn metadata) is at least two.
 
-Both must be deterministic, observable, and benchmarked before they can affect
-model choice.
+The route trace records `risk_escalation` or `verification_escalation`.
+Unknown hints and a single failed verification do not switch models.
+
+## Per-task limits
+
+Profiles compile to hard task limits:
+
+| Profile | Concurrent subagents | Reported-token budget |
+| --- | ---: | ---: |
+| Saver | 2 | 250,000 |
+| Balanced | 3 | 500,000 |
+| Quality | 4 | 1,000,000 |
+
+The in-memory counter is keyed by the existing sanitized thread identity,
+expires after six idle hours, and is bounded to 1,000 tasks. Responses,
+Chat Completions, and Claude Messages contribute authoritative reported usage.
+When a provider reports no usage, Aura does not invent token consumption.
+Requests fail closed with a specific 429 error after the token ceiling or while
+the task's concurrent-subagent ceiling is occupied.

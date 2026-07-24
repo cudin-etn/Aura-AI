@@ -479,6 +479,7 @@ export const ru: Record<TKey, string> = {
   "sub.auraTitle": "Профили Aura",
   "sub.auraSubtitle": "Применяет ролевой план моделей через существующие настройки субагентов и усилия OpenCodex.",
   "sub.auraParent": "Рекомендуемая родительская модель",
+  "sub.auraLimits": "Одновременно субагентов: {agents} · учтённых токенов на задачу: {tokens}",
   "sub.auraApply": "Применить назначения ролей",
   "sub.auraSaved": "Профиль Aura применён. Создайте новую сессию Codex для полного плана маршрутизации.",
   "sub.auraSaveFailed": "Не удалось применить профиль Aura.",

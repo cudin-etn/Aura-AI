@@ -474,6 +474,7 @@ export const ko: Record<TKey, string> = {
   "sub.auraTitle": "Aura 프로필",
   "sub.auraSubtitle": "역할 기반 모델 계획을 기존 OpenCodex 서브에이전트 및 effort 설정에 적용합니다.",
   "sub.auraParent": "권장 부모 모델",
+  "sub.auraLimits": "동시 하위 에이전트 {agents}개 · 작업당 보고 토큰 {tokens}개",
   "sub.auraApply": "역할 할당 적용",
   "sub.auraSaved": "Aura 프로필을 적용했습니다. 전체 라우팅 계획은 새 Codex 세션에서 적용됩니다.",
   "sub.auraSaveFailed": "Aura 프로필을 적용하지 못했습니다.",

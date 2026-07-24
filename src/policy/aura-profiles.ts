@@ -2,6 +2,11 @@ import type { OcxConfig } from "../types";
 
 export const AURA_PROFILE_IDS = ["saver", "balanced", "quality"] as const;
 export type AuraProfileId = typeof AURA_PROFILE_IDS[number];
+export type AuraRouteReason =
+  | "profile_match"
+  | "manual_override"
+  | "risk_escalation"
+  | "verification_escalation";
 
 export const AURA_ROLES = ["orchestrator", "explorer", "worker", "reviewer", "tester", "docs"] as const;
 export type AuraRole = typeof AURA_ROLES[number];
@@ -32,6 +37,7 @@ export type AuraProfile = {
   id: AuraProfileId;
   roles: Record<AuraRole, AuraRoleAssignment>;
   maxSubagents: number;
+  tokenBudgetPerTask: number;
 };
 
 export type AuraProfileOverrides = Partial<Record<AuraRole, Partial<AuraRoleAssignment>>>;
@@ -79,7 +85,12 @@ export function buildAuraProfile(
     role,
     { ...defaults[id][role], ...overrides[role] },
   ])) as AuraProfile["roles"];
-  return { id, roles, maxSubagents: 3 };
+  const limits: Record<AuraProfileId, { maxSubagents: number; tokenBudgetPerTask: number }> = {
+    saver: { maxSubagents: 2, tokenBudgetPerTask: 250_000 },
+    balanced: { maxSubagents: 3, tokenBudgetPerTask: 500_000 },
+    quality: { maxSubagents: 4, tokenBudgetPerTask: 1_000_000 },
+  };
+  return { id, roles, ...limits[id] };
 }
 
 export function auraProfilePrompt(profile: AuraProfile): string {
@@ -109,10 +120,18 @@ export function applyAuraProfile(config: OcxConfig, profile: AuraProfile): void 
     activeProfile: profile.id,
     roles: profile.roles,
     maxSubagents: profile.maxSubagents,
+    tokenBudgetPerTask: profile.tokenBudgetPerTask,
   };
 }
 
 export function inferAuraRole(headers: Headers): AuraRole {
+  const explicit = headers.get("x-aura-role")?.trim().toLowerCase();
+  if (AURA_ROLES.includes(explicit as AuraRole)) return explicit as AuraRole;
+  const metadata = auraTurnMetadata(headers);
+  const metadataRole = typeof metadata.aura_role === "string"
+    ? metadata.aura_role.trim().toLowerCase()
+    : "";
+  if (AURA_ROLES.includes(metadataRole as AuraRole)) return metadataRole as AuraRole;
   const marker = `${headers.get("x-openai-subagent") ?? ""} ${headers.get("x-codex-turn-metadata") ?? ""}`.toLowerCase();
   if (!marker.trim()) return "orchestrator";
   if (/review|audit|security/.test(marker)) return "reviewer";
@@ -122,18 +141,67 @@ export function inferAuraRole(headers: Headers): AuraRole {
   return "worker";
 }
 
-export function auraRouteMetadata(
+function auraTurnMetadata(headers: Headers): Record<string, unknown> {
+  const raw = headers.get("x-codex-turn-metadata");
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+function normalizedRiskSignal(headers: Headers): string | undefined {
+  const metadata = auraTurnMetadata(headers);
+  const raw = headers.get("x-aura-risk")
+    ?? (typeof metadata.aura_risk === "string" ? metadata.aura_risk : undefined);
+  if (!raw) return undefined;
+  const normalized = raw.trim().toLowerCase().replaceAll("-", "_");
+  return ["security", "concurrency", "migration", "data_loss"].includes(normalized)
+    ? normalized
+    : undefined;
+}
+
+function verificationFailures(headers: Headers): number {
+  const metadata = auraTurnMetadata(headers);
+  const raw = headers.get("x-aura-verification-failures") ?? metadata.aura_verification_failures;
+  const count = typeof raw === "number" ? raw : Number.parseInt(String(raw ?? ""), 10);
+  return Number.isFinite(count) && count >= 0 ? count : 0;
+}
+
+export function resolveAuraRoute(
   config: Pick<OcxConfig, "aura">,
   headers: Headers,
   requestedModel: string,
-): { profile?: AuraProfileId; role?: AuraRole; reason?: "profile_match" | "manual_override" } {
+): { profile?: AuraProfileId; role?: AuraRole; reason?: AuraRouteReason; model: string } {
   const profile = config.aura?.activeProfile;
-  if (!profile || !AURA_PROFILE_IDS.includes(profile)) return {};
+  if (!profile || !AURA_PROFILE_IDS.includes(profile)) return { model: requestedModel };
   const role = inferAuraRole(headers);
   const assigned = config.aura?.roles?.[role]?.model;
+  const reviewerModel = config.aura?.roles?.reviewer?.model;
+  const risk = normalizedRiskSignal(headers);
+  if (risk && reviewerModel) {
+    return { profile, role: "reviewer", reason: "risk_escalation", model: reviewerModel };
+  }
+  if (verificationFailures(headers) >= 2 && reviewerModel) {
+    return { profile, role: "reviewer", reason: "verification_escalation", model: reviewerModel };
+  }
   return {
     profile,
     role,
     reason: assigned === requestedModel ? "profile_match" : "manual_override",
+    model: requestedModel,
   };
+}
+
+export function auraRouteMetadata(
+  config: Pick<OcxConfig, "aura">,
+  headers: Headers,
+  requestedModel: string,
+): Omit<ReturnType<typeof resolveAuraRoute>, "model"> {
+  const { model: _model, ...metadata } = resolveAuraRoute(config, headers, requestedModel);
+  return metadata;
 }
