@@ -43,6 +43,8 @@ export interface RequestLogContext {
   auraRouteReason?: AuraRouteReason;
   /** Internal per-task admission; consumed exactly once when the request log finalizes. */
   auraBudgetAdmission?: AuraBudgetAdmission;
+  auraOptimizerSavedTokens?: number;
+  auraOptimizerActions?: number;
   /** TTFT: ms from request start to the first non-empty model output delta (WP4, devlog 040). */
   firstOutputMs?: number;
   surface?: "claude";
@@ -92,6 +94,8 @@ export interface RequestLogEntry {
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
   auraRouteReason?: AuraRouteReason;
+  auraOptimizerSavedTokens?: number;
+  auraOptimizerActions?: number;
   /** TTFT: ms from request start to the first non-empty model output delta; unset for non-streaming/tool-only. */
   firstOutputMs?: number;
   surface?: "claude";
@@ -172,6 +176,8 @@ export function requestLogEntryFromPersistedUsage(entry: PersistedUsageEntry): R
     ...(entry.auraProfile ? { auraProfile: entry.auraProfile } : {}),
     ...(entry.auraRole ? { auraRole: entry.auraRole } : {}),
     ...(entry.auraRouteReason ? { auraRouteReason: entry.auraRouteReason } : {}),
+    ...(entry.auraOptimizerSavedTokens ? { auraOptimizerSavedTokens: entry.auraOptimizerSavedTokens } : {}),
+    ...(entry.auraOptimizerActions ? { auraOptimizerActions: entry.auraOptimizerActions } : {}),
     ...(entry.firstOutputMs !== undefined ? { firstOutputMs: entry.firstOutputMs } : {}),
     ...(entry.surface === "claude" ? { surface: entry.surface } : {}),
     ...(entry.requestedModel ? { requestedModel: entry.requestedModel } : {}),
@@ -255,6 +261,8 @@ export function addRequestLog(entry: RequestLogEntry) {
       ...(entry.auraProfile ? { auraProfile: entry.auraProfile } : {}),
       ...(entry.auraRole ? { auraRole: entry.auraRole } : {}),
       ...(entry.auraRouteReason ? { auraRouteReason: entry.auraRouteReason } : {}),
+      ...(entry.auraOptimizerSavedTokens ? { auraOptimizerSavedTokens: entry.auraOptimizerSavedTokens } : {}),
+      ...(entry.auraOptimizerActions ? { auraOptimizerActions: entry.auraOptimizerActions } : {}),
       ...(entry.surface === "claude" ? { surface: entry.surface } : {}),
       ...(entry.resolvedModel ? { resolvedModel: entry.resolvedModel } : {}),
       ...(entry.requestedModel ? { requestedModel: entry.requestedModel } : {}),
@@ -622,6 +630,8 @@ export function addFinalRequestLog(
     ...(logCtx.auraProfile ? { auraProfile: logCtx.auraProfile } : {}),
     ...(logCtx.auraRole ? { auraRole: logCtx.auraRole } : {}),
     ...(logCtx.auraRouteReason ? { auraRouteReason: logCtx.auraRouteReason } : {}),
+    ...(logCtx.auraOptimizerSavedTokens ? { auraOptimizerSavedTokens: logCtx.auraOptimizerSavedTokens } : {}),
+    ...(logCtx.auraOptimizerActions ? { auraOptimizerActions: logCtx.auraOptimizerActions } : {}),
     ...(logCtx.surface ? { surface: logCtx.surface } : {}),
     ...(logCtx.requestedModel ? { requestedModel: logCtx.requestedModel } : {}),
     ...(logCtx.requestedEffort ? { requestedEffort: logCtx.requestedEffort } : {}),

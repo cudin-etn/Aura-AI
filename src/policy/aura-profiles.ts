@@ -42,6 +42,15 @@ export type AuraProfile = {
 
 export type AuraProfileOverrides = Partial<Record<AuraRole, Partial<AuraRoleAssignment>>>;
 
+export const AURA_ROLE_CONTEXT_BUDGETS: Record<AuraRole, number> = {
+  orchestrator: 80_000,
+  explorer: 20_000,
+  worker: 40_000,
+  reviewer: 60_000,
+  tester: 30_000,
+  docs: 20_000,
+};
+
 function findTier(models: readonly string[], tier: "sol" | "terra" | "luna"): string | undefined {
   return models.find(model => model.toLowerCase().includes(`gpt-5.6-${tier}`));
 }
@@ -121,6 +130,16 @@ export function applyAuraProfile(config: OcxConfig, profile: AuraProfile): void 
     roles: profile.roles,
     maxSubagents: profile.maxSubagents,
     tokenBudgetPerTask: profile.tokenBudgetPerTask,
+    optimizer: {
+      enabled: true,
+      deduplicate: true,
+      reduceLogs: true,
+      ...config.aura?.optimizer,
+      contextBudgets: {
+        ...AURA_ROLE_CONTEXT_BUDGETS,
+        ...config.aura?.optimizer?.contextBudgets,
+      },
+    },
   };
 }
 

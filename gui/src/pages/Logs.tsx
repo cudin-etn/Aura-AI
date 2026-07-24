@@ -98,6 +98,8 @@ interface LogEntry {
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
   auraRouteReason?: "profile_match" | "manual_override" | "risk_escalation" | "verification_escalation";
+  auraOptimizerSavedTokens?: number;
+  auraOptimizerActions?: number;
   timestamp: number;
   model: string;
   provider: string;
@@ -593,6 +595,7 @@ function LogDetailDialog({
             {detail.auraProfile && (<><span className="muted">{t("logs.detail.auraProfile")}</span><span className="mono">{detail.auraProfile}</span></>)}
             {detail.auraRole && (<><span className="muted">{t("logs.detail.auraRole")}</span><span className="mono">{detail.auraRole}</span></>)}
             {detail.auraRouteReason && (<><span className="muted">{t("logs.detail.auraReason")}</span><span className="mono">{detail.auraRouteReason}</span></>)}
+            {detail.auraOptimizerActions !== undefined && (<><span className="muted">{t("logs.detail.optimizer")}</span><span className="mono">{t("logs.detail.optimizerValue", { actions: detail.auraOptimizerActions, tokens: detail.auraOptimizerSavedTokens ?? 0 })}</span></>)}
             {detail.errorCode && (<><span className="muted">{t("logs.col.error")}</span><span className="mono">{detail.errorCode}</span></>)}
             {detail.upstreamError && (<><span className="muted">{t("logs.col.upstreamReason")}</span><span className="mono log-detail-break">{detail.upstreamError}</span></>)}
           </div>

@@ -98,6 +98,7 @@ import { hasResponsesItemIdRepair, relaySseWithResponsesItemIdRepair } from "../
 import type { EffectiveSubagentRoster, SpawnAgentSurface } from "../../codex/catalog";
 import { admitAuraTaskBudget } from "../../policy/aura-budget";
 import { isThreadSpawnRequest } from "../effort-policy";
+import { optimizeAuraToolOutputs } from "../../optimizer/tool-output";
 
 import { buildToolBridgeMaps, collabSurface, injectDeveloperMessage, multiAgentGuidanceText } from "./collaboration";
 import { hasUnreadableEncryptedAgentTask, looksLikeBackendCiphertext, sanitizeEncryptedContentInPlace } from "./encrypted-payload";
@@ -663,6 +664,22 @@ export async function handleResponses(
   logCtx.model = route.modelId;
   logCtx.provider = route.providerName;
   logCtx.providerAdapter = route.provider.adapter;
+
+  if (
+    config.aura?.optimizer?.enabled
+    && !isCanonicalOpenAiForwardProvider(route.provider)
+    && !parsed._compactionRequest
+  ) {
+    const optimized = optimizeAuraToolOutputs(parsed.context.messages, {
+      deduplicate: config.aura.optimizer.deduplicate !== false,
+      reduceLogs: config.aura.optimizer.reduceLogs !== false,
+      contextBudgetTokens: logCtx.auraRole
+        ? config.aura.optimizer.contextBudgets?.[logCtx.auraRole]
+        : undefined,
+    });
+    logCtx.auraOptimizerSavedTokens = optimized.savedTokens;
+    logCtx.auraOptimizerActions = optimized.deduplicated + optimized.reducedLogs + optimized.budgetedOutputs;
+  }
 
   // Virtual model rewriting: Pro aliases → base model + reasoning.mode="pro".
   // Must run before effort caps/native clamps so the base model gets correct limits.

@@ -175,22 +175,22 @@ Priority:
   transformation.
   - Depends on: `OBS-003`, `EVAL-001`.
 
-- [ ] `OPT-002` P1 Implement repeated-output deduplication.
+- [x] `OPT-002` P1 Implement repeated-output deduplication.
   - Depends on: `OPT-001`.
 
-- [ ] `OPT-003` P1 Implement bounded log reduction with local full-output
+- [x] `OPT-003` P1 Implement bounded log reduction with local full-output
   retrieval.
   - Depends on: `OPT-001`.
 
-- [ ] `OPT-004` P1 Implement per-role context budgets and unchanged-content
+- [x] `OPT-004` P1 Implement per-role context budgets and unchanged-content
   suppression.
   - Depends on: `OPT-001`.
 
-- [ ] `OPT-005` P0 Add protected-content rules for source, migrations, security
+- [x] `OPT-005` P0 Add protected-content rules for source, migrations, security
   evidence, and unresolved errors.
   - Depends on: `OPT-002`, `OPT-003`, `OPT-004`.
 
-- [ ] `GUI-006` P1 Show cache rate, normalized cost, saved tokens, optimization
+- [x] `GUI-006` P1 Show cache rate, normalized cost, saved tokens, optimization
   actions, and retrieval links.
   - Depends on: `OBS-003`, `OPT-002` through `OPT-005`.
 
@@ -289,3 +289,9 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   with zero claimed savings.
 - Next: implement protected repeated-output deduplication and bounded log
   reduction, then run live always-Sol/profile comparisons for `EVAL-003`.
+- `OPT-002` through `OPT-005` and `GUI-006`: complete; see
+  `docs/aura/token-optimizer.md`. Optimizations are routed-only, reversible,
+  measured per request, and preserve source, migration, security, stack-trace,
+  encrypted, image, and patch output byte-for-byte.
+- M5 is complete. Next: live strategy evaluation, security gates, packaging,
+  release documentation, and cross-platform release verification in M6.

@@ -123,7 +123,14 @@ export async function handleLogsUsageRoutes(ctx: ManagementContext): Promise<Res
     const surface = parseUsageSurface(url.searchParams.get("surface"));
     const now = Date.now();
     try {
-      return jsonResponse(summarizeUsage(readUsageEntries(), range, now, surface));
+      return jsonResponse({
+        ...summarizeUsage(readUsageEntries(), range, now, surface),
+        optimizer: {
+          enabled: config.aura?.optimizer?.enabled === true,
+          deduplicate: config.aura?.optimizer?.deduplicate !== false,
+          reduceLogs: config.aura?.optimizer?.reduceLogs !== false,
+        },
+      });
     } catch {
       return jsonResponse({
         range,
@@ -150,6 +157,13 @@ export async function handleLogsUsageRoutes(ctx: ManagementContext): Promise<Res
           pricedRequests: 0,
           unpricedRequests: 0,
           unmeteredRequests: 0,
+          optimizerSavedTokens: 0,
+          optimizerActions: 0,
+        },
+        optimizer: {
+          enabled: config.aura?.optimizer?.enabled === true,
+          deduplicate: config.aura?.optimizer?.deduplicate !== false,
+          reduceLogs: config.aura?.optimizer?.reduceLogs !== false,
         },
         days: [],
         models: [],

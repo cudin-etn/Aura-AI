@@ -32,6 +32,8 @@ export interface UsageSummaryTotals {
   unpricedRequests: number;
   /** Requests whose usage itself is missing/unsupported, so no cost can be computed. */
   unmeteredRequests: number;
+  optimizerSavedTokens: number;
+  optimizerActions: number;
 }
 
 export interface UsageDay {
@@ -144,6 +146,8 @@ function blankTotals(): UsageSummaryTotals {
     pricedRequests: 0,
     unpricedRequests: 0,
     unmeteredRequests: 0,
+    optimizerSavedTokens: 0,
+    optimizerActions: 0,
   };
 }
 
@@ -498,6 +502,8 @@ export function summarizeUsage(
     totals.attemptCount += entry.attempts?.length ?? 1;
     addTokens(totals, entry);
     addEstimatedCost(totals, entry);
+    totals.optimizerSavedTokens += entry.auraOptimizerSavedTokens ?? 0;
+    totals.optimizerActions += entry.auraOptimizerActions ?? 0;
   }
   finalizeCoverage(totals);
   return {

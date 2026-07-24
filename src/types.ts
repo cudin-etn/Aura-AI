@@ -433,6 +433,15 @@ export interface OcxConfig {
     maxSubagents?: number;
     /** Hard cumulative reported-token ceiling for one correlated task/thread. */
     tokenBudgetPerTask?: number;
+    optimizer?: {
+      enabled?: boolean;
+      deduplicate?: boolean;
+      reduceLogs?: boolean;
+      contextBudgets?: Partial<Record<
+        "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs",
+        number
+      >>;
+    };
     clients?: {
       opencode?: {
         path: string;

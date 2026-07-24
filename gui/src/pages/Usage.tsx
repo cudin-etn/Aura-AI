@@ -26,6 +26,8 @@ interface UsageSummaryTotals {
   pricedRequests?: number;
   unpricedRequests?: number;
   unmeteredRequests?: number;
+  optimizerSavedTokens: number;
+  optimizerActions: number;
 }
 
 interface UsageDay {
@@ -77,6 +79,11 @@ interface UsageResponse {
   days: UsageDay[];
   models: UsageModel[];
   providers: UsageProvider[];
+  optimizer: {
+    enabled: boolean;
+    deduplicate: boolean;
+    reduceLogs: boolean;
+  };
   error?: string;
 }
 
@@ -261,11 +268,13 @@ function UsageFilters({
 
 function UsageSummaryCards({
   summary,
+  optimizer,
   activeDays,
   locale,
   t,
 }: {
   summary: UsageSummaryTotals;
+  optimizer: UsageResponse["optimizer"];
   activeDays: number;
   locale: Locale;
   t: TFn;
@@ -302,6 +311,18 @@ function UsageSummaryCards({
           )}
         </div>
       )}
+      <div className="usage-cost-row" role="note">
+        <span className="muted">{t("usage.optimizer.status")}</span>
+        <span className="stat-value mono usage-cost-value">
+          {optimizer.enabled ? t("usage.optimizer.enabled") : t("usage.optimizer.disabled")}
+        </span>
+        <span className="muted text-caption">
+          {t("usage.optimizer.saved", {
+            tokens: formatTokens(summary.optimizerSavedTokens ?? 0, locale),
+            actions: summary.optimizerActions ?? 0,
+          })}
+        </span>
+      </div>
     </>
   );
 }
@@ -630,10 +651,13 @@ export default function Usage({ apiBase }: { apiBase: string }) {
       ) : loading && !data ? (
         <EmptyState title={t("usage.loading")} />
       ) : data?.summary.requests === 0 ? (
-        <EmptyState title={t("usage.empty")} />
+        <>
+          <UsageSummaryCards summary={data.summary} optimizer={data.optimizer} activeDays={0} locale={locale} t={t} />
+          <EmptyState title={t("usage.empty")} />
+        </>
       ) : data ? (
         <>
-          <UsageSummaryCards summary={data.summary} activeDays={activeDays} locale={locale} t={t} />
+        <UsageSummaryCards summary={data.summary} optimizer={data.optimizer} activeDays={activeDays} locale={locale} t={t} />
           <UsageHeatmapPanel range={range} heatmap={heatmap} weekBars={weekBars} locale={locale} t={t} />
           <UsageModelsTable models={filteredModels} modelQuery={modelQuery} onModelQuery={setModelQuery} locale={locale} t={t} />
           <UsageProvidersTable providers={sortedProviders} locale={locale} t={t} />

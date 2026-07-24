@@ -44,6 +44,8 @@ export interface PersistedUsageEntry {
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
   auraRouteReason?: AuraRouteReason;
+  auraOptimizerSavedTokens?: number;
+  auraOptimizerActions?: number;
   surface?: "claude";
   resolvedModel?: string;
   requestedModel?: string;
@@ -233,6 +235,12 @@ function normalizeUsageEntry(entry: PersistedUsageEntry): PersistedUsageEntry {
     ...(entry.auraProfile ? { auraProfile: entry.auraProfile } : {}),
     ...(entry.auraRole ? { auraRole: entry.auraRole } : {}),
     ...(entry.auraRouteReason ? { auraRouteReason: entry.auraRouteReason } : {}),
+    ...(typeof entry.auraOptimizerSavedTokens === "number" && Number.isFinite(entry.auraOptimizerSavedTokens) && entry.auraOptimizerSavedTokens > 0
+      ? { auraOptimizerSavedTokens: entry.auraOptimizerSavedTokens }
+      : {}),
+    ...(typeof entry.auraOptimizerActions === "number" && Number.isFinite(entry.auraOptimizerActions) && entry.auraOptimizerActions > 0
+      ? { auraOptimizerActions: entry.auraOptimizerActions }
+      : {}),
     ...(entry.surface === "claude" ? { surface: entry.surface } : {}),
     ...(entry.resolvedModel ? { resolvedModel: entry.resolvedModel } : {}),
     ...(entry.requestedModel ? { requestedModel: entry.requestedModel } : {}),

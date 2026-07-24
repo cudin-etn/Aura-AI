@@ -65,6 +65,7 @@ import {
 } from "../../policy/aura-profiles";
 import { AURA_CLIENT_ADAPTERS } from "../../clients/registry";
 import { describeAuraProvider } from "../../providers/aura";
+import { readAuraToolOutput } from "../../optimizer/output-store";
 import {
   applyOpenCodeConnection,
   previewOpenCodeConnection,
@@ -81,6 +82,18 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
   if (url.pathname === "/api/aura/providers" && req.method === "GET") {
     return jsonResponse({
       providers: Object.entries(config.providers).map(([id, provider]) => describeAuraProvider(id, provider)),
+    });
+  }
+
+  if (url.pathname.startsWith("/api/aura/outputs/") && req.method === "GET") {
+    const handle = url.pathname.slice("/api/aura/outputs/".length);
+    const output = readAuraToolOutput(handle);
+    if (output === null) return jsonResponse({ error: "Aura output was not found" }, 404);
+    return new Response(output, {
+      headers: {
+        "content-type": "text/plain; charset=utf-8",
+        "cache-control": "no-store",
+      },
     });
   }
 

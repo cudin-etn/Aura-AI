@@ -19,6 +19,8 @@ function entry(overrides: Partial<PersistedUsageEntry> & { ts: number }): Persis
     ...(rest.usage ? { usage: rest.usage } : {}),
     ...(rest.totalTokens !== undefined ? { totalTokens: rest.totalTokens } : {}),
     ...(rest.attempts ? { attempts: rest.attempts } : {}),
+    ...(rest.auraOptimizerSavedTokens !== undefined ? { auraOptimizerSavedTokens: rest.auraOptimizerSavedTokens } : {}),
+    ...(rest.auraOptimizerActions !== undefined ? { auraOptimizerActions: rest.auraOptimizerActions } : {}),
   };
 }
 
@@ -149,6 +151,15 @@ describe("summarizeUsage", () => {
     expect(sum.summary.totalTokens).toBe(15);
     expect(sum.summary.inputTokens).toBe(10);
     expect(sum.summary.outputTokens).toBe(5);
+  });
+
+  test("aggregates Aura optimizer savings and transformation counts", () => {
+    const summary = summarizeUsage([
+      entry({ ts: FIXED_NOW - 1000, auraOptimizerSavedTokens: 120, auraOptimizerActions: 2 }),
+      entry({ ts: FIXED_NOW - 2000, auraOptimizerSavedTokens: 30, auraOptimizerActions: 1 }),
+    ], "30d", FIXED_NOW);
+    expect(summary.summary.optimizerSavedTokens).toBe(150);
+    expect(summary.summary.optimizerActions).toBe(3);
   });
 
   test("three OpenAI API Pro selections stay separate from their resolved base models", () => {
