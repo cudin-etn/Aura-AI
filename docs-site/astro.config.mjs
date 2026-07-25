@@ -2,9 +2,9 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
-// Project GitHub Pages site: https://lidge-jun.github.io/opencodex
+// Project GitHub Pages site: https://cudin-etn.github.io/Aura-AI
 // `site` + `base` make Starlight emit correct absolute URLs and asset paths under the repo subpath.
-const SITE_URL = "https://lidge-jun.github.io/opencodex";
+const SITE_URL = "https://cudin-etn.github.io/Aura-AI";
 
 // JSON-LD: WebSite + SoftwareApplication (docs SEO baseline; canonical/og/sitemap
 // are emitted by Starlight itself).
@@ -15,16 +15,16 @@ const jsonLd = JSON.stringify({
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,
       url: `${SITE_URL}/`,
-      name: "opencodex",
+      name: "Aura AI",
       description:
-        "Universal provider proxy for OpenAI Codex & Claude Code — use any LLM with Codex CLI, App, SDK, and Claude Code.",
+        "A local multi-provider gateway for Codex, Claude Code, OpenCode, and compatible AI coding agents.",
       inLanguage: ["en", "ko", "zh-CN", "ru", "ja"],
     },
     {
       "@type": "SoftwareApplication",
       "@id": `${SITE_URL}/#software`,
-      name: "opencodex",
-      alternateName: "ocx",
+      name: "Aura AI",
+      alternateName: "aura",
       description:
         "Local LLM proxy that lets OpenAI Codex (CLI, App, SDK) and Claude Code run on any model — Claude, Gemini, Grok, DeepSeek, Kimi, Qwen, Ollama, OpenRouter, and more — with streaming, tool calls, reasoning tokens, and images working in both directions.",
       keywords:
@@ -40,25 +40,25 @@ const jsonLd = JSON.stringify({
       operatingSystem: "macOS, Linux, Windows",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
       softwareHelp: { "@type": "CreativeWork", url: `${SITE_URL}/` },
-      downloadUrl: "https://www.npmjs.com/package/@bitkyc08/opencodex",
-      url: "https://github.com/lidge-jun/opencodex",
+      downloadUrl: "https://github.com/cudin-etn/Aura-AI#source-preview",
+      url: "https://github.com/cudin-etn/Aura-AI",
     },
   ],
 });
 
 export default defineConfig({
-  site: "https://lidge-jun.github.io",
-  base: "/opencodex",
+  site: "https://cudin-etn.github.io",
+  base: "/Aura-AI",
   trailingSlash: "ignore",
   // lightningcss merges animation-timeline into the `animation` shorthand,
   // which Chrome cannot parse — the scroll-driven animations die silently.
   vite: { build: { cssMinify: "esbuild" } },
   integrations: [
     starlight({
-      title: "opencodex",
+      title: "Aura AI",
       description:
-        "Universal provider proxy for OpenAI Codex & Claude Code — use any LLM with Codex CLI, App, SDK, and Claude Code.",
-      tagline: "Use any LLM with OpenAI Codex and Claude Code.",
+        "A local multi-provider gateway for Codex, Claude Code, OpenCode, and compatible AI coding agents.",
+      tagline: "Connect coding agents to the right model, provider, and account.",
       logo: {
         light: "./src/assets/logo-light.png",
         dark: "./src/assets/logo-dark.png",
@@ -75,20 +75,20 @@ export default defineConfig({
         PageTitle: "./src/components/PageTitle.astro",
       },
       head: [
-        { tag: "meta", attrs: { property: "og:image", content: "https://lidge-jun.github.io/opencodex/og.png" } },
+        { tag: "meta", attrs: { property: "og:image", content: "https://cudin-etn.github.io/Aura-AI/og.png" } },
         { tag: "meta", attrs: { property: "og:image:width", content: "1200" } },
         { tag: "meta", attrs: { property: "og:image:height", content: "630" } },
         { tag: "meta", attrs: { name: "twitter:card", content: "summary_large_image" } },
-        { tag: "meta", attrs: { name: "twitter:image", content: "https://lidge-jun.github.io/opencodex/og.png" } },
+        { tag: "meta", attrs: { name: "twitter:image", content: "https://cudin-etn.github.io/Aura-AI/og.png" } },
         { tag: "meta", attrs: { name: "theme-color", media: "(prefers-color-scheme: light)", content: "#ffffff" } },
         { tag: "meta", attrs: { name: "theme-color", media: "(prefers-color-scheme: dark)", content: "#212121" } },
         { tag: "script", attrs: { type: "application/ld+json" }, content: jsonLd },
       ],
       social: [
-        { icon: "github", label: "GitHub", href: "https://github.com/lidge-jun/opencodex" },
+        { icon: "github", label: "GitHub", href: "https://github.com/cudin-etn/Aura-AI" },
       ],
       editLink: {
-        baseUrl: "https://github.com/lidge-jun/opencodex/edit/main/docs-site/",
+        baseUrl: "https://github.com/cudin-etn/Aura-AI/edit/dev/docs-site/",
       },
       lastUpdated: true,
       // English at the site root; Korean under /ko, Simplified Chinese under /zh-cn, Russian under /ru, Japanese under /ja.

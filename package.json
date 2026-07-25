@@ -1,7 +1,7 @@
 {
   "name": "@bitkyc08/opencodex",
   "version": "2.7.36",
-  "description": "Universal provider proxy for OpenAI Codex & Claude Code — use any LLM with Codex CLI/App/SDK and Claude Code",
+  "description": "Aura AI — a local multi-provider gateway for Codex, Claude Code, OpenCode, and other AI coding agents",
   "type": "module",
   "main": "./bin/package-main.mjs",
   "exports": {
@@ -71,6 +71,10 @@
     "fast-uri": "^3.1.4"
   },
   "keywords": [
+    "aura-ai",
+    "ai-coding-agent",
+    "model-router",
+    "token-optimization",
     "codex",
     "openai",
     "proxy",
@@ -91,11 +95,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lidge-jun/opencodex.git"
+    "url": "git+https://github.com/cudin-etn/Aura-AI.git"
   },
-  "homepage": "https://lidge-jun.github.io/opencodex/",
+  "homepage": "https://github.com/cudin-etn/Aura-AI",
   "bugs": {
-    "url": "https://github.com/lidge-jun/opencodex/issues"
+    "url": "https://github.com/cudin-etn/Aura-AI/issues"
   },
   "license": "MIT"
 }

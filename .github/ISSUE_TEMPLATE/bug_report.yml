@@ -19,7 +19,7 @@ body:
         - Codex SDK
         - Claude Code
         - Direct HTTP/API client
-        - OpenCodex dashboard
+        - Aura AI dashboard
         - Other
     validations:
       required: true
@@ -28,7 +28,7 @@ body:
     id: area
     attributes:
       label: Area
-      description: Which part of OpenCodex is affected?
+      description: Which part of Aura AI is affected?
       options:
         - CLI
         - Proxy and routing
@@ -68,7 +68,7 @@ body:
     id: version
     attributes:
       label: Version
-      description: Installed `@bitkyc08/opencodex` version or commit SHA.
+      description: Installed Aura AI version or commit SHA. Include the legacy package version when migrating from OpenCodex.
       placeholder: "2.7.31"
     validations:
       required: true

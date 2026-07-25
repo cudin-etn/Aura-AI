@@ -1,28 +1,26 @@
-<h3 align="center">make codex open!</h3>
-<p align="center"><b>Universal provider proxy for OpenAI Codex &amp; Claude Code</b> — use any LLM with Codex CLI, App, SDK, and Claude Code.</p>
-<p align="center"><code>npm install -g @bitkyc08/opencodex</code> · <code>ocx start</code> · <b>localhost:10100</b></p>
+<h1 align="center">Aura AI</h1>
+<p align="center"><b>One local gateway for AI coding agents</b> — connect Codex, Claude Code, OpenCode, and compatible clients to multiple providers with quota-aware routing and measurable token optimization.</p>
+<p align="center"><code>aura start</code> · <code>aura gui</code> · <b>localhost:10100</b></p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@bitkyc08/opencodex"><img src="https://img.shields.io/npm/v/@bitkyc08/opencodex?color=cb3837&label=npm&logo=npm" alt="npm version"></a>
-  <a href="https://github.com/lidge-jun/opencodex/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@bitkyc08/opencodex?color=blue" alt="license"></a>
-  <img src="https://img.shields.io/node/v/@bitkyc08/opencodex?logo=node.js&label=node" alt="node version">
+  <a href="https://github.com/cudin-etn/Aura-AI/actions/workflows/ci.yml?query=branch%3Adev"><img src="https://github.com/cudin-etn/Aura-AI/actions/workflows/ci.yml/badge.svg?branch=dev" alt="Cross-platform CI"></a>
+  <a href="https://github.com/cudin-etn/Aura-AI/blob/dev/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+  <img src="https://img.shields.io/badge/status-public_preview-8b5cf6" alt="Public preview">
 </p>
 
 <p align="center">
-  <img src="assets/banner.png" alt="opencodex — Universal provider proxy for Codex, use any LLM" width="820">
+  <a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · 📖 <a href="docs/aura/"><b>Aura documentation →</b></a>
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> · <a href="README.ko.md">한국어</a> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.ja.md">日本語</a> · 📖 <a href="https://lidge-jun.github.io/opencodex/"><b>Full documentation →</b></a>
-</p>
-
-<p align="center">
-  <img src="assets/architecture.png" alt="opencodex architecture — Codex CLI routes through opencodex proxy to any LLM provider" width="820">
+  <img src="assets/architecture.png" alt="Aura AI gateway architecture" width="820">
 </p>
 
 Use Claude, Gemini, Grok, GLM, DeepSeek, Kimi, Qwen, Ollama, or any other LLM with Codex — and with **Claude Code** — without waiting for anyone to add support.
 
-opencodex is a lightweight local proxy that translates Codex's Responses API into whatever your provider speaks. Streaming, tool calls, reasoning tokens, images — everything works, in both directions.
+Aura AI builds on the OpenCodex protocol/runtime foundation and adds guided multi-client setup, capability-aware routing profiles, provider/account management, route traces, and conservative token optimization. Streaming, tool calls, reasoning tokens, and images continue to work in both directions.
+
+> **Public preview:** Aura is currently installed from source while its independent npm package is being reserved. The `ocx`, `opencodex`, and `~/.opencodex` identifiers remain intentionally available for a safe OpenCodex migration release.
 
 <p align="center">
   <img src="assets/demo.gif" alt="opencodex demo — running a task in the Codex app on a routed non-OpenAI model" width="820">
@@ -35,7 +33,7 @@ lowest-usage healthy account. Existing Codex threads stay pinned to the account 
 so long SSH, tmux, or mobile-connected sessions do not jump accounts mid-conversation.
 
 ```
-Codex CLI / App / SDK ──/v1/responses──▶ opencodex ──▶ Any provider
+Codex / Claude Code / OpenCode ──▶ Aura AI ──▶ Any provider
                                               │
               Anthropic · Google · xAI · Kimi · Ollama Cloud · Groq
               OpenRouter · Azure · DeepSeek · GLM · …and OpenAI itself
@@ -43,7 +41,7 @@ Codex CLI / App / SDK ──/v1/responses──▶ opencodex ──▶ Any provi
 
 ```mermaid
 flowchart LR
-  codex[Codex session<br/>CLI, App, SSH, mobile] --> proxy[opencodex]
+  codex[AI coding client<br/>App, CLI, SDK] --> proxy[Aura AI]
   proxy --> existing{Existing thread?}
   existing -->|yes| pinned[Keep the same<br/>ChatGPT account]
   existing -->|new session| quota[Refresh quota<br/>5h, weekly, 30d]
@@ -66,32 +64,35 @@ flowchart LR
 
 Requires [Node](https://nodejs.org) 18+. The Bun runtime is bundled automatically on `npm install` — no separate Bun install needed. All three platforms work natively (no WSL needed on Windows).
 
-## Quick start
+## Source preview
 
 ```bash
-# Install (bundles the Bun runtime automatically — only Node 18+ required)
-# Prefer a user-owned Node (nvm/fnm) — avoid `sudo npm install -g …`
-npm install -g @bitkyc08/opencodex
+# Clone the public development branch
+git clone --branch dev https://github.com/cudin-etn/Aura-AI.git
+cd Aura-AI
+bun install --frozen-lockfile
+bun run build:gui
+npm install -g .
 
 # Interactive setup (writes config, injects into Codex, and offers autostart shim install)
-ocx init
+aura init
 
 # Start the proxy
-ocx start
+aura start
 
 # If you skipped it during init, install the on-demand autostart shim later
-ocx codex-shim install
+aura service install
 
-# Use Codex normally — it now routes through opencodex
+# Use Codex normally — it now routes through Aura AI
 codex "Write a hello world in Rust"
 ```
 
 <details>
-<summary><b>"bundled Bun runtime is missing" / npm blocked Bun install scripts?</b></summary>
+<summary><b>Migrating from the OpenCodex npm package?</b></summary>
 
 <br/>
 
-opencodex bundles the Bun runtime as a dependency and runs it via a Node
+The transitional OpenCodex package bundles the Bun runtime as a dependency and runs it via a Node
 launcher, so you do **not** need to install Bun yourself. If you see a
 "bundled Bun runtime is missing" error, the install skipped lifecycle scripts
 (including npm blocking bun's postinstall under `allowScripts`) or optional
@@ -105,7 +106,7 @@ sudo npm install -g --allow-scripts=bun @bitkyc08/opencodex
 ```
 
 npm's own warning suggests an abbreviated command without the package name —
-that would reinstall the current directory, so always pass
+that would reinstall the current directory, so during migration always pass
 `@bitkyc08/opencodex` explicitly.
 
 If you installed with `sudo` into a root-owned prefix, the sudo reinstall above

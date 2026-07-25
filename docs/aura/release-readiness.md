@@ -26,23 +26,21 @@ exact SHA has green cross-platform CI/service runs.
 
 ## Naming policy
 
-The GUI product name is **Aura AI**. The package remains
-`@bitkyc08/opencodex` temporarily because no Aura origin/npm ownership exists.
+The GUI product name is **Aura AI**. The public source origin is
+`https://github.com/cudin-etn/Aura-AI`. The package remains
+`@bitkyc08/opencodex` temporarily because Aura npm ownership is not yet reserved.
 The package exposes `aura` and `aura-ai` alongside `ocx` and `opencodex`.
 Keeping old identifiers is an intentional migration contract, not unfinished
 UI branding.
 
 Before the first independent Aura release:
 
-1. create and configure an Aura origin repository;
-2. choose and reserve the npm package identifier;
-3. update repository/homepage/issue metadata;
-4. run clean install and upgrade from the OpenCodex-compatible package;
-5. keep compatibility aliases for at least one migration release.
+1. choose and reserve the npm package identifier;
+2. run clean install and upgrade from the OpenCodex-compatible package;
+3. keep compatibility aliases for at least one migration release.
 
 ## External release blockers
 
-- `FND-001`: no Aura `origin` URL;
 - `EVAL-003`: no repeated live always-Sol/Saver/Balanced/Quality result set;
 - `REL-001`/`REL-004`: no exact-SHA public CI evidence;
 - independent package identifiers cannot be verified until repository and npm

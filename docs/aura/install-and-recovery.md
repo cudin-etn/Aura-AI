@@ -4,11 +4,15 @@ Date: 2026-07-24
 
 ## Install and launch
 
-Aura currently preserves OpenCodex package compatibility while the fork has no
-independent public origin/package registry:
+Aura has a public source repository. Until its independent npm package is
+reserved and verified, install the preview from the `dev` branch:
 
 ```bash
-npm install -g @bitkyc08/opencodex
+git clone --branch dev https://github.com/cudin-etn/Aura-AI.git
+cd Aura-AI
+bun install --frozen-lockfile
+bun run build:gui
+npm install -g .
 aura start
 ```
 
@@ -58,4 +62,3 @@ workflow runs clean-install, upgrade, service lifecycle, restore, and uninstall
 gates on Linux, macOS, and Windows. Do not remove the compatibility command
 aliases until a separately published Aura package and migration release have
 been verified.
-

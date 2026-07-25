@@ -11,7 +11,7 @@ Priority:
 
 ## M0 — Upstream Baseline
 
-- [ ] `FND-001` P0 Fork OpenCodex into this repository and preserve its MIT
+- [x] `FND-001` P0 Fork OpenCodex into this repository and preserve its MIT
   license, notices, tags, and commit history.
   - Done when: `origin` points to our repository, `upstream` points to OpenCodex,
     and upstream tags are visible.
@@ -289,9 +289,9 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
 
 ## Current progress
 
-- `FND-001`: local history, tags, license, `upstream`, and `codex/aura-ai` are
-  complete. It remains open only because no Aura repository URL exists for
-  `origin`.
+- `FND-001`: complete. `origin` points to
+  `https://github.com/cudin-etn/Aura-AI`, `upstream` remains OpenCodex, and the
+  public `dev` and `codex/aura-ai` branches preserve the fork history.
 - `FND-002` through `FND-004`: complete; see
   `docs/aura/baseline.md` and `docs/aura/upstream-sync.md`.
 - `OBS-001` through `CMP-003`: complete; see
@@ -354,6 +354,6 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   `docs/aura/release-readiness.md`. Aura adds `aura`/`aura-ai` executable
   aliases while preserving OpenCodex package and command compatibility for the
   migration release.
-- Remaining external gates: live profile comparison (`EVAL-003`), Aura origin
-  completion (`FND-001`), and exact-SHA macOS/Windows/Linux CI and service
+- Remaining external gates: live profile comparison (`EVAL-003`) and
+  exact-SHA macOS/Windows/Linux CI and service
   lifecycle evidence (`REL-001`, `REL-004`).
