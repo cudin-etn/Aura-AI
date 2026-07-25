@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { DICTS, I18nContext, LOCALES, detectInitial, interpolate, type TFn, type TKey, type Vars } from "./shared";
 import { en } from "./en";
 import { useI18n } from "./shared";
+import { auraBrandCopy } from "./brand";
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState(detectInitial);
@@ -12,7 +13,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     try { localStorage.setItem("ocx-lang", locale); } catch { /* ignore */ }
   }, [locale]);
 
-  const t: TFn = (key, vars) => interpolate(DICTS[locale][key] ?? en[key] ?? key, vars);
+  const t: TFn = (key, vars) => auraBrandCopy(interpolate(DICTS[locale][key] ?? en[key] ?? key, vars));
 
   return <I18nContext.Provider value={{ locale, setLocale, t }}>{children}</I18nContext.Provider>;
 }

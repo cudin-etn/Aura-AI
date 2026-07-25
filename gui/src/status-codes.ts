@@ -188,5 +188,7 @@ export function statusCodeInfo(code: number, locale: string): StatusCodeInfo | n
   if (code < 400) return null;
   const normalizedLocale = normalizeLocale(locale);
   const info = STATUS_CODES[Math.trunc(code)] ?? (code < 500 ? GENERIC_STATUS.client : GENERIC_STATUS.server);
-  return info[normalizedLocale];
+  const localized = info[normalizedLocale];
+  return { label: auraBrandCopy(localized.label), description: auraBrandCopy(localized.description) };
 }
+import { auraBrandCopy } from "./i18n/brand";

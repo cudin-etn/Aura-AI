@@ -81,7 +81,7 @@ export function AutoConnectSetting({
           <span className="desc">{t("claude.systemEnvDesc")}</span>
         ) : (
           <span className="desc" id={unsupportedDescriptionId}>
-            <Trans k="claude.systemEnvUnsupported" cmd="ocx claude" />
+            <Trans k="claude.systemEnvUnsupported" cmd="aura claude" />
           </span>
         )}
         {supported && checked && (
@@ -337,8 +337,8 @@ export default function ClaudeCode({ apiBase }: { apiBase: string }) {
       </div>
 
       <div className="h-section">{t("claude.quickstart")}</div>
-      <p className="muted text-label" style={{ margin: "0 0 8px" }}><Trans k="claude.quickstartHint" cmd="ocx claude" /></p>
-      <pre className="mono card" style={{ padding: "10px 14px", overflowX: "auto", margin: 0 }}>ocx claude</pre>
+      <p className="muted text-label" style={{ margin: "0 0 8px" }}><Trans k="claude.quickstartHint" cmd="aura claude" /></p>
+      <pre className="mono card" style={{ padding: "10px 14px", overflowX: "auto", margin: 0 }}>aura claude</pre>
       {/* Advanced manual setup: collapsed by default (audit 080 UX-1). */}
       <details style={{ margin: "10px 0 0" }}>
         <summary className="muted text-label" style={{ cursor: "pointer", padding: "2px 2px" }}>{t("claude.manualEnv")}</summary>

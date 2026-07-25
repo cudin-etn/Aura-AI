@@ -80,6 +80,9 @@ describe("CLI subcommand help", () => {
         cwd: repoRoot,
         env: { ...process.env, OPENCODEX_HOME: opencodexHome },
         encoding: "utf8",
+        // Windows process startup and ACL probing are materially slower on the
+        // hosted runner; keep the assertion bounded without making the test flaky.
+        timeout: process.platform === "win32" ? 15_000 : 5_000,
       });
 
       expect(result.status).toBe(0);

@@ -362,7 +362,7 @@ export default function Providers({ apiBase }: { apiBase: string }) {
             finished = true;
             break;
           }
-          notify(t("prov.loginOk", { provider: oauthLabel(provider), cmd: "ocx sync" }), true);
+          notify(t("prov.loginOk", { provider: oauthLabel(provider), cmd: "aura sync" }), true);
           setLoginInfo(null);
           setManualCode("");
           setManualCodeMsg("");
@@ -599,7 +599,7 @@ export default function Providers({ apiBase }: { apiBase: string }) {
       onClose={() => setCodexLoginOpen(false)}
       onAdded={() => {
         setCodexLoginOpen(false);
-        notify(t("prov.loginOk", { provider: formatProviderDisplayName("openai"), cmd: "ocx sync" }), true);
+            notify(t("prov.loginOk", { provider: formatProviderDisplayName("openai"), cmd: "aura sync" }), true);
         void fetchOauth();
         void fetchProviderQuotas(true);
         bumpModelsRefresh();
@@ -695,7 +695,7 @@ export default function Providers({ apiBase }: { apiBase: string }) {
               setAdding(false);
               setAddIntent(null);
             }}
-            onAdded={(name) => { setAdding(false); setAddIntent(null); notify(t("prov.added", { name, cmd: "ocx sync" }), true); fetchConfig(); fetchOauth(); fetchProviderQuotas(true); bumpModelsRefresh(); }}
+            onAdded={(name) => { setAdding(false); setAddIntent(null); notify(t("prov.added", { name, cmd: "aura sync" }), true); fetchConfig(); fetchOauth(); fetchProviderQuotas(true); bumpModelsRefresh(); }}
             accountRows={addModalAccountRows}
             accountStatus={accountLoginStatus}
             accountBusy={busy}
@@ -807,7 +807,7 @@ export default function Providers({ apiBase }: { apiBase: string }) {
             if (busy) void cancelLoginOAuth(busy);
             setAdding(false);
           }}
-          onAdded={(name) => { setAdding(false); notify(t("prov.added", { name, cmd: "ocx sync" }), true); fetchConfig(); fetchOauth(); fetchProviderQuotas(true); setModelsRefreshToken(n => n + 1); }}
+            onAdded={(name) => { setAdding(false); notify(t("prov.added", { name, cmd: "aura sync" }), true); fetchConfig(); fetchOauth(); fetchProviderQuotas(true); setModelsRefreshToken(n => n + 1); }}
           accountRows={addModalAccountRows}
           accountStatus={accountLoginStatus}
           accountBusy={busy}

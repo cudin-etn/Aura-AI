@@ -426,7 +426,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
     return (
       <EmptyState style={{ marginTop: 40 }} icon={<IconAlert />}
         title={<span style={{ color: "var(--red)" }}>{t("dash.cannotConnect")}</span>}>
-        <Trans k="dash.runStart" cmd="ocx start" />
+        <Trans k="dash.runStart" cmd="aura start" />
       </EmptyState>
     );
   }
@@ -1033,7 +1033,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
 
       <div className="h-section">{t("dash.activeProviders")} <span className="count">{providers.length}</span></div>
       {providers.length === 0 ? (
-        <EmptyState title={<Trans k="dash.noProviders" cmd="ocx init" />} />
+        <EmptyState title={<Trans k="dash.noProviders" cmd="aura init" />} />
       ) : (
         <div className="tbl-wrap">
           <table className="tbl">
@@ -1204,7 +1204,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
               {t("models.v2Help")}
             </div>
             <div style={{ marginTop: 12 }}>
-              <a className="text-control" href="https://lidge-jun.github.io/opencodex/guides/sub-agent-surface/" target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>
+              <a className="text-control" href="https://cudin-etn.github.io/Aura-AI/guides/sub-agent-surface/" target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>
                 {t("models.v2DocsLink")}
               </a>
             </div>

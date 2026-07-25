@@ -44,7 +44,7 @@ function withToken(input: RequestInfo | URL, init: RequestInit | undefined, toke
 async function promptForToken(): Promise<string | null> {
   if (promptInFlight) return promptInFlight;
   promptInFlight = Promise.resolve()
-    .then(() => window.prompt("OpenCodex API token")?.trim() || null)
+    .then(() => window.prompt("Aura AI API token")?.trim() || null)
     .finally(() => { promptInFlight = null; });
   return promptInFlight;
 }

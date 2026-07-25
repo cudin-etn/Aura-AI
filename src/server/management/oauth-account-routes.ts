@@ -283,7 +283,7 @@ export async function handleOauthAccountRoutes(ctx: ManagementContext): Promise<
     const salt = crypto.randomUUID();
     const hashInput = `${providerKeys}|${salt}|${Date.now()}`;
     const hashBuf = new Bun.CryptoHasher("sha256").update(hashInput).digest();
-    const key = "ocx_" + Buffer.from(hashBuf).toString("hex").slice(0, 40);
+    const key = "aura_" + Buffer.from(hashBuf).toString("hex").slice(0, 40);
     const entry = { id: crypto.randomUUID(), name, key, createdAt: new Date().toISOString() };
     config.apiKeys = [...(config.apiKeys ?? []), entry];
     saveConfig(config);

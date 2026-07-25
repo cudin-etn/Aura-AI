@@ -91,7 +91,7 @@ export default function ApiKeys({ apiBase }: { apiBase: string }) {
       </div>
       <p className="page-sub">
         {subtitleParts[0]}
-        <code>Authorization: Bearer ocx_...</code>
+        <code>Authorization: Bearer aura_...</code>
         {subtitleParts[1]}
         <code>x-opencodex-api-key</code>
         {subtitleParts[2]}
@@ -174,7 +174,7 @@ export default function ApiKeys({ apiBase }: { apiBase: string }) {
       <div className="panel api-panel" style={{ marginTop: "1rem" }}>
         <h3 className="panel-title">{t("api.usageTitle")}</h3>
         <pre className="api-code">{`curl ${responseEndpoint} \\
-  -H "Authorization: Bearer ocx_YOUR_KEY_HERE" \\
+  -H "Authorization: Bearer aura_YOUR_KEY_HERE" \\
   -H "Content-Type: application/json" \\
   -d '{
     "model": "gpt-5.4",

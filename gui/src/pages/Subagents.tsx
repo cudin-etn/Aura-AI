@@ -88,7 +88,7 @@ export default function Subagents({ apiBase }: { apiBase: string }) {
       const d = await r.json();
       setOk(r.ok);
       setStatus(r.ok
-        ? t("sub.saved", { n: d.applied?.length ?? 0, cmd: "ocx sync" })
+        ? t("sub.saved", { n: d.applied?.length ?? 0, cmd: "aura sync" })
         : (d.error || t("sub.saveFailed")));
     } catch {
       setOk(false);
