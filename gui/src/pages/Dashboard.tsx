@@ -706,8 +706,9 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
         </div>
       )}
 
+      <div className="dashboard-control-grid">
       {maMode !== "v1" && (
-        <div className="panel" style={{ marginBottom: 24 }}>
+        <div className="panel dashboard-control-card dashboard-control-card--wide">
           <div className="injection-head">
             <span className="injection-label" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
               {t("dash.effortCapLabel")}
@@ -802,7 +803,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
         </div>
       )}
 
-      <div className="panel" style={{ marginBottom: 24 }}>
+      <div className="panel dashboard-control-card dashboard-control-card--feature">
         <div className="spread setting-row">
           <div className="setting-copy" style={{ flex: 1 }}>
             <div className="font-semibold">{t("dash.multiAgentGuidance")}</div>
@@ -895,7 +896,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
         <div className="muted text-control" style={{ marginTop: 6 }}>{t("dash.injectionHint")}</div>
       </div>
 
-      <div className="panel maintenance-panel" style={{ marginBottom: 24 }}>
+      <div className="panel maintenance-panel dashboard-control-card dashboard-control-card--maintenance">
         <div className="spread maintenance-head">
           <div>
             <div className="font-semibold">{t("dash.maintenance")}</div>
@@ -947,7 +948,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
         )}
       </div>
 
-      <div className="panel" style={{ marginBottom: 24 }}>
+      <div className="panel dashboard-control-card">
         <div className="spread">
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="font-semibold">{t("dash.codexAutoStart")}</div>
@@ -966,7 +967,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
         </div>
       </div>
 
-      <div className="panel" style={{ marginBottom: 12 }}>
+      <div className="panel dashboard-control-card">
         <div className="spread setting-row" style={{ alignItems: "flex-start" }}>
           <div className="setting-copy" style={{ flex: 1 }}>
             <div className="font-semibold">{t("dash.webSearchSidecar")}</div>
@@ -984,7 +985,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
         </div>
       </div>
 
-      <div className="panel" style={{ marginBottom: 24 }}>
+      <div className="panel dashboard-control-card">
         <div className="spread setting-row">
           <div className="setting-copy" style={{ flex: 1 }}>
             <div className="font-semibold">{t("dash.visionSidecar")}</div>
@@ -1002,7 +1003,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
         </div>
       </div>
 
-      <div className="panel" style={{ marginBottom: 12 }}>
+      <div className="panel dashboard-control-card">
         <div className="spread setting-row" style={{ alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span className="font-semibold">{t("dash.shadowCallIntercept")}</span>
@@ -1029,6 +1030,7 @@ export default function Dashboard({ apiBase }: { apiBase: string }) {
             />
           </div>
         </div>
+      </div>
       </div>
 
       <div className="h-section">{t("dash.activeProviders")} <span className="count">{providers.length}</span></div>

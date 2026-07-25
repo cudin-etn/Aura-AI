@@ -3,7 +3,6 @@ import { Notice, Select } from "../ui";
 import { IconPlus, IconX } from "../icons";
 import { Trans } from "../i18n/provider";
 import { useT } from "../i18n/shared";
-import { modelLabel } from "../model-display";
 import { reconcileAutoConnectState } from "./claude-autoconnect";
 import { buildManualEnv, type SidecarBackend, type SidecarOverride } from "./claude-manual-env";
 
@@ -139,7 +138,7 @@ export default function ClaudeCode({ apiBase }: { apiBase: string }) {
   }, [load]);
 
   const modelOptions = useMemo(() => {
-    const options = (state?.available ?? []).map(m => ({ value: m, label: String(modelLabel(m)) }));
+    const options = (state?.available ?? []).map(m => ({ value: m, label: m }));
     return [{ value: "", label: t("claude.slotUnset") }, ...options];
   }, [state?.available, t]);
 

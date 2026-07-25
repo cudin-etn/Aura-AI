@@ -195,7 +195,7 @@ export default function Subagents({ apiBase }: { apiBase: string }) {
                   onChange={event => updateAuraRole(role, { model: event.target.value })}
                   style={{ flex: 1 }}
                 >
-                  {aura.available.map(model => <option key={model} value={model}>{modelLabel(model)}</option>)}
+                  {aura.available.map(model => <option key={model} value={model}>{model}</option>)}
                 </select>
                 <select
                   className="input"

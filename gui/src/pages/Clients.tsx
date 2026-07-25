@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import ClaudeCode from "./ClaudeCode";
-import { Notice } from "../ui";
+import { Notice, Select } from "../ui";
 import { useT, type TKey } from "../i18n";
+import { IconX } from "../icons";
 
 type ClientRow = {
   id: "codex" | "claude-code" | "opencode" | "zcode" | "factory" | "generic";
@@ -22,6 +23,7 @@ type OpenCodePreview = {
   changes: string[];
 };
 type ClientPreview = OpenCodePreview;
+type GuideTarget = "zcode" | "generic";
 type ClientGuide = {
   baseUrl: string;
   model: string;
@@ -44,10 +46,12 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   const t = useT();
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [models, setModels] = useState<string[]>([]);
-  const [model, setModel] = useState("");
+  const [openCodeModel, setOpenCodeModel] = useState("");
+  const [factoryModel, setFactoryModel] = useState("");
   const [preview, setPreview] = useState<OpenCodePreview | null>(null);
   const [factoryPreview, setFactoryPreview] = useState<ClientPreview | null>(null);
   const [guide, setGuide] = useState<ClientGuide | null>(null);
+  const [guideTarget, setGuideTarget] = useState<GuideTarget | null>(null);
   const [status, setStatus] = useState("");
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -65,7 +69,8 @@ export default function Clients({ apiBase }: { apiBase: string }) {
       const available = profileBody.available ?? [];
       setClients(clientBody.clients ?? []);
       setModels(available);
-      setModel(current => current && available.includes(current) ? current : (available[0] ?? ""));
+      setOpenCodeModel(current => current && available.includes(current) ? current : (available[0] ?? ""));
+      setFactoryModel(current => current && available.includes(current) ? current : (available[0] ?? ""));
     } catch {
       setOk(false);
       setStatus(t("aura.loadFail"));
@@ -78,13 +83,15 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   }, [load]);
 
   const previewOpenCode = async () => {
-    if (!model) return;
+    if (!openCodeModel) return;
     setBusy("opencode-preview");
     setStatus("");
     try {
-      const response = await fetch(`${apiBase}/api/aura/clients/opencode?model=${encodeURIComponent(model)}`);
+      const response = await fetch(`${apiBase}/api/aura/clients/opencode?model=${encodeURIComponent(openCodeModel)}`);
       const body = await response.json() as OpenCodePreview & { error?: string };
       if (!response.ok) throw new Error(body.error || t("clients.previewFailed"));
+      setFactoryPreview(null);
+      setGuideTarget(null);
       setPreview(body);
       setOk(true);
       setStatus(t("clients.previewReady"));
@@ -97,14 +104,14 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   };
 
   const applyOpenCode = async () => {
-    if (!model) return;
+    if (!openCodeModel) return;
     setBusy("opencode-apply");
     setStatus("");
     try {
       const response = await fetch(`${apiBase}/api/aura/clients/opencode`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model }),
+        body: JSON.stringify({ model: openCodeModel }),
       });
       const body = await response.json() as { error?: string };
       if (!response.ok) throw new Error(body.error || t("aura.actionFail"));
@@ -140,13 +147,15 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   };
 
   const previewFactory = async () => {
-    if (!model) return;
+    if (!factoryModel) return;
     setBusy("factory-preview");
     setStatus("");
     try {
-      const response = await fetch(`${apiBase}/api/aura/clients/factory?model=${encodeURIComponent(model)}`);
+      const response = await fetch(`${apiBase}/api/aura/clients/factory?model=${encodeURIComponent(factoryModel)}`);
       const body = await response.json() as ClientPreview & { error?: string };
       if (!response.ok) throw new Error(body.error || t("clients.previewFailed"));
+      setPreview(null);
+      setGuideTarget(null);
       setFactoryPreview(body);
       setOk(true);
       setStatus(t("clients.previewReady"));
@@ -159,14 +168,14 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   };
 
   const applyFactory = async () => {
-    if (!model) return;
+    if (!factoryModel) return;
     setBusy("factory-apply");
     setStatus("");
     try {
       const response = await fetch(`${apiBase}/api/aura/clients/factory`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model }),
+        body: JSON.stringify({ model: factoryModel }),
       });
       const body = await response.json() as { error?: string };
       if (!response.ok) throw new Error(body.error || t("aura.actionFail"));
@@ -201,13 +210,16 @@ export default function Clients({ apiBase }: { apiBase: string }) {
     }
   };
 
-  const loadGuide = async () => {
-    setBusy("guide");
+  const loadGuide = async (target: GuideTarget) => {
+    setBusy(`guide-${target}`);
     try {
-      const response = await fetch(`${apiBase}/api/aura/client-guide?model=${encodeURIComponent(model || "YOUR_MODEL")}`);
+      const response = await fetch(`${apiBase}/api/aura/client-guide?model=${encodeURIComponent(openCodeModel || "YOUR_MODEL")}`);
       const body = await response.json() as ClientGuide & { error?: string };
       if (!response.ok) throw new Error(body.error || t("clients.guideFailed"));
+      setPreview(null);
+      setFactoryPreview(null);
       setGuide(body);
+      setGuideTarget(target);
     } catch (error) {
       setOk(false);
       setStatus(error instanceof Error ? error.message : t("clients.guideFailed"));
@@ -253,15 +265,26 @@ export default function Clients({ apiBase }: { apiBase: string }) {
     }
   };
 
+  const closeDetail = () => {
+    setPreview(null);
+    setFactoryPreview(null);
+    setGuideTarget(null);
+  };
+
+  const modelOptions = models.length > 0
+    ? models.map(candidate => ({ value: candidate, label: candidate }))
+    : [{ value: "", label: t("models.noRouted") }];
+  const detailOpen = !!preview || !!factoryPreview || (!!guide && !!guideTarget);
+
   return (
-    <>
+    <div className="clients-page">
       <div className="page-head"><h2>{t("nav.clients")}</h2></div>
       <p className="page-sub">{t("aura.clientsHint")}</p>
-      {status && <Notice tone={ok ? "ok" : "err"}>{status}</Notice>}
+      {status && <div className="client-toast"><Notice tone={ok ? "ok" : "err"}>{status}</Notice></div>}
 
-      <div className="grid-2">
+      <div className="clients-grid">
         {clients.map(client => (
-          <section className="card" style={{ padding: 16 }} key={client.id}>
+          <section className="card client-card" key={client.id}>
             <div className="row" style={{ justifyContent: "space-between", gap: 12 }}>
               <div>
                 <h3 style={{ margin: 0 }}>{client.label}</h3>
@@ -295,21 +318,19 @@ export default function Clients({ apiBase }: { apiBase: string }) {
 
             {client.id === "opencode" && (
               <div className="stack" style={{ gap: 8 }}>
-                <select className="input" value={model} onChange={event => { setModel(event.target.value); setPreview(null); }} aria-label={t("aura.openCodeModel")}>
-                  {models.length === 0 && <option value="">{t("models.noRouted")}</option>}
-                  {models.map(candidate => <option value={candidate} key={candidate}>{candidate}</option>)}
-                </select>
+                <Select
+                  value={openCodeModel}
+                  options={modelOptions}
+                  onChange={value => { setOpenCodeModel(value); setPreview(null); }}
+                  disabled={models.length === 0}
+                  label={t("aura.openCodeModel")}
+                  style={{ width: "100%" }}
+                />
                 <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-                  <button className="btn btn-ghost" onClick={() => void previewOpenCode()} disabled={!model || busy !== null}>{t("clients.preview")}</button>
-                  <button className="btn btn-primary" onClick={() => void applyOpenCode()} disabled={!model || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connect")}</button>
+                  <button className="btn btn-ghost" onClick={() => void previewOpenCode()} disabled={!openCodeModel || busy !== null}>{t("clients.preview")}</button>
+                  <button className="btn btn-primary" onClick={() => void applyOpenCode()} disabled={!openCodeModel || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connect")}</button>
                   {client.connected && <button className="btn btn-ghost" onClick={() => void restoreOpenCode()} disabled={busy !== null}>{t("aura.restore")}</button>}
                 </div>
-                {preview && (
-                  <div className="notice notice-ok text-label">
-                    <div><strong>{t("clients.previewPath")}:</strong> <code>{preview.path}</code></div>
-                    <div><strong>{t("clients.previewChanges")}:</strong> <code>{preview.changes.join(", ")}</code></div>
-                  </div>
-                )}
               </div>
             )}
 
@@ -317,44 +338,27 @@ export default function Clients({ apiBase }: { apiBase: string }) {
 
             {client.id === "factory" && (
               <div className="stack" style={{ gap: 8 }}>
-                <select className="input" value={model} onChange={event => { setModel(event.target.value); setFactoryPreview(null); }} aria-label={t("aura.factoryModel")}>
-                  {models.length === 0 && <option value="">{t("models.noRouted")}</option>}
-                  {models.map(candidate => <option value={candidate} key={candidate}>{candidate}</option>)}
-                </select>
+                <Select
+                  value={factoryModel}
+                  options={modelOptions}
+                  onChange={value => { setFactoryModel(value); setFactoryPreview(null); }}
+                  disabled={models.length === 0}
+                  label={t("aura.factoryModel")}
+                  style={{ width: "100%" }}
+                />
                 <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-                  <button className="btn btn-ghost" onClick={() => void previewFactory()} disabled={!model || busy !== null}>{t("clients.preview")}</button>
-                  <button className="btn btn-primary" onClick={() => void applyFactory()} disabled={!model || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connectFactory")}</button>
+                  <button className="btn btn-ghost" onClick={() => void previewFactory()} disabled={!factoryModel || busy !== null}>{t("clients.preview")}</button>
+                  <button className="btn btn-primary" onClick={() => void applyFactory()} disabled={!factoryModel || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connectFactory")}</button>
                   {client.connected && <button className="btn btn-ghost" onClick={() => void restoreFactory()} disabled={busy !== null}>{t("aura.restoreFactory")}</button>}
                 </div>
-                {factoryPreview && (
-                  <div className="notice notice-ok text-label">
-                    <div><strong>{t("clients.previewPath")}:</strong> <code>{factoryPreview.path}</code></div>
-                    <div><strong>{t("clients.previewChanges")}:</strong> <code>{factoryPreview.changes.join(", ")}</code></div>
-                  </div>
-                )}
               </div>
             )}
 
             {(client.id === "zcode" || client.id === "generic") && (
               <div className="stack" style={{ gap: 8 }}>
                 <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-                  <button className="btn btn-primary" onClick={() => void loadGuide()} disabled={busy !== null}>{t("clients.openGuide")}</button>
-                  {guide && <button className="btn btn-ghost" onClick={() => void copyGuide()}>{t("clients.copyGuide")}</button>}
+                  <button className="btn btn-primary" onClick={() => void loadGuide(client.id as GuideTarget)} disabled={busy !== null}>{t("clients.openGuide")}</button>
                 </div>
-                {guide && (
-                  <div className="notice notice-ok text-label">
-                    <div><strong>{t("clients.guideBaseUrl")}:</strong> <code>{guide.baseUrl}</code></div>
-                    <div><strong>{t("clients.guideModel")}:</strong> <code>{guide.model}</code></div>
-                    <details style={{ marginTop: 8 }}>
-                      <summary>{t("clients.guideSteps")}</summary>
-                      <ol style={{ margin: "8px 0 0 18px" }}>
-                        <li>{t("clients.guideStepOne")}</li>
-                        <li>{t("clients.guideStepTwo")}</li>
-                        <li>{t("clients.guideStepThree")}</li>
-                      </ol>
-                    </details>
-                  </div>
-                )}
               </div>
             )}
           </section>
@@ -362,10 +366,42 @@ export default function Clients({ apiBase }: { apiBase: string }) {
       </div>
 
       {showClaude && (
-        <section className="card" style={{ padding: 16, marginTop: 18 }}>
+        <section className="card client-advanced-panel">
           <ClaudeCode apiBase={apiBase} />
         </section>
       )}
-    </>
+
+      {detailOpen && (
+        <dialog open className="client-detail-drawer" aria-label={preview || factoryPreview ? t("clients.preview") : t("clients.guideSteps")}>
+          <div className="client-detail-head">
+            <div>
+              <span className="muted text-label">{preview || factoryPreview ? t("clients.preview") : t("clients.guideSteps")}</span>
+              <strong>{preview ? "OpenCode" : factoryPreview ? "Factory Droid" : guideTarget === "zcode" ? "ZCode" : t("nav.clients")}</strong>
+            </div>
+            <button type="button" className="btn btn-ghost btn-icon" onClick={closeDetail} aria-label={t("common.close")}>
+              <IconX aria-hidden />
+            </button>
+          </div>
+          {(preview || factoryPreview) && (
+            <div className="client-detail-body text-control">
+              <div className="client-detail-row"><strong>{t("clients.previewPath")}</strong><code>{(preview ?? factoryPreview)!.path}</code></div>
+              <div className="client-detail-row"><strong>{t("clients.previewChanges")}</strong><code>{(preview ?? factoryPreview)!.changes.join(", ")}</code></div>
+            </div>
+          )}
+          {guide && guideTarget && (
+            <div className="client-detail-body text-control">
+              <div className="client-detail-row"><strong>{t("clients.guideBaseUrl")}</strong><code>{guide.baseUrl}</code></div>
+              <div className="client-detail-row"><strong>{t("clients.guideModel")}</strong><code>{guide.model}</code></div>
+              <ol className="client-guide-steps">
+                <li>{t("clients.guideStepOne")}</li>
+                <li>{t("clients.guideStepTwo")}</li>
+                <li>{t("clients.guideStepThree")}</li>
+              </ol>
+              <button className="btn btn-primary" onClick={() => void copyGuide()}>{t("clients.copyGuide")}</button>
+            </div>
+          )}
+        </dialog>
+      )}
+    </div>
   );
 }

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Notice } from "../ui";
 import { IconCheck, IconServer, IconBot, IconSparkle, IconGlobe, IconSliders } from "../icons";
 import { useT } from "../i18n";
-import { modelLabel } from "../model-display";
 import AddProviderModal from "../components/AddProviderModal";
 import { AuraRoutePreview } from "../components/AuraVisuals";
 
@@ -301,7 +300,7 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
           <div className="stack" style={{ gap: 10 }}>
             <label className="text-label" htmlFor="aura-wizard-model">{t("wizard.model")}</label>
             <select id="aura-wizard-model" className="input" value={effectiveWizardModel} onChange={event => setWizardModel(event.target.value)}>
-              {wizardModels.map(item => <option key={item} value={item}>{modelLabel(item)}</option>)}
+              {wizardModels.map(item => <option key={item} value={item}>{item}</option>)}
             </select>
             <div className="row" style={{ gap: 8 }}>
               <button type="button" className="btn btn-ghost" onClick={() => setWizardStep(0)}>{t("wizard.back")}</button>
@@ -439,7 +438,7 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
               aria-label={t("aura.openCodeModel")}
               style={{ minWidth: 260, flex: 1 }}
             >
-              {profile?.available.map(item => <option key={item} value={item}>{modelLabel(item)}</option>)}
+              {profile?.available.map(item => <option key={item} value={item}>{item}</option>)}
             </select>
             <button
               type="button"

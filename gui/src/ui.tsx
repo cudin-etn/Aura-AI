@@ -58,8 +58,8 @@ export function Select({ value, options, onChange, disabled, label, style, align
         aria-expanded={open}
         aria-label={label}
       >
-        <span>{current?.label ?? value}</span>
-        <IconChevron style={{ width: 12, height: 12, color: "var(--muted)", transform: open ? "rotate(90deg)" : "none", transition: "transform .12s" }} />
+        <span className="select-value">{current?.label ?? value}</span>
+        <span className="select-chevron" aria-hidden><IconChevron /></span>
       </button>
       {open && (
         <div className={`select-dropdown${align === "right" ? " select-dropdown-right" : ""}${placement === "right" ? " select-dropdown-beside" : ""}`} role="listbox" aria-label={label} style={dropdownStyle}>

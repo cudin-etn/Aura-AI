@@ -5,6 +5,7 @@ import {
   IconGrid, IconServer, IconBot, IconActivity, IconGithub, IconMenu, IconSun,
   IconMoon, IconMonitor, IconGlobe, IconPower, IconSparkle, IconX, IconBoxes,
   IconList, IconTerminal, IconHardDrive, IconKey, IconShuffle, IconSliders,
+  IconChevron,
 } from "./icons";
 import { useI18n, useT, LOCALES, type Locale, type TKey } from "./i18n";
 import { Select } from "./ui";
@@ -394,14 +395,46 @@ export default function App() {
             <IconX />
           </button>
         </div>
-        <nav aria-label={t("nav.primary")}>
-          {SECTION_NAV.map(({ id, tkey, Icon, defaultPage }) => (
-            <button key={id} className={`nav-item${activeSection.id === id ? " active" : ""}`} data-section={id}
-              onClick={() => navigateToPage(defaultPage)}
-              aria-current={activeSection.id === id ? "page" : undefined}>
-              <Icon /> {t(tkey)}
-            </button>
-          ))}
+        <nav className="sidebar-nav" aria-label={t("nav.primary")}>
+          {SECTION_NAV.map(({ id, tkey, Icon, defaultPage, pages }) => {
+            const active = activeSection.id === id;
+            const nested = pages.length > 1;
+            return (
+              <div className={`nav-section${active ? " active" : ""}`} key={id}>
+                <button
+                  type="button"
+                  className={`nav-item nav-section-trigger${active ? " active" : ""}`}
+                  data-section={id}
+                  onClick={() => navigateToPage(defaultPage)}
+                  aria-current={!nested && active ? "page" : undefined}
+                  aria-expanded={nested ? active : undefined}
+                >
+                  <Icon />
+                  <span>{t(tkey)}</span>
+                  {nested && <IconChevron className="nav-section-chevron" aria-hidden />}
+                </button>
+                {nested && active && (
+                  <div className="nav-subitems">
+                    {pages.map(item => {
+                      const ItemIcon = item.Icon;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className={`nav-subitem${page === item.id ? " active" : ""}`}
+                          onClick={() => navigateToPage(item.id)}
+                          aria-current={page === item.id ? "page" : undefined}
+                        >
+                          <ItemIcon aria-hidden />
+                          <span>{t(item.tkey)}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
         <div className="sidebar-foot">
           {claudeEnabled !== null && (
@@ -437,31 +470,8 @@ export default function App() {
       </aside>
 
       <main className="main" inert={navOpen}>
-        {activeSection.pages.length > 1 && (
-          <div className="context-nav-shell">
-            <nav className="context-nav" aria-label={t("nav.section")}>
-              <span className="context-nav-title">{t(activeSection.tkey)}</span>
-              <div className="context-nav-items">
-                {activeSection.pages.map(item => {
-                  const ItemIcon = item.Icon;
-                  return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={`context-nav-item${page === item.id ? " active" : ""}`}
-                    onClick={() => navigateToPage(item.id)}
-                    aria-current={page === item.id ? "page" : undefined}
-                  >
-                    <ItemIcon aria-hidden />
-                    <span>{t(item.tkey)}</span>
-                  </button>
-                  );
-                })}
-              </div>
-            </nav>
-          </div>
-        )}
-        <div className={`main-inner${page === "combos" ? " main-inner--combos" : ""}`}>
+        <div className={`main-scroll${page === "combos" ? " main-scroll--workspace" : ""}`}>
+        <div className={`main-inner page-${page}${page === "combos" ? " main-inner--combos" : ""}`}>
           <ErrorBoundary
             key={page}
             pageName={t(PAGE_TKEY[page])}
@@ -489,6 +499,7 @@ export default function App() {
             {page === "optimization" && <Optimization apiBase={API_BASE} />}
             </Suspense>
           </ErrorBoundary>
+        </div>
         </div>
       </main>
     </div>
