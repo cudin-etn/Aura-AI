@@ -67,5 +67,5 @@ test("Auto-connect renders disabled, unchecked, and explained on an unsupported 
   expect(html).not.toContain('checked=""');
   expect(html).toContain('aria-describedby="claude-system-env-unsupported"');
   expect(html).toContain("macOS only");
-  expect(html).toContain('<code class="chip">ocx claude</code>');
+  expect(html).toContain('<code class="chip">aura claude</code>');
 });
