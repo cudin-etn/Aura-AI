@@ -9,13 +9,14 @@ routed providers. Native OpenAI passthrough and compaction requests remain
 byte-identical. Users can disable the optimizer or either transformation in
 `aura.optimizer`.
 
-Aura Setup exposes the same controls as three simple presets:
+Routing → Optimization exposes the same controls as three simple presets:
 
-- `Lite` keeps the optimizer enabled but avoids repeated-output deduplication.
-- `Full` enables the conservative default transformations.
-- `Ultra` is a user-facing policy label for the strongest enabled reductions;
-  it still uses the same protected-content rules and does not introduce lossy
-  model-output compression.
+- `Lite` disables deduplication and log reduction and raises role context
+  budgets to 150% of the defaults.
+- `Full` enables the conservative transformations with default context budgets.
+- `Ultra` enables the same protected transformations with role context budgets
+  reduced to 60% of defaults. It does not introduce lossy model-output
+  compression.
 
 The UI also shows a capability matrix inspired by 9Router. It distinguishes
 available endpoints from partial support and planned contracts, so future TTS,

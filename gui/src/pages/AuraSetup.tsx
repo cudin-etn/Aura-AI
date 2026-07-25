@@ -117,27 +117,6 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
     }
   };
 
-  const updateOptimizer = async (patch: Partial<AuraOptimizer>) => {
-    if (!optimizer) return;
-    setBusy("optimizer");
-    setNotice(null);
-    try {
-      const response = await fetch(`${apiBase}/api/aura/optimizer`, {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(patch),
-      });
-      const data = await response.json() as AuraOptimizer & { error?: string };
-      if (!response.ok) throw new Error(data.error || t("aura.actionFail"));
-      setOptimizer(data);
-      setNotice({ ok: true, text: t("aura.optimizerSaved") });
-    } catch (error) {
-      setNotice({ ok: false, text: error instanceof Error ? error.message : t("aura.actionFail") });
-    } finally {
-      setBusy("");
-    }
-  };
-
   const updateOpenCode = async (method: "PUT" | "DELETE") => {
     setBusy("opencode");
     setNotice(null);
@@ -249,6 +228,8 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
   const setupReady = enabledProviders > 0
     && Boolean(effectiveWizardModel)
     && clients.some(client => client.connected && client.maturity === "production");
+  const availableCapabilities = capabilities.filter(item => item.status === "available").length;
+  const plannedCapabilities = capabilities.filter(item => item.status === "planned").length;
 
   const selectWizardProvider = (provider: string) => {
     setWizardProvider(provider);
@@ -491,19 +472,11 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
               <p className="muted">{t("aura.capabilitiesHint")}</p>
             </div>
           </div>
-          <div className="stack" style={{ gap: 8, marginTop: 12 }}>
-            {capabilities.map(capability => (
-              <div key={capability.id} className="row" style={{ justifyContent: "space-between", gap: 10 }}>
-                <div style={{ minWidth: 0 }}>
-                  <strong>{capability.label}</strong>
-                  <div className="muted text-label">{capability.endpoint ?? capability.note}</div>
-                </div>
-                <span className={`badge ${capability.status === "available" ? "badge-accent" : capability.status === "partial" ? "badge-warn" : "badge-muted"}`}>
-                  {t(`aura.capability.${capability.status}` as "aura.capability.available")}
-                </span>
-              </div>
-            ))}
+          <div className="row" style={{ gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
+            <span className="badge badge-accent">{t("aura.capabilitiesAvailable", { n: availableCapabilities })}</span>
+            <span className="badge badge-muted">{t("aura.capabilitiesPlanned", { n: plannedCapabilities })}</span>
           </div>
+          <a className="btn btn-ghost" href="#capabilities">{t("aura.openCapabilities")}</a>
         </section>
 
         <section className="card" style={{ padding: 16 }}>
@@ -514,31 +487,11 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
               <p className="muted">{t("aura.tokenSaverHint")}</p>
             </div>
           </div>
-          {optimizer && (
-            <div className="stack" style={{ gap: 10, marginTop: 12 }}>
-              <div className="row" style={{ justifyContent: "space-between", gap: 12 }}>
-                <div><strong>{t("aura.tokenSaverEnabled")}</strong><div className="muted text-label">{t("aura.tokenSaverMeasured")}</div></div>
-                <button type="button" className={`toggle ${optimizer.enabled ? "on" : ""}`} aria-pressed={optimizer.enabled} onClick={() => void updateOptimizer({ enabled: !optimizer.enabled })} disabled={!!busy}>
-                  <span className="toggle-knob" />
-                </button>
-              </div>
-              <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-                {(["lite", "full", "ultra"] as const).map(preset => (
-                  <button key={preset} type="button" className={`btn ${optimizer.preset === preset ? "btn-primary" : "btn-ghost"}`} onClick={() => void updateOptimizer({ preset })} disabled={!!busy}>
-                    {t(`aura.tokenSaver.${preset}` as "aura.tokenSaver.lite")}
-                  </button>
-                ))}
-              </div>
-              <label className="row" style={{ gap: 8 }}>
-                <input type="checkbox" checked={optimizer.deduplicate} onChange={event => void updateOptimizer({ deduplicate: event.target.checked })} disabled={!!busy} />
-                <span>{t("aura.tokenSaverDedup")}</span>
-              </label>
-              <label className="row" style={{ gap: 8 }}>
-                <input type="checkbox" checked={optimizer.reduceLogs} onChange={event => void updateOptimizer({ reduceLogs: event.target.checked })} disabled={!!busy} />
-                <span>{t("aura.tokenSaverLogs")}</span>
-              </label>
-            </div>
-          )}
+          {optimizer && <div className="row" style={{ gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
+            <span className={`badge ${optimizer.enabled ? "badge-accent" : "badge-muted"}`}>{optimizer.enabled ? t("usage.optimizer.enabled") : t("usage.optimizer.disabled")}</span>
+            <span className="badge">{t(`aura.tokenSaver.${optimizer.preset}` as "aura.tokenSaver.lite")}</span>
+          </div>}
+          <a className="btn btn-ghost" href="#optimization">{t("aura.openOptimization")}</a>
         </section>
       </div>
 

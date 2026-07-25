@@ -1,6 +1,8 @@
 import type { TKey } from "./en";
+import { capabilityFallback } from "./capability-fallback";
 
 export const ko: Record<TKey, string> = {
+  ...capabilityFallback,
   // sidebar / nav / common
   "nav.dashboard": "대시보드",
   "nav.aura": "Aura 설정",

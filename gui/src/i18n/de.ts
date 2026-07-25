@@ -1,5 +1,8 @@
+import { capabilityFallback } from "./capability-fallback";
+
 // German — generated from en.ts. Must match TKey set (compile-checked).
 export const de = {
+  ...capabilityFallback,
   "nav.dashboard": "Übersicht",
   "nav.aura": "Aura-Einrichtung",
   "nav.startup": "Startsicherheit",

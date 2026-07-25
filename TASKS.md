@@ -143,6 +143,12 @@ Priority:
   - Done when: every English key has a Vietnamese value with matching
     placeholders and the locale cannot silently fall back to English.
 
+- [x] `UX-008` P1 Split the 9Router-inspired capability hub and Token Saver
+  controls into dedicated Setup and Routing pages while keeping Overview as a
+  compact summary.
+  - Done when: one canonical page owns each control and navigation remains
+    inside the five-area information architecture.
+
 ## M3 — Provider and Client GUI
 
 - [x] `PRV-001` P0 Define the generic provider/account/model configuration
@@ -298,12 +304,12 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
 - `CLT-005` through `CLT-007`: complete. Factory Droid now has guarded
   auto-configuration; ZCode and other compatible coding agents have a
   copy-ready manual guide with explicit protocol and authentication steps.
-- `CAP-001` and `CAP-002`: complete. Aura Setup now exposes a truthful
-  capability matrix and Lite/Full/Ultra Token Saver controls backed by the
-  existing measured optimizer.
+- `CAP-001` and `CAP-002`: complete. Setup → Capabilities exposes a truthful
+  capability matrix; Routing → Optimization owns behaviorally distinct
+  Lite/Full/Ultra Token Saver controls backed by the measured optimizer.
 - `ONB-002`: complete. Quick Setup now covers all supported client paths and
   clearly separates automatic configuration from manual completion.
-- `UX-001` through `UX-007`: complete; see `docs/aura/ux-foundation.md`. The
+- `UX-001` through `UX-008`: complete; see `docs/aura/ux-foundation.md`. The
   five-area shell preserves legacy hashes, adds persistent Focus/Canvas
   workspaces, icon pill navigation, a visually guided setup/profile/optimizer
   flow, complete Vietnamese coverage, and desktop/mobile browser verification.

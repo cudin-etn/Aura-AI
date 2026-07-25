@@ -33,8 +33,8 @@ and deep links continue to work.
 | Area | Pages |
 | --- | --- |
 | Home | Dashboard |
-| Setup | Overview, Providers, Accounts, Models, Clients |
-| Routing | Profiles and roles, fallback combos |
+| Setup | Overview, Providers, Accounts, Models, Clients, Capabilities |
+| Routing | Profiles and roles, fallback combos, Optimization |
 | Insights | Usage, request logs and debug |
 | Settings | Startup safety, storage, API access |
 
@@ -44,6 +44,12 @@ turning the global navigation into a long inventory of implementation details.
 The sidebar shares the application background while the active page sits on a
 rounded, lightly elevated workspace panel. Contextual pages use icon-labelled
 pill controls instead of an unstructured row of text links.
+
+Overview contains only health and onboarding summaries. Setup → Capabilities
+owns the endpoint/status hub inspired by 9Router Skills. Routing → Optimization
+owns Token Saver controls, while Insights → Usage owns measured savings. Model
+Discovery, Clients, and Fallback keep their existing specialist pages; the
+capability hub links to them instead of duplicating their controls.
 
 ## Workspace layouts
 

@@ -1,6 +1,8 @@
 import type { TKey } from "./en";
+import { capabilityFallback } from "./capability-fallback";
 
 export const zh: Record<TKey, string> = {
+  ...capabilityFallback,
   // sidebar / nav / common
   "nav.dashboard": "仪表盘",
   "nav.aura": "Aura 设置",

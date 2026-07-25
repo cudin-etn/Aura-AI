@@ -26,12 +26,14 @@ const Clients = lazy(() => import("./pages/Clients"));
 const Startup = lazy(() => import("./pages/Startup"));
 const AuraSetup = lazy(() => import("./pages/AuraSetup"));
 const Appearance = lazy(() => import("./pages/Appearance"));
+const Capabilities = lazy(() => import("./pages/Capabilities"));
+const Optimization = lazy(() => import("./pages/Optimization"));
 
-type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude" | "appearance";
+type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude" | "appearance" | "capabilities" | "optimization";
 type Section = "home" | "setup" | "routing" | "insights" | "settings";
 type Theme = "light" | "dark" | "system";
 
-const VALID_PAGES = new Set<Page>(["dashboard", "aura", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude", "appearance"]);
+const VALID_PAGES = new Set<Page>(["dashboard", "aura", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude", "appearance", "capabilities", "optimization"]);
 
 const PAGE_TKEY: Record<Page, TKey> = {
   dashboard: "nav.dashboard",
@@ -48,6 +50,8 @@ const PAGE_TKEY: Record<Page, TKey> = {
   api: "nav.api",
   claude: "nav.claude",
   appearance: "nav.appearance",
+  capabilities: "nav.capabilities",
+  optimization: "nav.optimization",
 };
 
 function readPageFromHash(): Page {
@@ -121,6 +125,7 @@ const SECTION_NAV: SectionConfig[] = [
       { id: "models", tkey: "nav.models", Icon: IconBoxes },
       { id: "codex-auth", tkey: "nav.accounts", Icon: IconKey },
       { id: "claude", tkey: "nav.clients", Icon: IconTerminal },
+      { id: "capabilities", tkey: "nav.capabilities", Icon: IconGlobe },
     ],
   },
   {
@@ -131,6 +136,7 @@ const SECTION_NAV: SectionConfig[] = [
     pages: [
       { id: "subagents", tkey: "nav.profiles", Icon: IconBot },
       { id: "combos", tkey: "nav.fallback", Icon: IconShuffle },
+      { id: "optimization", tkey: "nav.optimization", Icon: IconSliders },
     ],
   },
   {
@@ -479,6 +485,8 @@ export default function App() {
             {page === "api" && <ApiKeys apiBase={API_BASE} />}
             {page === "claude" && <Clients apiBase={API_BASE} />}
             {page === "appearance" && <Appearance layoutSkin={layoutSkin} onLayoutSkinChange={setLayoutSkin} />}
+            {page === "capabilities" && <Capabilities apiBase={API_BASE} />}
+            {page === "optimization" && <Optimization apiBase={API_BASE} />}
             </Suspense>
           </ErrorBoundary>
         </div>

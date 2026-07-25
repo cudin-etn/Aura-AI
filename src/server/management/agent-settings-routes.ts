@@ -67,6 +67,7 @@ import { AURA_CLIENT_ADAPTERS } from "../../clients/registry";
 import { describeAuraProvider } from "../../providers/aura";
 import { readAuraToolOutput } from "../../optimizer/output-store";
 import { AURA_CAPABILITIES } from "../../aura/capabilities";
+import { AURA_OPTIMIZER_PRESET_IDS, buildAuraOptimizerPreset, type AuraOptimizerPresetId } from "../../optimizer/presets";
 import {
   applyOpenCodeConnection,
   previewOpenCodeConnection,
@@ -111,17 +112,22 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
       if (body.enabled !== undefined && typeof body.enabled !== "boolean") return jsonResponse({ error: "enabled must be boolean" }, 400);
       if (body.deduplicate !== undefined && typeof body.deduplicate !== "boolean") return jsonResponse({ error: "deduplicate must be boolean" }, 400);
       if (body.reduceLogs !== undefined && typeof body.reduceLogs !== "boolean") return jsonResponse({ error: "reduceLogs must be boolean" }, 400);
-      if (body.preset !== undefined && !["lite", "full", "ultra"].includes(String(body.preset))) return jsonResponse({ error: "preset must be lite, full, or ultra" }, 400);
+      if (body.preset !== undefined && !AURA_OPTIMIZER_PRESET_IDS.includes(body.preset as AuraOptimizerPresetId)) return jsonResponse({ error: "preset must be lite, full, or ultra" }, 400);
       const previous = config.aura?.optimizer;
-      const preset = body.preset as "lite" | "full" | "ultra" | undefined;
-      const enabled = body.enabled ?? previous?.enabled ?? true;
+      const preset = body.preset as AuraOptimizerPresetId | undefined;
+      const presetValues: Partial<ReturnType<typeof buildAuraOptimizerPreset>> = preset
+        ? buildAuraOptimizerPreset(preset)
+        : {};
       const next = {
         ...previous,
-        enabled,
-        deduplicate: body.deduplicate ?? (preset === "lite" ? false : previous?.deduplicate ?? true),
-        reduceLogs: body.reduceLogs ?? previous?.reduceLogs ?? true,
-        ...(preset ? { preset } : {}),
+        ...presetValues,
+        enabled: body.enabled ?? presetValues.enabled ?? previous?.enabled ?? true,
+        deduplicate: body.deduplicate ?? presetValues.deduplicate ?? previous?.deduplicate ?? true,
+        reduceLogs: body.reduceLogs ?? presetValues.reduceLogs ?? previous?.reduceLogs ?? true,
       };
+      if (!preset && (body.deduplicate !== undefined || body.reduceLogs !== undefined)) {
+        next.preset = next.deduplicate && next.reduceLogs ? "full" : "lite";
+      }
       config.aura = { ...config.aura, optimizer: next };
       try {
         saveConfig(config);
