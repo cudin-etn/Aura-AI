@@ -4,8 +4,9 @@ Date: 2026-07-24
 
 ## Install and launch
 
-Aura has a public source repository. Until its independent npm package is
-reserved and verified, install the preview from the `dev` branch:
+Aura has a public source repository and the package name `@tungninh/aura-ai`
+is reserved. Until the first preview is published, install the current build
+from the `dev` branch:
 
 ```bash
 git clone --branch dev https://github.com/cudin-etn/Aura-AI.git
@@ -14,6 +15,12 @@ bun install --frozen-lockfile
 bun run build:gui
 npm install -g .
 aura start
+```
+
+After the preview is published, the shorter install is:
+
+```bash
+npm install -g @tungninh/aura-ai@preview
 ```
 
 The existing `ocx` and `opencodex` commands remain supported; `aura` and

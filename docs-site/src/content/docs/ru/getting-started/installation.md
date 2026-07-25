@@ -19,7 +19,7 @@ opencodex устанавливает два эквивалентных имен�
 ## Установка
 
 ```bash
-npm install -g @bitkyc08/opencodex
+npm install -g @tungninh/aura-ai
 ```
 
 :::note[npm заблокировал postinstall-скрипт bun?]
@@ -31,10 +31,10 @@ install-scripts ... blocked because they are not covered by allowScripts`),
 текущий каталог:
 
 ```bash
-npm install -g --allow-scripts=bun @bitkyc08/opencodex
+npm install -g --allow-scripts=bun @tungninh/aura-ai
 
 # если изначально устанавливали через sudo, продолжайте использовать sudo:
-sudo npm install -g --allow-scripts=bun @bitkyc08/opencodex
+sudo npm install -g --allow-scripts=bun @tungninh/aura-ai
 ```
 :::
 
@@ -53,7 +53,7 @@ ChatGPT, OpenAI по API-ключу, OpenRouter и эксперименталь�
 Используйте канал preview только для тестирования ещё не выпущенных сборок opencodex:
 
 ```bash
-npm install -g @bitkyc08/opencodex@preview
+npm install -g @tungninh/aura-ai@preview
 ocx update --tag preview
 ```
 

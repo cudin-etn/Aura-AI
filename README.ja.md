@@ -1,11 +1,11 @@
 <h3 align="center">make codex open!</h3>
 <p align="center"><b>OpenAI Codex &amp; Claude Code 向けの汎用プロバイダープロキシ</b> — Codex CLI・App・SDK と Claude Code で任意の LLM を使えます。</p>
-<p align="center"><code>npm install -g @bitkyc08/opencodex</code> · <code>ocx start</code> · <b>localhost:10100</b></p>
+<p align="center"><code>npm install -g @tungninh/aura-ai</code> · <code>aura start</code> · <b>localhost:10100</b></p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@bitkyc08/opencodex"><img src="https://img.shields.io/npm/v/@bitkyc08/opencodex?color=cb3837&label=npm&logo=npm" alt="npm version"></a>
-  <a href="https://github.com/lidge-jun/opencodex/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@bitkyc08/opencodex?color=blue" alt="license"></a>
-  <img src="https://img.shields.io/node/v/@bitkyc08/opencodex?logo=node.js&label=node" alt="node version">
+  <a href="https://www.npmjs.com/package/@tungninh/aura-ai"><img src="https://img.shields.io/npm/v/@tungninh/aura-ai?color=cb3837&label=npm&logo=npm" alt="npm version"></a>
+  <a href="https://github.com/cudin-etn/Aura-AI/blob/dev/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license"></a>
+  <img src="https://img.shields.io/node/v/@tungninh/aura-ai?logo=node.js&label=node" alt="node version">
 </p>
 
 <p align="center">
@@ -71,7 +71,7 @@ flowchart LR
 ```bash
 # インストール(Bun ランタイムを自動バンドル — Node 18+ のみ必要)
 # ユーザー所有の Node(nvm/fnm)を推奨 — `sudo npm install -g …` は避けてください
-npm install -g @bitkyc08/opencodex
+npm install -g @tungninh/aura-ai
 
 # 対話型セットアップ(config の書き出し + Codex への注入 + 自動起動 shim のインストールを提案)
 ocx init
@@ -94,14 +94,14 @@ codex "Write a hello world in Rust"
 opencodex は Bun ランタイムを依存関係としてバンドルし、Node ランチャー経由で実行するため、Bun を自分でインストールする必要は**ありません**。"bundled Bun runtime is missing" エラーが出る場合、インストール時にライフサイクルスクリプト(npm が `allowScripts` で bun の postinstall をブロックした場合を含む)やオプション依存がスキップされています。bun のインストールスクリプトを許可して再インストールしてください:
 
 ```bash
-npm install -g --allow-scripts=bun @bitkyc08/opencodex   # --ignore-scripts, --omit=optional なしで
+npm install -g --allow-scripts=bun @tungninh/aura-ai   # --ignore-scripts, --omit=optional なしで
 
 # 最初に sudo でインストールした場合は sudo を維持してください:
-sudo npm install -g --allow-scripts=bun @bitkyc08/opencodex
+sudo npm install -g --allow-scripts=bun @tungninh/aura-ai
 ```
 
 npm の警告が提案する省略コマンドにはパッケージ名が含まれておらず、
-現在のディレクトリを再インストールしてしまいます。常に `@bitkyc08/opencodex` を明示してください。
+現在のディレクトリを再インストールしてしまいます。常に `@tungninh/aura-ai` を明示してください。
 
 sudo で root 所有のプレフィックスにインストールした場合、上の sudo 再インストールでそのプレフィックスの
 ブロックが解除されますが、可能な場合はユーザー所有の Node(nvm、fnm、ユーザー npm プレフィックス)への移行を推奨します。
@@ -286,7 +286,7 @@ npm パッケージを削除する前に、ローカル状態を先に片付け�
 
 ```bash
 ocx uninstall
-npm uninstall -g @bitkyc08/opencodex
+npm uninstall -g @tungninh/aura-ai
 ```
 
 `ocx uninstall` はプロキシの停止、インストールされた service の削除、Codex shim の削除、Codex config/catalog/history の

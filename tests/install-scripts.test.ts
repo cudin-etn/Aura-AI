@@ -27,8 +27,8 @@ describe("install scripts", () => {
     };
 
     expect(pkg.main).toBe("./bin/package-main.mjs");
-    expect(pkg.bin?.aura).toBe("./bin/ocx.mjs");
-    expect(pkg.bin?.["aura-ai"]).toBe("./bin/ocx.mjs");
+    expect(pkg.bin?.aura).toBe("bin/ocx.mjs");
+    expect(pkg.bin?.["aura-ai"]).toBe("bin/ocx.mjs");
     expect(pkg.exports?.["."]?.bun).toBe("./src/index.ts");
     expect(pkg.exports?.["."]?.default).toBe("./bin/package-main.mjs");
     expect(pkg.dependencies?.zod).toBe("4.4.3");
@@ -73,10 +73,10 @@ describe("install scripts", () => {
     const script = await readText("scripts/install.sh");
 
     expect(script).toContain("Node.js 18+ is required");
-    expect(script).toContain("npm install -g @bitkyc08/opencodex");
+    expect(script).toContain("npm install -g @tungninh/aura-ai");
     expect(script).toContain("command -v ocx");
     expect(script).toContain("ocx help");
-    expect(script).not.toContain("bun install -g @bitkyc08/opencodex");
+    expect(script).not.toContain("bun install -g @tungninh/aura-ai");
     expect(script).not.toContain("bun.sh/install");
   });
 
@@ -84,12 +84,12 @@ describe("install scripts", () => {
     const script = await readText("scripts/install.ps1");
 
     expect(script).toContain("Node.js 18+ is required");
-    expect(script).toContain("& $npm.Source install -g @bitkyc08/opencodex");
+    expect(script).toContain("& $npm.Source install -g @tungninh/aura-ai");
     expect(script).toContain("$LASTEXITCODE");
     expect(script).toContain("Get-Command ocx.cmd");
     expect(script).toContain("Get-Command ocx");
     expect(script).toContain("& $ocx.Source help");
-    expect(script).not.toContain("bun install -g @bitkyc08/opencodex");
+    expect(script).not.toContain("bun install -g @tungninh/aura-ai");
     expect(script).not.toContain("bun.sh/install.ps1");
   });
 

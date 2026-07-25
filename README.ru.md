@@ -1,11 +1,11 @@
 <h3 align="center">make codex open!</h3>
 <p align="center"><b>Универсальный прокси провайдеров для OpenAI Codex &amp; Claude Code</b> — используйте любую LLM с Codex CLI, App, SDK и Claude Code.</p>
-<p align="center"><code>npm install -g @bitkyc08/opencodex</code> · <code>ocx start</code> · <b>localhost:10100</b></p>
+<p align="center"><code>npm install -g @tungninh/aura-ai</code> · <code>aura start</code> · <b>localhost:10100</b></p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@bitkyc08/opencodex"><img src="https://img.shields.io/npm/v/@bitkyc08/opencodex?color=cb3837&label=npm&logo=npm" alt="npm version"></a>
-  <a href="https://github.com/lidge-jun/opencodex/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@bitkyc08/opencodex?color=blue" alt="license"></a>
-  <img src="https://img.shields.io/node/v/@bitkyc08/opencodex?logo=node.js&label=node" alt="node version">
+  <a href="https://www.npmjs.com/package/@tungninh/aura-ai"><img src="https://img.shields.io/npm/v/@tungninh/aura-ai?color=cb3837&label=npm&logo=npm" alt="npm version"></a>
+  <a href="https://github.com/cudin-etn/Aura-AI/blob/dev/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license"></a>
+  <img src="https://img.shields.io/node/v/@tungninh/aura-ai?logo=node.js&label=node" alt="node version">
 </p>
 
 <p align="center">
@@ -73,7 +73,7 @@ flowchart LR
 ```bash
 # Установка (рантайм Bun добавляется автоматически — нужен только Node 18+)
 # Предпочитайте Node, принадлежащий пользователю (nvm/fnm), — избегайте `sudo npm install -g …`
-npm install -g @bitkyc08/opencodex
+npm install -g @tungninh/aura-ai
 
 # Интерактивная настройка (записывает конфигурацию, встраивается в Codex и предлагает установить shim автозапуска)
 ocx init
@@ -100,15 +100,15 @@ opencodex поставляет рантайм Bun как зависимость 
 зависимости. Переустановите пакет без этих флагов, разрешив установочный скрипт Bun:
 
 ```bash
-npm install -g --allow-scripts=bun @bitkyc08/opencodex   # без --ignore-scripts и без --omit=optional
+npm install -g --allow-scripts=bun @tungninh/aura-ai   # без --ignore-scripts и без --omit=optional
 
 # если первоначальная установка выполнялась через sudo, продолжайте использовать sudo:
-sudo npm install -g --allow-scripts=bun @bitkyc08/opencodex
+sudo npm install -g --allow-scripts=bun @tungninh/aura-ai
 ```
 
 Собственное предупреждение npm предлагает сокращённую команду без имени пакета —
 такая команда переустановит текущий каталог, поэтому всегда указывайте
-`@bitkyc08/opencodex` явно.
+`@tungninh/aura-ai` явно.
 
 Если вы устанавливали пакет через `sudo` в prefix, принадлежащий root, показанная выше
 переустановка с sudo разблокирует этот prefix — но при возможности лучше перейти на Node,
@@ -319,7 +319,7 @@ shim включён по умолчанию и отключается в GUI-п�
 
 ```bash
 ocx uninstall
-npm uninstall -g @bitkyc08/opencodex
+npm uninstall -g @tungninh/aura-ai
 ```
 
 `ocx uninstall` останавливает прокси, удаляет установленную службу, удаляет shim для Codex,

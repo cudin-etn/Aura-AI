@@ -1,5 +1,5 @@
 {
-  "name": "@bitkyc08/opencodex",
+  "name": "@tungninh/aura-ai",
   "version": "2.7.36",
   "description": "Aura AI — a local multi-provider gateway for Codex, Claude Code, OpenCode, and other AI coding agents",
   "type": "module",
@@ -12,10 +12,10 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "aura": "./bin/ocx.mjs",
-    "aura-ai": "./bin/ocx.mjs",
-    "opencodex": "./bin/ocx.mjs",
-    "ocx": "./bin/ocx.mjs"
+    "aura": "bin/ocx.mjs",
+    "aura-ai": "bin/ocx.mjs",
+    "opencodex": "bin/ocx.mjs",
+    "ocx": "bin/ocx.mjs"
   },
   "files": [
     "bin",

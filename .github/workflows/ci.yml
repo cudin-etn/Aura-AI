@@ -128,7 +128,7 @@ jobs:
 
       - name: Install globally (downloads bundled bun)
         shell: bash
-        run: npm install -g ./bitkyc08-opencodex-*.tgz
+        run: npm install -g ./tungninh-aura-ai-*.tgz
 
       - name: ocx help via bundled bun
         run: ocx help

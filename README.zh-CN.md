@@ -1,11 +1,11 @@
 <h3 align="center">make codex open!</h3>
 <p align="center"><b>面向 OpenAI Codex 与 Claude Code 的通用 provider 代理</b> —— 在 Codex CLI、App、SDK 和 Claude Code 中使用任意 LLM。</p>
-<p align="center"><code>npm install -g @bitkyc08/opencodex</code> · <code>ocx start</code> · <b>localhost:10100</b></p>
+<p align="center"><code>npm install -g @tungninh/aura-ai</code> · <code>aura start</code> · <b>localhost:10100</b></p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@bitkyc08/opencodex"><img src="https://img.shields.io/npm/v/@bitkyc08/opencodex?color=cb3837&label=npm&logo=npm" alt="npm version"></a>
-  <a href="https://github.com/lidge-jun/opencodex/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/@bitkyc08/opencodex?color=blue" alt="license"></a>
-  <img src="https://img.shields.io/node/v/@bitkyc08/opencodex?logo=node.js&label=node" alt="node version">
+  <a href="https://www.npmjs.com/package/@tungninh/aura-ai"><img src="https://img.shields.io/npm/v/@tungninh/aura-ai?color=cb3837&label=npm&logo=npm" alt="npm version"></a>
+  <a href="https://github.com/cudin-etn/Aura-AI/blob/dev/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="license"></a>
+  <img src="https://img.shields.io/node/v/@tungninh/aura-ai?logo=node.js&label=node" alt="node version">
 </p>
 
 <p align="center">
@@ -70,7 +70,7 @@ flowchart LR
 ```bash
 # 安装（自动打包 Bun 运行时 —— 只需 Node 18+）
 # 推荐使用用户自有的 Node（nvm/fnm）—— 避免 `sudo npm install -g …`
-npm install -g @bitkyc08/opencodex
+npm install -g @tungninh/aura-ai
 
 # 交互式初始化（写入配置 + 注入 Codex）
 ocx init
@@ -90,14 +90,14 @@ codex "Write a hello world in Rust"
 opencodex 把 Bun 运行时作为依赖打包，并通过 Node 启动器运行，所以你**不需要**自己安装 Bun。如果看到 "bundled Bun runtime is missing" 错误，说明安装时跳过了 lifecycle 脚本（包括 npm 通过 `allowScripts` 拦截 bun postinstall 的情况）或 optional 依赖。请允许 bun 安装脚本后重新安装：
 
 ```bash
-npm install -g --allow-scripts=bun @bitkyc08/opencodex   # 不要加 --ignore-scripts、--omit=optional
+npm install -g --allow-scripts=bun @tungninh/aura-ai   # 不要加 --ignore-scripts、--omit=optional
 
 # 如果最初是用 sudo 安装的，请继续使用 sudo：
-sudo npm install -g --allow-scripts=bun @bitkyc08/opencodex
+sudo npm install -g --allow-scripts=bun @tungninh/aura-ai
 ```
 
 npm 警告里给出的缩写命令缺少包名，会把当前目录重新安装进去，
-请始终显式写上 `@bitkyc08/opencodex`。
+请始终显式写上 `@tungninh/aura-ai`。
 
 如果之前用 sudo 安装到了 root 前缀，上面的 sudo 重装可以解除该前缀的拦截 ——
 但建议在条件允许时迁移到用户自有的 Node（nvm、fnm 或用户 npm prefix）。
@@ -269,7 +269,7 @@ opencodex 提供两种自动启动代理的方式：
 
 ```bash
 ocx uninstall
-npm uninstall -g @bitkyc08/opencodex
+npm uninstall -g @tungninh/aura-ai
 ```
 
 `ocx uninstall` 会停止代理、移除已安装的 service、移除 Codex shim、恢复原生 Codex config/catalog/history，并删除 `~/.opencodex`。

@@ -99,15 +99,15 @@ launcher, so you do **not** need to install Bun yourself. If you see a
 dependencies. Reinstall without those flags, allowing bun's install script:
 
 ```bash
-npm install -g --allow-scripts=bun @bitkyc08/opencodex   # no --ignore-scripts, no --omit=optional
+npm install -g --allow-scripts=bun @tungninh/aura-ai   # no --ignore-scripts, no --omit=optional
 
 # if the original install used sudo, keep using sudo:
-sudo npm install -g --allow-scripts=bun @bitkyc08/opencodex
+sudo npm install -g --allow-scripts=bun @tungninh/aura-ai
 ```
 
 npm's own warning suggests an abbreviated command without the package name —
 that would reinstall the current directory, so during migration always pass
-`@bitkyc08/opencodex` explicitly.
+`@tungninh/aura-ai` explicitly.
 
 If you installed with `sudo` into a root-owned prefix, the sudo reinstall above
 unblocks that prefix — but prefer migrating to a user-owned Node (nvm, fnm, or
@@ -320,7 +320,7 @@ Before removing the npm package, clean up local state:
 
 ```bash
 ocx uninstall
-npm uninstall -g @bitkyc08/opencodex
+npm uninstall -g @tungninh/aura-ai
 ```
 
 `ocx uninstall` stops the proxy, removes any installed service, removes the Codex shim, restores
