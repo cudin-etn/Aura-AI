@@ -438,7 +438,9 @@ export interface OcxConfig {
       deduplicate?: boolean;
       reduceLogs?: boolean;
       /** Preset label used by the GUI; runtime still uses the conservative booleans above. */
-      preset?: "lite" | "full" | "ultra";
+      preset?: "off" | "safe" | "lite" | "full" | "ultra";
+      /** A downstream optimizer owns compression; Aura must avoid double reduction. */
+      downstreamOptimizer?: "none" | "9router-rtk" | "unknown";
       contextBudgets?: Partial<Record<
         "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs",
         number

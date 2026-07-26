@@ -441,7 +441,7 @@ export default function App() {
             <button type="button" className="theme-toggle" onClick={toggleClaude}
               aria-pressed={claudeEnabled} aria-label={t("claude.toggleAria")} title={t("claude.toggleAria")}
               style={claudeEnabled ? { color: "var(--accent)" } : undefined}>
-              <IconSparkle /> <span className="mode">{claudeEnabled ? t("app.claudeOn") : t("app.claudeOff")}</span>
+              <IconSparkle /> <span className="mode">{claudeEnabled ? t("app.claudeCliOn") : t("app.claudeCliOff")}</span>
             </button>
           )}
           <div className="lang-toggle">

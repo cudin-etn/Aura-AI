@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import ClaudeCode from "./ClaudeCode";
-import { Notice, Select } from "../ui";
+import { MultiSelect, Notice, Select } from "../ui";
 import { useT, type TKey } from "../i18n";
 import { IconX } from "../icons";
 
 type ClientRow = {
-  id: "codex" | "claude-code" | "opencode" | "zcode" | "factory" | "generic";
+  id: "codex" | "claude-code" | "claude-desktop" | "opencode" | "zcode" | "factory" | "cursor" | "kiro" | "antigravity" | "cline" | "roo" | "continue" | "kilo" | "droid" | "openclaw" | "generic";
   label: string;
   maturity: "production" | "basic" | "experimental";
   protocols: string[];
@@ -19,11 +19,21 @@ type OpenCodePreview = {
   path: string;
   exists: boolean;
   model: string;
+  models: string[];
+  modelCount: number;
   provider: string;
   changes: string[];
 };
 type ClientPreview = OpenCodePreview;
-type GuideTarget = "zcode" | "generic";
+type ClaudeDesktopState = {
+  supported: boolean;
+  exists: boolean;
+  backupExists: boolean;
+  modelCount: number;
+  mode: "static" | "hybrid" | "discovery" | null;
+  modes: string[];
+};
+type GuideTarget = "zcode" | "cursor" | "kiro" | "antigravity" | "cline" | "roo" | "continue" | "kilo" | "droid" | "openclaw" | "generic";
 type ClientGuide = {
   baseUrl: string;
   model: string;
@@ -36,17 +46,29 @@ type ClientGuide = {
 const CLIENT_HINT_KEYS: Record<ClientRow["id"], TKey> = {
   codex: "clients.codex.hint",
   "claude-code": "clients.claude-code.hint",
+  "claude-desktop": "clients.claude-desktop.hint",
   opencode: "clients.opencode.hint",
   zcode: "clients.zcode.hint",
   factory: "clients.factory.hint",
   generic: "clients.generic.hint",
+  cursor: "clients.generic.hint",
+  kiro: "clients.generic.hint",
+  antigravity: "clients.generic.hint",
+  cline: "clients.generic.hint",
+  roo: "clients.generic.hint",
+  continue: "clients.generic.hint",
+  kilo: "clients.generic.hint",
+  droid: "clients.generic.hint",
+  openclaw: "clients.generic.hint",
 };
 
 export default function Clients({ apiBase }: { apiBase: string }) {
   const t = useT();
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [models, setModels] = useState<string[]>([]);
+  const [openCodeModels, setOpenCodeModels] = useState<string[]>([]);
   const [openCodeModel, setOpenCodeModel] = useState("");
+  const [factoryModels, setFactoryModels] = useState<string[]>([]);
   const [factoryModel, setFactoryModel] = useState("");
   const [preview, setPreview] = useState<OpenCodePreview | null>(null);
   const [factoryPreview, setFactoryPreview] = useState<ClientPreview | null>(null);
@@ -56,20 +78,34 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [showClaude, setShowClaude] = useState(false);
+  const [claudeDesktop, setClaudeDesktop] = useState<ClaudeDesktopState | null>(null);
+  const [claudeDesktopMode, setClaudeDesktopMode] = useState<"static" | "hybrid" | "discovery">("static");
 
   const load = useCallback(async () => {
     try {
-      const [clientResponse, profileResponse] = await Promise.all([
+      const [clientResponse, profileResponse, desktopResponse] = await Promise.all([
         fetch(`${apiBase}/api/aura/clients`),
         fetch(`${apiBase}/api/aura/profile`),
+        fetch(`${apiBase}/api/aura/clients/claude-desktop`),
       ]);
-      if (!clientResponse.ok || !profileResponse.ok) throw new Error("load failed");
+      if (!clientResponse.ok || !profileResponse.ok || !desktopResponse.ok) throw new Error("load failed");
       const clientBody = await clientResponse.json() as { clients?: ClientRow[] };
       const profileBody = await profileResponse.json() as ProfileResponse;
+      const desktopBody = await desktopResponse.json() as ClaudeDesktopState;
       const available = profileBody.available ?? [];
       setClients(clientBody.clients ?? []);
+      setClaudeDesktop(desktopBody);
+      if (desktopBody.mode) setClaudeDesktopMode(desktopBody.mode);
       setModels(available);
+      setOpenCodeModels(current => {
+        const retained = current.filter(model => available.includes(model));
+        return retained.length > 0 ? retained : available;
+      });
       setOpenCodeModel(current => current && available.includes(current) ? current : (available[0] ?? ""));
+      setFactoryModels(current => {
+        const retained = current.filter(model => available.includes(model));
+        return retained.length > 0 ? retained : available;
+      });
       setFactoryModel(current => current && available.includes(current) ? current : (available[0] ?? ""));
     } catch {
       setOk(false);
@@ -77,17 +113,57 @@ export default function Clients({ apiBase }: { apiBase: string }) {
     }
   }, [apiBase, t]);
 
+  const applyClaudeDesktop = async () => {
+    setBusy("claude-desktop");
+    setStatus("");
+    try {
+      const response = await fetch(`${apiBase}/api/aura/clients/claude-desktop`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: claudeDesktopMode }),
+      });
+      const body = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(body.error || t("aura.actionFail"));
+      setOk(true);
+      setStatus(t("clients.claudeDesktopConnected"));
+      await load();
+    } catch (error) {
+      setOk(false);
+      setStatus(error instanceof Error ? error.message : t("aura.actionFail"));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const restoreClaudeDesktop = async () => {
+    setBusy("claude-desktop");
+    setStatus("");
+    try {
+      const response = await fetch(`${apiBase}/api/aura/clients/claude-desktop`, { method: "DELETE" });
+      const body = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(body.error || t("aura.actionFail"));
+      setOk(true);
+      setStatus(t("clients.claudeDesktopRestored"));
+      await load();
+    } catch (error) {
+      setOk(false);
+      setStatus(error instanceof Error ? error.message : t("aura.actionFail"));
+    } finally {
+      setBusy(null);
+    }
+  };
+
   useEffect(() => {
     const timeout = window.setTimeout(() => { void load(); }, 0);
     return () => window.clearTimeout(timeout);
   }, [load]);
 
   const previewOpenCode = async () => {
-    if (!openCodeModel) return;
+    if (!openCodeModel || openCodeModels.length === 0) return;
     setBusy("opencode-preview");
     setStatus("");
     try {
-      const response = await fetch(`${apiBase}/api/aura/clients/opencode?model=${encodeURIComponent(openCodeModel)}`);
+      const response = await fetch(`${apiBase}/api/aura/clients/opencode?defaultModel=${encodeURIComponent(openCodeModel)}`);
       const body = await response.json() as OpenCodePreview & { error?: string };
       if (!response.ok) throw new Error(body.error || t("clients.previewFailed"));
       setFactoryPreview(null);
@@ -104,14 +180,14 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   };
 
   const applyOpenCode = async () => {
-    if (!openCodeModel) return;
+    if (!openCodeModel || openCodeModels.length === 0) return;
     setBusy("opencode-apply");
     setStatus("");
     try {
       const response = await fetch(`${apiBase}/api/aura/clients/opencode`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: openCodeModel }),
+        body: JSON.stringify({ models: openCodeModels, defaultModel: openCodeModel }),
       });
       const body = await response.json() as { error?: string };
       if (!response.ok) throw new Error(body.error || t("aura.actionFail"));
@@ -125,6 +201,12 @@ export default function Clients({ apiBase }: { apiBase: string }) {
     } finally {
       setBusy(null);
     }
+  };
+
+  const updateOpenCodeModels = (next: string[]) => {
+    setOpenCodeModels(next);
+    setPreview(null);
+    if (!next.includes(openCodeModel)) setOpenCodeModel(next[0] ?? "");
   };
 
   const restoreOpenCode = async () => {
@@ -147,11 +229,12 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   };
 
   const previewFactory = async () => {
-    if (!factoryModel) return;
+    if (!factoryModel || factoryModels.length === 0) return;
     setBusy("factory-preview");
     setStatus("");
     try {
-      const response = await fetch(`${apiBase}/api/aura/clients/factory?model=${encodeURIComponent(factoryModel)}`);
+      const query = `${factoryModels.map(model => `model=${encodeURIComponent(model)}`).join("&")}&defaultModel=${encodeURIComponent(factoryModel)}`;
+      const response = await fetch(`${apiBase}/api/aura/clients/factory?${query}`);
       const body = await response.json() as ClientPreview & { error?: string };
       if (!response.ok) throw new Error(body.error || t("clients.previewFailed"));
       setPreview(null);
@@ -168,14 +251,14 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   };
 
   const applyFactory = async () => {
-    if (!factoryModel) return;
+    if (!factoryModel || factoryModels.length === 0) return;
     setBusy("factory-apply");
     setStatus("");
     try {
       const response = await fetch(`${apiBase}/api/aura/clients/factory`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: factoryModel }),
+        body: JSON.stringify({ models: factoryModels, defaultModel: factoryModel }),
       });
       const body = await response.json() as { error?: string };
       if (!response.ok) throw new Error(body.error || t("aura.actionFail"));
@@ -213,7 +296,7 @@ export default function Clients({ apiBase }: { apiBase: string }) {
   const loadGuide = async (target: GuideTarget) => {
     setBusy(`guide-${target}`);
     try {
-      const response = await fetch(`${apiBase}/api/aura/client-guide?model=${encodeURIComponent(openCodeModel || "YOUR_MODEL")}`);
+      const response = await fetch(`${apiBase}/api/aura/client-guide?client=${encodeURIComponent(target)}&model=${encodeURIComponent(openCodeModel || "YOUR_MODEL")}`);
       const body = await response.json() as ClientGuide & { error?: string };
       if (!response.ok) throw new Error(body.error || t("clients.guideFailed"));
       setPreview(null);
@@ -271,9 +354,23 @@ export default function Clients({ apiBase }: { apiBase: string }) {
     setGuideTarget(null);
   };
 
-  const modelOptions = models.length > 0
-    ? models.map(candidate => ({ value: candidate, label: candidate }))
-    : [{ value: "", label: t("models.noRouted") }];
+  const openCodeModelOptions = models.map(model => {
+    const slash = model.indexOf("/");
+    return {
+      value: model,
+      label: model,
+      searchText: model,
+      group: slash > 0 ? model.slice(0, slash) : "OpenAI",
+    };
+  });
+  const openCodeDefaultOptions = openCodeModels.map(model => ({ value: model, label: model }));
+  const factoryModelOptions = models.map(model => ({
+    value: model,
+    label: model,
+    searchText: model,
+    group: model.includes("/") ? model.split("/", 1)[0] : "OpenAI",
+  }));
+  const factoryDefaultOptions = factoryModels.map(model => ({ value: model, label: model }));
   const detailOpen = !!preview || !!factoryPreview || (!!guide && !!guideTarget);
 
   return (
@@ -316,19 +413,51 @@ export default function Clients({ apiBase }: { apiBase: string }) {
               </div>
             )}
 
-            {client.id === "opencode" && (
+            {client.id === "claude-desktop" && claudeDesktop && (
               <div className="stack" style={{ gap: 8 }}>
                 <Select
-                  value={openCodeModel}
-                  options={modelOptions}
-                  onChange={value => { setOpenCodeModel(value); setPreview(null); }}
-                  disabled={models.length === 0}
-                  label={t("aura.openCodeModel")}
+                  value={claudeDesktopMode}
+                  options={claudeDesktop.modes.map(mode => ({ value: mode, label: mode }))}
+                  onChange={value => setClaudeDesktopMode(value as "static" | "hybrid" | "discovery")}
+                  disabled={!claudeDesktop.supported || busy !== null}
+                  label={t("clients.claudeDesktopMode")}
                   style={{ width: "100%" }}
                 />
+                <span className="muted text-caption">{t("clients.claudeDesktopModels", { count: String(claudeDesktop.modelCount) })}</span>
+                <span className="muted text-caption">{claudeDesktop.backupExists ? t("clients.claudeDesktopBackupReady") : t("clients.claudeDesktopBackupOnApply")}</span>
                 <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-                  <button className="btn btn-ghost" onClick={() => void previewOpenCode()} disabled={!openCodeModel || busy !== null}>{t("clients.preview")}</button>
-                  <button className="btn btn-primary" onClick={() => void applyOpenCode()} disabled={!openCodeModel || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connect")}</button>
+                  <button className="btn btn-primary" onClick={() => void applyClaudeDesktop()} disabled={!claudeDesktop.supported || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connect")}</button>
+                  {client.connected && <button className="btn btn-ghost" onClick={() => void restoreClaudeDesktop()} disabled={busy !== null}>{t("aura.restore")}</button>}
+                </div>
+              </div>
+            )}
+
+            {client.id === "opencode" && (
+              <div className="stack" style={{ gap: 8 }}>
+                <MultiSelect
+                  values={openCodeModels}
+                  options={openCodeModelOptions}
+                  onChange={updateOpenCodeModels}
+                  disabled={models.length === 0}
+                  label={t("clients.compatibleModels")}
+                  summary={t("pws.modelCount", { count: String(openCodeModels.length) })}
+                  searchPlaceholder={t("clients.searchModels")}
+                  selectAllLabel={t("clients.selectAllCompatible")}
+                  clearLabel={t("clients.clearModels")}
+                  style={{ width: "100%" }}
+                />
+                <Select
+                  value={openCodeModel}
+                  options={openCodeDefaultOptions}
+                  onChange={value => { setOpenCodeModel(value); setPreview(null); }}
+                  disabled={openCodeModels.length === 0}
+                  label={t("clients.defaultModel")}
+                  style={{ width: "100%" }}
+                />
+                <span className="muted text-caption">{t("clients.connectAllHint")}</span>
+                <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+                  <button className="btn btn-ghost" onClick={() => void previewOpenCode()} disabled={!openCodeModel || openCodeModels.length === 0 || busy !== null}>{t("clients.preview")}</button>
+                  <button className="btn btn-primary" onClick={() => void applyOpenCode()} disabled={!openCodeModel || openCodeModels.length === 0 || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connect")}</button>
                   {client.connected && <button className="btn btn-ghost" onClick={() => void restoreOpenCode()} disabled={busy !== null}>{t("aura.restore")}</button>}
                 </div>
               </div>
@@ -338,23 +467,35 @@ export default function Clients({ apiBase }: { apiBase: string }) {
 
             {client.id === "factory" && (
               <div className="stack" style={{ gap: 8 }}>
+                <MultiSelect
+                  values={factoryModels}
+                  options={factoryModelOptions}
+                  onChange={next => { setFactoryModels(next); if (!next.includes(factoryModel)) setFactoryModel(next[0] ?? ""); setFactoryPreview(null); }}
+                  disabled={models.length === 0}
+                  label={t("clients.compatibleModels")}
+                  summary={t("pws.modelCount", { count: String(factoryModels.length) })}
+                  searchPlaceholder={t("clients.searchModels")}
+                  selectAllLabel={t("clients.selectAllCompatible")}
+                  clearLabel={t("clients.clearModels")}
+                  style={{ width: "100%" }}
+                />
                 <Select
                   value={factoryModel}
-                  options={modelOptions}
+                  options={factoryDefaultOptions}
                   onChange={value => { setFactoryModel(value); setFactoryPreview(null); }}
-                  disabled={models.length === 0}
-                  label={t("aura.factoryModel")}
+                  disabled={factoryModels.length === 0}
+                  label={t("clients.defaultModel")}
                   style={{ width: "100%" }}
                 />
                 <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
-                  <button className="btn btn-ghost" onClick={() => void previewFactory()} disabled={!factoryModel || busy !== null}>{t("clients.preview")}</button>
-                  <button className="btn btn-primary" onClick={() => void applyFactory()} disabled={!factoryModel || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connectFactory")}</button>
+                  <button className="btn btn-ghost" onClick={() => void previewFactory()} disabled={!factoryModel || factoryModels.length === 0 || busy !== null}>{t("clients.preview")}</button>
+                  <button className="btn btn-primary" onClick={() => void applyFactory()} disabled={!factoryModel || factoryModels.length === 0 || busy !== null}>{client.connected ? t("aura.reconnect") : t("aura.connectFactory")}</button>
                   {client.connected && <button className="btn btn-ghost" onClick={() => void restoreFactory()} disabled={busy !== null}>{t("aura.restoreFactory")}</button>}
                 </div>
               </div>
             )}
 
-            {(client.id === "zcode" || client.id === "generic") && (
+            {(["zcode", "cursor", "kiro", "antigravity", "cline", "roo", "continue", "kilo", "droid", "openclaw", "generic"] as const).includes(client.id as GuideTarget) && (
               <div className="stack" style={{ gap: 8 }}>
                 <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
                   <button className="btn btn-primary" onClick={() => void loadGuide(client.id as GuideTarget)} disabled={busy !== null}>{t("clients.openGuide")}</button>
@@ -385,6 +526,8 @@ export default function Clients({ apiBase }: { apiBase: string }) {
           {(preview || factoryPreview) && (
             <div className="client-detail-body text-control">
               <div className="client-detail-row"><strong>{t("clients.previewPath")}</strong><code>{(preview ?? factoryPreview)!.path}</code></div>
+              <div className="client-detail-row"><strong>{t("clients.compatibleModels")}</strong><span>{t("pws.modelCount", { count: String((preview ?? factoryPreview)!.modelCount) })}</span></div>
+              <div className="client-detail-row"><strong>{t("clients.defaultModel")}</strong><code>{(preview ?? factoryPreview)!.model}</code></div>
               <div className="client-detail-row"><strong>{t("clients.previewChanges")}</strong><code>{(preview ?? factoryPreview)!.changes.join(", ")}</code></div>
             </div>
           )}

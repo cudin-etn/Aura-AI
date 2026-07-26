@@ -10,6 +10,8 @@ export type FactoryConnectionState = {
   created: boolean;
   appliedAt: number;
   appliedHash?: string;
+  models?: string[];
+  defaultModel?: string;
 };
 
 type JsonObject = Record<string, unknown>;
@@ -37,10 +39,20 @@ export function defaultFactoryConfigPath(): string {
   return join(homedir(), ".factory", "settings.json");
 }
 
+function normalizeModels(models: string | readonly string[], defaultModel?: string): { models: string[]; defaultModel: string } {
+  const values = Array.isArray(models) ? models : [models];
+  const normalized = [...new Set(values.map(model => model.trim()).filter(Boolean))];
+  if (normalized.length === 0) throw new Error("Factory requires at least one model");
+  const chosen = defaultModel?.trim() || normalized[0];
+  if (!normalized.includes(chosen)) throw new Error("Factory default model must be included in models");
+  return { models: normalized, defaultModel: chosen };
+}
+
 function buildCustomModel(model: string, baseUrl: string, apiKey?: string): JsonObject {
   return {
     model,
     displayName: `Aura AI — ${model}`,
+    auraManaged: true,
     baseUrl: baseUrl.replace(/\/+$/, ""),
     provider: "openai",
     ...(apiKey?.trim() ? { apiKey: apiKey.trim() } : {}),
@@ -50,9 +62,11 @@ function buildCustomModel(model: string, baseUrl: string, apiKey?: string): Json
 export function buildFactoryConnection(
   source: string | undefined,
   baseUrl: string,
-  model: string,
+  models: string | readonly string[],
   apiKey?: string,
+  defaultModel?: string,
 ): JsonObject {
+  const selected = normalizeModels(models, defaultModel);
   const root = source?.trim() ? asObject(JSON.parse(source), "Factory settings") : {};
   const customModels = root.customModels === undefined
     ? []
@@ -62,38 +76,45 @@ export function buildFactoryConnection(
   const kept = customModels.filter(entry => {
     if (!entry || typeof entry !== "object" || Array.isArray(entry)) return true;
     const row = entry as Record<string, unknown>;
-    return !(row.displayName === `Aura AI — ${model}` || row.auraManaged === true);
+    return !(row.auraManaged === true || typeof row.displayName === "string" && row.displayName.startsWith("Aura AI — "));
   });
   return {
     ...root,
-    customModels: [...kept, buildCustomModel(model, baseUrl, apiKey)],
+    customModels: [...kept, ...selected.models.map(model => buildCustomModel(model, baseUrl, apiKey))],
+    ...(selected.defaultModel ? { defaultModel: `aura/${selected.defaultModel}` } : {}),
   };
 }
 
-export function previewFactoryConnection(baseUrl: string, model: string): {
+export function previewFactoryConnection(baseUrl: string, models: string | readonly string[], defaultModel?: string): {
   path: string;
   exists: boolean;
   model: string;
+  models: string[];
+  modelCount: number;
   provider: string;
   changes: string[];
 } {
   const path = defaultFactoryConfigPath();
   const source = existsSync(path) ? readFileSync(path, "utf8") : undefined;
-  buildFactoryConnection(source, baseUrl, model);
+  const selected = normalizeModels(models, defaultModel);
+  buildFactoryConnection(source, baseUrl, selected.models, undefined, selected.defaultModel);
   return {
     path,
     exists: source !== undefined,
-    model,
+    model: selected.defaultModel,
+    models: selected.models,
+    modelCount: selected.models.length,
     provider: "openai",
     changes: ["customModels"],
   };
 }
 
-export function applyFactoryConnection(baseUrl: string, model: string, apiKey?: string): FactoryConnectionState {
+export function applyFactoryConnection(baseUrl: string, models: string | readonly string[], apiKey?: string, defaultModel?: string): FactoryConnectionState {
+  const selected = normalizeModels(models, defaultModel);
   const path = defaultFactoryConfigPath();
   const created = !existsSync(path);
   const source = created ? undefined : readFileSync(path, "utf8");
-  const nextBytes = JSON.stringify(buildFactoryConnection(source, baseUrl, model, apiKey), null, 2) + "\n";
+  const nextBytes = JSON.stringify(buildFactoryConnection(source, baseUrl, selected.models, apiKey, selected.defaultModel), null, 2) + "\n";
   mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
   const backupPath = created ? undefined : `${path}.aura-backup-${randomUUID()}`;
   if (backupPath) atomicWriteFile(backupPath, source!);
@@ -101,8 +122,8 @@ export function applyFactoryConnection(baseUrl: string, model: string, apiKey?: 
     atomicWriteFile(path, nextBytes);
     const verified = asObject(JSON.parse(readFileSync(path, "utf8")), "Factory settings");
     const models = Array.isArray(verified.customModels) ? verified.customModels : [];
-    const aura = models.find(entry => entry && typeof entry === "object" && (entry as JsonObject).displayName === `Aura AI — ${model}`);
-    if (!aura || (aura as JsonObject).baseUrl !== baseUrl.replace(/\/+$/, "")) {
+    const auraRows = models.filter(entry => entry && typeof entry === "object" && (entry as JsonObject).auraManaged === true);
+    if (auraRows.length !== selected.models.length || auraRows.some(entry => (entry as JsonObject).baseUrl !== baseUrl.replace(/\/+$/, ""))) {
       throw new Error("Factory verification failed after apply");
     }
   } catch (cause) {
@@ -119,6 +140,8 @@ export function applyFactoryConnection(baseUrl: string, model: string, apiKey?: 
     created,
     appliedAt: Date.now(),
     appliedHash: hashBytes(nextBytes),
+    models: selected.models,
+    defaultModel: selected.defaultModel,
   };
 }
 

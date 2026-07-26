@@ -64,6 +64,7 @@ import {
   type AuraProfileOverrides,
 } from "../../policy/aura-profiles";
 import { AURA_CLIENT_ADAPTERS } from "../../clients/registry";
+import { buildAuraClientModelCatalog, modelsForAuraClient } from "../../clients/catalog";
 import { describeAuraProvider } from "../../providers/aura";
 import { readAuraToolOutput } from "../../optimizer/output-store";
 import { AURA_CAPABILITIES } from "../../aura/capabilities";
@@ -78,6 +79,13 @@ import {
   previewFactoryConnection,
   restoreFactoryConnection,
 } from "../../clients/factory";
+import {
+  generateDesktop3pConfig,
+  getDesktop3pStatus,
+  restoreDesktop3pConfig,
+  writeDesktop3pConfig,
+  type Desktop3pConfigMode,
+} from "../../claude/desktop-3p";
 
 import { isPlainRecord, parseDebugLogQuery, tokPerSecondResult, unavailableCostReason, costResult, requestLogDto, stripRegistryOnlyStaticHeaders, fetchAllModels } from "./shared";
 import type { MetricUnavailableReason, TokPerSecondResult, CostEstimateReason, CostResult, MetricSource } from "./shared";
@@ -96,6 +104,23 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
     return jsonResponse({ capabilities: AURA_CAPABILITIES });
   }
 
+  if (url.pathname === "/api/aura/catalog" && req.method === "GET") {
+    const routedModels = await fetchAllModels(config);
+    const { listCatalogNativeSlugs } = await import("../../codex/catalog");
+    const models = buildAuraClientModelCatalog({
+      routedModels,
+      nativeSlugs: listCatalogNativeSlugs(),
+      disabledModels: config.disabledModels,
+    });
+    const requestedClient = url.searchParams.get("client")?.trim();
+    if (requestedClient) {
+      const client = AURA_CLIENT_ADAPTERS.find(candidate => candidate.id === requestedClient);
+      if (!client) return jsonResponse({ error: "unknown Aura client" }, 404);
+      return jsonResponse({ client: client.id, models: modelsForAuraClient(models, client.id) });
+    }
+    return jsonResponse({ models });
+  }
+
   if (url.pathname === "/api/aura/optimizer") {
     if (req.method === "GET") {
       const optimizer = config.aura?.optimizer;
@@ -104,26 +129,30 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
         deduplicate: optimizer?.deduplicate !== false,
         reduceLogs: optimizer?.reduceLogs !== false,
         preset: optimizer?.preset ?? "full",
+        downstreamOptimizer: optimizer?.downstreamOptimizer ?? "none",
       });
     }
     if (req.method === "PUT") {
-      let body: { enabled?: unknown; deduplicate?: unknown; reduceLogs?: unknown; preset?: unknown };
+      let body: { enabled?: unknown; deduplicate?: unknown; reduceLogs?: unknown; preset?: unknown; downstreamOptimizer?: unknown };
       try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
       if (body.enabled !== undefined && typeof body.enabled !== "boolean") return jsonResponse({ error: "enabled must be boolean" }, 400);
       if (body.deduplicate !== undefined && typeof body.deduplicate !== "boolean") return jsonResponse({ error: "deduplicate must be boolean" }, 400);
       if (body.reduceLogs !== undefined && typeof body.reduceLogs !== "boolean") return jsonResponse({ error: "reduceLogs must be boolean" }, 400);
-      if (body.preset !== undefined && !AURA_OPTIMIZER_PRESET_IDS.includes(body.preset as AuraOptimizerPresetId)) return jsonResponse({ error: "preset must be lite, full, or ultra" }, 400);
+      if (body.preset !== undefined && !AURA_OPTIMIZER_PRESET_IDS.includes(body.preset as AuraOptimizerPresetId)) return jsonResponse({ error: "preset must be off, safe, lite, full, or ultra" }, 400);
+      if (body.downstreamOptimizer !== undefined && !["none", "9router-rtk", "unknown"].includes(body.downstreamOptimizer as string)) return jsonResponse({ error: "downstreamOptimizer must be none, 9router-rtk, or unknown" }, 400);
       const previous = config.aura?.optimizer;
       const preset = body.preset as AuraOptimizerPresetId | undefined;
       const presetValues: Partial<ReturnType<typeof buildAuraOptimizerPreset>> = preset
         ? buildAuraOptimizerPreset(preset)
         : {};
+      const downstreamOptimizer = body.downstreamOptimizer as "none" | "9router-rtk" | "unknown" | undefined;
       const next = {
         ...previous,
         ...presetValues,
         enabled: body.enabled ?? presetValues.enabled ?? previous?.enabled ?? true,
         deduplicate: body.deduplicate ?? presetValues.deduplicate ?? previous?.deduplicate ?? true,
         reduceLogs: body.reduceLogs ?? presetValues.reduceLogs ?? previous?.reduceLogs ?? true,
+        downstreamOptimizer: downstreamOptimizer === undefined ? previous?.downstreamOptimizer ?? "none" : downstreamOptimizer,
       };
       if (!preset && (body.deduplicate !== undefined || body.reduceLogs !== undefined)) {
         next.preset = next.deduplicate && next.reduceLogs ? "full" : "lite";
@@ -157,6 +186,7 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
         ...client,
         connected: client.id === "codex"
           || (client.id === "claude-code" && config.claudeCode?.enabled !== false)
+          || (client.id === "claude-desktop" && getDesktop3pStatus().exists)
           || (client.id === "opencode" && !!config.aura?.clients?.opencode)
           || (client.id === "factory" && !!config.aura?.clients?.factory),
       })),
@@ -165,27 +195,47 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
 
   if (url.pathname === "/api/aura/clients/opencode") {
     const baseUrl = `http://127.0.0.1:${config.port}/v1`;
+    const routedModels = await fetchAllModels(config);
+    const { listCatalogNativeSlugs } = await import("../../codex/catalog");
+    const compatibleModels = modelsForAuraClient(buildAuraClientModelCatalog({
+      routedModels,
+      nativeSlugs: listCatalogNativeSlugs(),
+      disabledModels: config.disabledModels,
+    }), "opencode").map(model => model.id);
     if (req.method === "GET") {
-      const model = url.searchParams.get("model")?.trim();
-      if (!model) return jsonResponse({ error: "model query parameter is required" }, 400);
+      const defaultModel = url.searchParams.get("defaultModel")?.trim()
+        || url.searchParams.get("model")?.trim()
+        || compatibleModels[0];
+      if (!defaultModel) return jsonResponse({ error: "OpenCode has no compatible Aura models" }, 409);
       try {
-        return jsonResponse(previewOpenCodeConnection(baseUrl, model));
+        return jsonResponse(previewOpenCodeConnection(baseUrl, compatibleModels, defaultModel));
       } catch (err) {
         return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 400);
       }
     }
 
     if (req.method === "PUT") {
-      let body: { model?: unknown };
+      let body: { model?: unknown; defaultModel?: unknown; models?: unknown };
       try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
-      if (typeof body.model !== "string" || !body.model.trim()) {
-        return jsonResponse({ error: "model must be a non-empty string" }, 400);
+      if (body.models !== undefined && (!Array.isArray(body.models) || body.models.some(model => typeof model !== "string" || !model.trim()))) {
+        return jsonResponse({ error: "models must be an array of non-empty strings" }, 400);
       }
-      const model = body.model.trim();
+      const models = body.models === undefined
+        ? compatibleModels
+        : [...new Set((body.models as string[]).map(model => model.trim()))];
+      if (models.length === 0) return jsonResponse({ error: "models must contain at least one model" }, 400);
+      const unsupported = models.filter(model => !compatibleModels.includes(model));
+      if (unsupported.length > 0) return jsonResponse({ error: `models contain unavailable or incompatible entries: ${unsupported.join(", ")}` }, 400);
+      const rawDefault = body.defaultModel ?? body.model ?? models[0];
+      if (typeof rawDefault !== "string" || !rawDefault.trim()) {
+        return jsonResponse({ error: "defaultModel must be a non-empty string" }, 400);
+      }
+      const defaultModel = rawDefault.trim();
+      if (!models.includes(defaultModel)) return jsonResponse({ error: "defaultModel must be included in models" }, 400);
       const previous = config.aura?.clients?.opencode;
       let state;
       try {
-        state = applyOpenCodeConnection(baseUrl, model);
+        state = applyOpenCodeConnection(baseUrl, models, defaultModel);
         config.aura = {
           ...config.aura,
           clients: { ...config.aura?.clients, opencode: state },
@@ -201,7 +251,7 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
         }
         return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 400);
       }
-      return jsonResponse({ ok: true, ...state, model: `aura/${model}` });
+      return jsonResponse({ ok: true, ...state, model: `aura/${defaultModel}`, models, modelCount: models.length });
     }
 
     if (req.method === "DELETE") {
@@ -223,30 +273,34 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
   if (url.pathname === "/api/aura/clients/factory") {
     const baseUrl = `http://127.0.0.1:${config.port}/v1`;
     if (req.method === "GET") {
+      const requested = url.searchParams.getAll("model").map(model => model.trim()).filter(Boolean);
       const model = url.searchParams.get("model")?.trim();
       if (!model) return jsonResponse({ error: "model query parameter is required" }, 400);
       try {
-        return jsonResponse(previewFactoryConnection(baseUrl, model));
+        return jsonResponse(previewFactoryConnection(baseUrl, requested, model));
       } catch (err) {
         return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 400);
       }
     }
 
     if (req.method === "PUT") {
-      let body: { model?: unknown; apiKey?: unknown };
+      let body: { model?: unknown; models?: unknown; defaultModel?: unknown; apiKey?: unknown };
       try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
-      if (typeof body.model !== "string" || !body.model.trim()) {
-        return jsonResponse({ error: "model must be a non-empty string" }, 400);
+      const models = body.models ?? body.model;
+      if (!(typeof models === "string" || Array.isArray(models)) || (Array.isArray(models) && models.some(model => typeof model !== "string" || !model.trim()))) {
+        return jsonResponse({ error: "model or models must contain at least one non-empty model" }, 400);
       }
+      const selectedModels = (Array.isArray(models) ? models : [models]) as string[];
+      const defaultModel = body.defaultModel === undefined ? selectedModels[0] : body.defaultModel;
+      if (typeof defaultModel !== "string" || !defaultModel.trim()) return jsonResponse({ error: "defaultModel must be a non-empty string" }, 400);
       if (body.apiKey !== undefined && typeof body.apiKey !== "string") {
         return jsonResponse({ error: "apiKey must be a string when provided" }, 400);
       }
-      const model = body.model.trim();
       const apiKey = typeof body.apiKey === "string" ? body.apiKey : undefined;
       const previous = config.aura?.clients?.factory;
       let state;
       try {
-        state = applyFactoryConnection(baseUrl, model, apiKey);
+        state = applyFactoryConnection(baseUrl, selectedModels, apiKey, defaultModel);
         config.aura = {
           ...config.aura,
           clients: { ...config.aura?.clients, factory: state },
@@ -262,7 +316,7 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
         }
         return jsonResponse({ error: err instanceof Error ? err.message : String(err) }, 400);
       }
-      return jsonResponse({ ok: true, ...state, model });
+      return jsonResponse({ ok: true, ...state, model: defaultModel, models: selectedModels, modelCount: selectedModels.length });
     }
 
     if (req.method === "DELETE") {
@@ -283,7 +337,23 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
 
   if (url.pathname === "/api/aura/client-guide" && req.method === "GET") {
     const model = url.searchParams.get("model")?.trim() || "YOUR_MODEL";
+    const client = url.searchParams.get("client")?.trim().toLowerCase() || "generic";
     const baseUrl = `http://127.0.0.1:${config.port}/v1`;
+    const guidedClients = new Set(["zcode", "cursor", "kiro", "antigravity", "cline", "roo", "continue", "kilo", "droid", "openclaw", "generic"]);
+    if (!guidedClients.has(client)) return jsonResponse({ error: "This client does not use the guided setup flow" }, 400);
+    const clientNotes: Record<string, string[]> = {
+      cursor: ["Guided integration: use Cursor's OpenAI-compatible provider settings; Aura does not edit private Cursor files."],
+      kiro: ["Guided integration: keep Kiro OAuth and provider login in Kiro; point its compatible endpoint to Aura only when supported by the installed client."],
+      antigravity: ["Guided integration: keep Antigravity OAuth in the client; use Aura as an OpenAI/Anthropic-compatible endpoint where its provider settings allow it."],
+      cline: ["Guided integration: choose OpenAI Compatible and paste the Chat Completions endpoint."],
+      roo: ["Guided integration: choose OpenAI Compatible and paste the Chat Completions endpoint."],
+      continue: ["Guided integration: add an OpenAI-compatible model provider and use the matching model id."],
+      kilo: ["Guided integration: choose OpenAI Compatible and paste the Chat Completions endpoint."],
+      droid: ["Guided integration: use the Responses endpoint if available, otherwise the Chat Completions endpoint."],
+      openclaw: ["Guided integration: use 127.0.0.1 rather than localhost to avoid local IPv6 resolution differences."],
+      zcode: ["Guided integration: use the protocol and endpoint supported by your installed ZCode build."],
+      generic: ["Guided integration: use the protocol your client supports."],
+    };
     return jsonResponse({
       baseUrl,
       model,
@@ -295,11 +365,59 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
       authHeader: "x-opencodex-api-key",
       authEnv: "OPENCODEX_API_AUTH_TOKEN",
       notes: [
-        "Use the protocol your client supports.",
+        ...(clientNotes[client] ?? clientNotes.generic),
         "Leave the API key empty when Aura local authentication is disabled.",
         "Use an Aura API key or OPENCODEX_API_AUTH_TOKEN when local authentication is enabled.",
       ],
     });
+  }
+
+  if (url.pathname === "/api/aura/clients/claude-desktop") {
+    const status = getDesktop3pStatus();
+    if (req.method === "GET") {
+      const routedModels = await fetchAllModels(config);
+      const { listCatalogNativeSlugs, filterCatalogVisibleModels } = await import("../../codex/catalog");
+      const nativeSlugs = [...listCatalogNativeSlugs()];
+      const visibleModels = filterCatalogVisibleModels(routedModels, config);
+      const routed = visibleModels.map(model => ({ provider: model.provider, id: model.id, contextWindow: model.contextWindow }));
+      const generated = generateDesktop3pConfig(config.port, nativeSlugs, routed, "ocx", "static") as {
+        inferenceGatewayBaseUrl: string;
+        inferenceModels?: { name: string; labelOverride: string }[];
+      };
+      return jsonResponse({
+        ...status,
+        modes: ["static", "hybrid", "discovery"],
+        gatewayBaseUrl: generated.inferenceGatewayBaseUrl,
+        modelCount: generated.inferenceModels?.length ?? 0,
+        models: generated.inferenceModels ?? [],
+        defaultMode: "static",
+      });
+    }
+
+    if (!status.supported) return jsonResponse({ error: "Claude Desktop 3P integration is currently supported on macOS only" }, 409);
+    if (req.method === "PUT") {
+      let body: { mode?: unknown };
+      try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
+      const mode = body.mode === undefined ? "static" : body.mode;
+      if (mode !== "static" && mode !== "hybrid" && mode !== "discovery") {
+        return jsonResponse({ error: "mode must be static, hybrid, or discovery" }, 400);
+      }
+      const routedModels = await fetchAllModels(config);
+      const { listCatalogNativeSlugs, filterCatalogVisibleModels } = await import("../../codex/catalog");
+      const nativeSlugs = [...listCatalogNativeSlugs()];
+      const visibleModels = filterCatalogVisibleModels(routedModels, config);
+      const routed = visibleModels.map(model => ({ provider: model.provider, id: model.id, contextWindow: model.contextWindow }));
+      const result = writeDesktop3pConfig(config.port, nativeSlugs, routed, undefined, mode as Desktop3pConfigMode);
+      if (!result.written) return jsonResponse({ error: result.reason ?? "Claude Desktop configuration failed" }, 500);
+      const nextStatus = getDesktop3pStatus();
+      return jsonResponse({ ok: true, applied: true, verified: nextStatus.exists, ...nextStatus, mode });
+    }
+
+    if (req.method === "DELETE") {
+      const result = restoreDesktop3pConfig();
+      if (!result.restored) return jsonResponse({ error: result.reason ?? "Claude Desktop restore failed" }, 409);
+      return jsonResponse({ ok: true, restored: true, path: result.path });
+    }
   }
 
   if (url.pathname === "/api/aura/profile") {

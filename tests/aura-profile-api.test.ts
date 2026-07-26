@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { handleManagementAPI } from "../src/server/management-api";
@@ -88,6 +88,20 @@ describe("/api/aura/profile", () => {
       maturity: "experimental",
       configurable: false,
     });
+    expect(body.clients.find(client => client.id === "cursor")).toMatchObject({
+      maturity: "experimental",
+      configurable: false,
+    });
+  });
+
+  test("returns client-specific guided setup without speculative file mutation", async () => {
+    const target = config();
+    const req = new Request("http://localhost/api/aura/client-guide?client=cursor&model=9router/cx-gpt-5.6-sol");
+    const response = (await handleManagementAPI(req, new URL(req.url), target))!;
+    expect(response.status).toBe(200);
+    const body = await response.json() as { notes: string[]; model: string };
+    expect(body.model).toBe("9router/cx-gpt-5.6-sol");
+    expect(body.notes[0]).toContain("Cursor");
   });
 
   test("previews, applies, and restores OpenCode configuration", async () => {
@@ -112,6 +126,41 @@ describe("/api/aura/profile", () => {
     const restored = (await handleManagementAPI(restoreReq, new URL(restoreReq.url), target))!;
     expect(restored.status).toBe(200);
     expect(target.aura?.clients?.opencode).toBeUndefined();
+  });
+
+  test("catalogs all compatible models and applies an OpenCode model set", async () => {
+    const target = config();
+    process.env.OPENCODE_CONFIG = join(tempHome!, "opencode.json");
+    const catalogReq = new Request("http://localhost/api/aura/catalog?client=opencode");
+    const catalogResponse = (await handleManagementAPI(catalogReq, new URL(catalogReq.url), target))!;
+    expect(catalogResponse.status).toBe(200);
+    const catalog = await catalogResponse.json() as { models: { id: string }[] };
+    expect(catalog.models.map(model => model.id)).toEqual([
+      "9router/cx-gpt-5.6-luna",
+      "9router/cx-gpt-5.6-sol",
+      "9router/cx-gpt-5.6-terra",
+      "gpt-5.3-codex-spark",
+      "gpt-5.5",
+      "gpt-5.6-luna",
+      "gpt-5.6-sol",
+      "gpt-5.6-terra",
+    ]);
+
+    const selected = ["9router/cx-gpt-5.6-sol", "9router/cx-gpt-5.6-terra"];
+    const applyReq = new Request("http://localhost/api/aura/clients/opencode", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ models: selected, defaultModel: selected[1] }),
+    });
+    const applied = (await handleManagementAPI(applyReq, new URL(applyReq.url), target))!;
+    expect(applied.status).toBe(200);
+    expect(await applied.json()).toMatchObject({ model: `aura/${selected[1]}`, models: selected, modelCount: 2 });
+    const saved = JSON.parse(readFileSync(process.env.OPENCODE_CONFIG!, "utf8")) as {
+      model: string;
+      provider: { aura: { models: Record<string, unknown> } };
+    };
+    expect(saved.model).toBe(`aura/${selected[1]}`);
+    expect(Object.keys(saved.provider.aura.models)).toEqual(selected);
   });
 
   test("applies Balanced to the existing OpenCodex controls", async () => {

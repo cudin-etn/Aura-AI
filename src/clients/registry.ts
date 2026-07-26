@@ -1,7 +1,7 @@
 import { auraProtocolForPath, type AuraProtocolId } from "../protocols/registry";
 export type { AuraProtocolId } from "../protocols/registry";
 
-export type AuraClientId = "codex" | "claude-code" | "opencode" | "zcode" | "factory" | "generic";
+export type AuraClientId = "codex" | "claude-code" | "claude-desktop" | "opencode" | "zcode" | "factory" | "cursor" | "kiro" | "antigravity" | "cline" | "roo" | "continue" | "kilo" | "droid" | "openclaw" | "generic";
 export type AuraClientMaturity = "production" | "basic" | "experimental";
 
 export type AuraClientAdapter = {
@@ -31,6 +31,14 @@ export const AURA_CLIENT_ADAPTERS: AuraClientAdapter[] = [
     configurable: true,
   },
   {
+    id: "claude-desktop",
+    label: "Claude Desktop",
+    maturity: "basic",
+    protocols: ["messages"],
+    endpoints: ["/v1/messages", "/v1/models"],
+    configurable: true,
+  },
+  {
     id: "opencode",
     label: "OpenCode",
     maturity: "basic",
@@ -54,6 +62,24 @@ export const AURA_CLIENT_ADAPTERS: AuraClientAdapter[] = [
     endpoints: ["/v1/responses"],
     configurable: true,
   },
+  ...(["cursor", "kiro", "antigravity", "cline", "roo", "continue", "kilo", "droid", "openclaw"] as const).map(id => ({
+    id,
+    label: {
+      cursor: "Cursor",
+      kiro: "Kiro",
+      antigravity: "Antigravity",
+      cline: "Cline",
+      roo: "Roo Code",
+      continue: "Continue",
+      kilo: "Kilo Code",
+      droid: "Droid",
+      openclaw: "OpenClaw",
+    }[id],
+    maturity: "experimental" as const,
+    protocols: ["responses", "chat-completions", "messages"] as AuraProtocolId[],
+    endpoints: ["/v1/responses", "/v1/chat/completions", "/v1/messages"],
+    configurable: false,
+  })),
   {
     id: "generic",
     label: "Other AI agent",

@@ -132,6 +132,7 @@ export function applyAuraProfile(config: OcxConfig, profile: AuraProfile): void 
     tokenBudgetPerTask: profile.tokenBudgetPerTask,
     optimizer: {
       enabled: true,
+      preset: config.aura?.optimizer?.preset ?? "full",
       deduplicate: true,
       reduceLogs: true,
       ...config.aura?.optimizer,

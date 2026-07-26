@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Notice } from "../ui";
 import { IconCheck, IconServer, IconBot, IconSparkle, IconGlobe, IconSliders } from "../icons";
-import { useT } from "../i18n";
+import { useT, type TKey } from "../i18n";
 import AddProviderModal from "../components/AddProviderModal";
 import { AuraRoutePreview } from "../components/AuraVisuals";
 
@@ -13,7 +13,7 @@ type AuraProfile = {
   profile: { roles: { orchestrator: { model: string } } };
 };
 type AuraClient = {
-  id: "codex" | "claude-code" | "opencode" | "zcode" | "factory" | "generic";
+  id: "codex" | "claude-code" | "claude-desktop" | "opencode" | "zcode" | "factory" | "cursor" | "kiro" | "antigravity" | "cline" | "roo" | "continue" | "kilo" | "droid" | "openclaw" | "generic";
   label: string;
   maturity: "production" | "basic" | "experimental";
   configurable: boolean;
@@ -30,7 +30,7 @@ type AuraOptimizer = {
   enabled: boolean;
   deduplicate: boolean;
   reduceLogs: boolean;
-  preset: "lite" | "full" | "ultra";
+  preset: "off" | "safe" | "lite" | "full" | "ultra";
 };
 type Config = {
   defaultProvider: string;
@@ -488,7 +488,7 @@ export default function AuraSetup({ apiBase }: { apiBase: string }) {
           </div>
           {optimizer && <div className="row" style={{ gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
             <span className={`badge ${optimizer.enabled ? "badge-accent" : "badge-muted"}`}>{optimizer.enabled ? t("usage.optimizer.enabled") : t("usage.optimizer.disabled")}</span>
-            <span className="badge">{t(`aura.tokenSaver.${optimizer.preset}` as "aura.tokenSaver.lite")}</span>
+            <span className="badge">{t(`aura.tokenSaver.${optimizer.preset}` as TKey)}</span>
           </div>}
           <a className="btn btn-ghost" href="#optimization">{t("aura.openOptimization")}</a>
         </section>

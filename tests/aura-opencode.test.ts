@@ -76,6 +76,8 @@ describe("Aura OpenCode connector", () => {
       path,
       exists: true,
       model: "aura/model",
+      models: ["model"],
+      modelCount: 1,
       provider: "aura",
       changes: ["provider.aura", "model"],
     });

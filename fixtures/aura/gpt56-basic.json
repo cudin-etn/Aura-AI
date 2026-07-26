@@ -4,8 +4,9 @@
     {
       "id": "responses-json",
       "body": {
-        "input": "Reply exactly OK.",
-        "stream": false,
+        "input": [{ "role": "user", "content": [{ "type": "input_text", "text": "Reply exactly OK." }] }],
+        "store": false,
+        "stream": true,
         "reasoning": {
           "effort": "low"
         }
@@ -14,7 +15,8 @@
     {
       "id": "responses-stream",
       "body": {
-        "input": "Reply exactly OK.",
+        "input": [{ "role": "user", "content": [{ "type": "input_text", "text": "Reply exactly OK." }] }],
+        "store": false,
         "stream": true,
         "reasoning": {
           "effort": "low"
@@ -24,7 +26,8 @@
     {
       "id": "responses-tool-call",
       "body": {
-        "input": "Call the ping tool exactly once.",
+        "input": [{ "role": "user", "content": [{ "type": "input_text", "text": "Call the ping tool exactly once." }] }],
+        "store": false,
         "stream": true,
         "reasoning": {
           "effort": "low"
@@ -61,6 +64,7 @@
             "output": "pong"
           }
         ],
+        "store": false,
         "stream": false,
         "reasoning": {
           "effort": "low"
@@ -91,7 +95,8 @@
         "error": true
       },
       "body": {
-        "input": "This request must be rejected.",
+        "input": [{ "role": "user", "content": [{ "type": "input_text", "text": "This request must be rejected." }] }],
+        "store": false,
         "stream": "invalid"
       }
     },
@@ -102,7 +107,8 @@
         "aborted": true
       },
       "body": {
-        "input": "Write a long explanation of distributed systems.",
+        "input": [{ "role": "user", "content": [{ "type": "input_text", "text": "Write a long explanation of distributed systems." }] }],
+        "store": false,
         "stream": true
       }
     }

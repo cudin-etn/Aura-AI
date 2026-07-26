@@ -1,0 +1,536 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-26T05:15:39.960Z",
+  "fixture": "fixtures/aura/gpt56-basic.json",
+  "provider": "openai",
+  "directModel": "cx/gpt-5.6-sol",
+  "proxyModel": "gpt-5.6-sol",
+  "proxyVersion": "0.1.0-preview.0",
+  "mode": "proxy",
+  "repeat": 3,
+  "capability": {
+    "grade": "Limited",
+    "reasons": [
+      "responses-tool-result_failed"
+    ]
+  },
+  "compatible": false,
+  "cases": [
+    {
+      "id": "responses-json",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.content_part.added",
+            "response.output_text.delta",
+            "response.output_text.done",
+            "response.content_part.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+          "outputChars": 2,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 10,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 5,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 15
+          },
+          "error": null,
+          "headersMs": 635,
+          "totalMs": 1222
+        },
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.content_part.added",
+            "response.output_text.delta",
+            "response.output_text.done",
+            "response.content_part.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+          "outputChars": 2,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 10,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 5,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 15
+          },
+          "error": null,
+          "headersMs": 478,
+          "totalMs": 1531
+        },
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.content_part.added",
+            "response.output_text.delta",
+            "response.output_text.done",
+            "response.content_part.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+          "outputChars": 2,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 10,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 5,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 15
+          },
+          "error": null,
+          "headersMs": 649,
+          "totalMs": 1197
+        }
+      ]
+    },
+    {
+      "id": "responses-stream",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.content_part.added",
+            "response.output_text.delta",
+            "response.output_text.done",
+            "response.content_part.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+          "outputChars": 2,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 10,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 5,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 15
+          },
+          "error": null,
+          "headersMs": 566,
+          "totalMs": 1036
+        },
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.content_part.added",
+            "response.output_text.delta",
+            "response.output_text.done",
+            "response.content_part.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+          "outputChars": 2,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 10,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 5,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 15
+          },
+          "error": null,
+          "headersMs": 626,
+          "totalMs": 1121
+        },
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.content_part.added",
+            "response.output_text.delta",
+            "response.output_text.done",
+            "response.content_part.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": "565339bc4d33d72817b583024112eb7f5cdf3e5eef0252d6ec1b9c9a94e12bb3",
+          "outputChars": 2,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 10,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 5,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 15
+          },
+          "error": null,
+          "headersMs": 3933,
+          "totalMs": 4165
+        }
+      ]
+    },
+    {
+      "id": "responses-tool-call",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.function_call_arguments.delta",
+            "response.function_call_arguments.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [
+            "ping"
+          ],
+          "usage": {
+            "input_tokens": 39,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 53
+          },
+          "error": null,
+          "headersMs": 592,
+          "totalMs": 1328
+        },
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.function_call_arguments.delta",
+            "response.function_call_arguments.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [
+            "ping"
+          ],
+          "usage": {
+            "input_tokens": 39,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 53
+          },
+          "error": null,
+          "headersMs": 486,
+          "totalMs": 1222
+        },
+        {
+          "httpStatus": 200,
+          "terminalStatus": "completed",
+          "eventTypes": [
+            "response.created",
+            "response.in_progress",
+            "response.output_item.added",
+            "response.function_call_arguments.delta",
+            "response.function_call_arguments.done",
+            "response.output_item.done",
+            "response.completed"
+          ],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [
+            "ping"
+          ],
+          "usage": {
+            "input_tokens": 39,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 53
+          },
+          "error": null,
+          "headersMs": 600,
+          "totalMs": 1763
+        }
+      ]
+    },
+    {
+      "id": "responses-tool-result",
+      "proxy": [
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": null,
+          "headersMs": 184,
+          "totalMs": 185
+        },
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": null,
+          "headersMs": 194,
+          "totalMs": 195
+        },
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": null,
+          "headersMs": 336,
+          "totalMs": 337
+        }
+      ]
+    },
+    {
+      "id": "responses-compact",
+      "proxy": [
+        {
+          "httpStatus": 200,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": "0e394a0b8d27451f1b327b424419c7444603837e280a311e4e29c84b9d2861f9",
+          "outputChars": 16,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 28,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 33,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 61
+          },
+          "error": null,
+          "headersMs": 3443,
+          "totalMs": 3444
+        },
+        {
+          "httpStatus": 200,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": "0e394a0b8d27451f1b327b424419c7444603837e280a311e4e29c84b9d2861f9",
+          "outputChars": 16,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 28,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 31,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 59
+          },
+          "error": null,
+          "headersMs": 2403,
+          "totalMs": 2404
+        },
+        {
+          "httpStatus": 200,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": "0e394a0b8d27451f1b327b424419c7444603837e280a311e4e29c84b9d2861f9",
+          "outputChars": 16,
+          "toolNames": [],
+          "usage": {
+            "input_tokens": 28,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 37,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 65
+          },
+          "error": null,
+          "headersMs": 2091,
+          "totalMs": 2091
+        }
+      ]
+    },
+    {
+      "id": "responses-error",
+      "expect": {
+        "status": 400,
+        "error": true
+      },
+      "proxy": [
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "responses parse error: [\n  {\n    \"expected\": \"boolean\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"stream\"\n    ],\n    \"message\": \"Invalid input: expected boolean, received string\"\n  }\n]",
+          "headersMs": 3,
+          "totalMs": 4
+        },
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "responses parse error: [\n  {\n    \"expected\": \"boolean\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"stream\"\n    ],\n    \"message\": \"Invalid input: expected boolean, received string\"\n  }\n]",
+          "headersMs": 2,
+          "totalMs": 2
+        },
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "responses parse error: [\n  {\n    \"expected\": \"boolean\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"stream\"\n    ],\n    \"message\": \"Invalid input: expected boolean, received string\"\n  }\n]",
+          "headersMs": 1,
+          "totalMs": 2
+        }
+      ]
+    },
+    {
+      "id": "responses-cancellation",
+      "expect": {
+        "aborted": true
+      },
+      "proxy": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "client_abort",
+          "headersMs": 2,
+          "totalMs": 2
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "client_abort",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "client_abort",
+          "headersMs": 1,
+          "totalMs": 1
+        }
+      ]
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import { storeAuraToolOutput } from "./output-store";
 export type AuraOptimizerOptions = {
   deduplicate: boolean;
   reduceLogs: boolean;
+  downstreamOptimizer?: "none" | "9router-rtk" | "unknown";
   logThresholdChars?: number;
   logHeadChars?: number;
   logTailChars?: number;
@@ -38,14 +39,48 @@ export function isProtectedAuraToolOutput(message: OcxToolResultMessage): boolea
     || SECURITY_RE.test(message.content);
 }
 
-function looksLikeReducibleLog(content: string): boolean {
+type AuraToolFilter = "git-diff" | "git-status" | "grep" | "find" | "ls" | "tree" | "log" | "generic";
+
+function detectToolFilter(message: OcxToolResultMessage): AuraToolFilter {
+  const name = `${message.toolName} ${message.content.slice(0, 1_024)}`.toLowerCase();
+  if (/git\s+diff|diff --git/.test(name)) return "git-diff";
+  if (/git\s+status|##\s+(?:main|master|head|develop)/.test(name)) return "git-status";
+  if (/\b(?:rg|grep)\b|^\s*\d+:/.test(name)) return "grep";
+  if (/\bfind\b|^\s*\.\/?[^\n]*\//.test(name)) return "find";
+  if (/\bls\b|\btree\b/.test(name)) return name.includes("tree") ? "tree" : "ls";
+  if (/\b(?:log|tail|journalctl|npm test|bun test|pytest)\b|\b(?:info|warn|error|debug)\b/.test(name)) return "log";
+  return "generic";
+}
+
+function looksLikeReducibleLog(content: string, filter: AuraToolFilter): boolean {
   const lines = content.split("\n");
-  if (lines.length < 40) return false;
+  if (lines.length < 20) return false;
+  if (["git-status", "grep", "find", "ls", "tree"].includes(filter)) return true;
   const signalLines = lines.filter(line =>
     /\b(?:info|warn|error|debug|pass|fail|running|completed)\b/i.test(line)
     || /^\s*\d{2}:\d{2}:\d{2}/.test(line)
     || /^\s*\[\d+\/\d+\]/.test(line));
   return signalLines.length >= Math.min(20, Math.ceil(lines.length / 4));
+}
+
+function compressCommandOutput(content: string, filter: AuraToolFilter): string {
+  if (!["git-status", "grep", "find", "ls", "tree"].includes(filter)) return content;
+  const lines = content.split("\n");
+  const output: string[] = [];
+  let previous = "";
+  let repeats = 0;
+  for (const line of lines) {
+    if (line === previous && line.trim() !== "") {
+      repeats += 1;
+      continue;
+    }
+    if (repeats > 0) output.push(`[Aura compacted repeated line ×${repeats + 1}]`);
+    output.push(line);
+    previous = line;
+    repeats = 0;
+  }
+  if (repeats > 0) output.push(`[Aura compacted repeated line ×${repeats + 1}]`);
+  return output.join("\n");
 }
 
 function digest(content: string): string {
@@ -79,6 +114,7 @@ export function optimizeAuraToolOutputs(
     }
 
     const contentDigest = digest(original);
+    const filter = detectToolFilter(message);
     const prior = seen.get(contentDigest);
     if (options.deduplicate && prior && original.length >= 256) {
       message.content = `[Aura deduplicated identical tool output; original call=${prior.callId}; sha256=${prior.digest}.]`;
@@ -88,12 +124,13 @@ export function optimizeAuraToolOutputs(
     }
     seen.set(contentDigest, { callId: message.toolCallId, digest: contentDigest });
 
-    if (options.reduceLogs && original.length > threshold && looksLikeReducibleLog(original)) {
+    if (options.reduceLogs && original.length > threshold && looksLikeReducibleLog(original, filter)) {
       const handle = storeOutput(original);
+      const compacted = compressCommandOutput(original, filter);
       message.content = [
-        original.slice(0, headChars),
-        `\n\n[Aura reduced ${original.length - headChars - tailChars} log characters; full local output handle=${handle}.]\n\n`,
-        original.slice(-tailChars),
+        compacted.slice(0, headChars),
+        `\n\n[Aura reduced ${Math.max(0, original.length - headChars - tailChars)} ${filter} output characters; full local output handle=${handle}.]\n\n`,
+        compacted.slice(-tailChars),
       ].join("");
       reducedLogs += 1;
     }

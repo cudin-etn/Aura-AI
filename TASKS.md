@@ -2,6 +2,14 @@
 
 Status: In progress
 Date: 2026-07-23
+Updated: 2026-07-25
+
+Current M7 progress: CAT-001, CLT-008 through CLT-014, OPT-006, OPT-008, UX-009 through UX-012, and
+SEC-003 are complete. Claude Desktop
+now has a guarded backend/UI apply path with static/hybrid/discovery selection,
+backup, atomic write, verification, and restore tests; CLT-015 remains
+open until real macOS Desktop
+compatibility/restart evidence are recorded.
 
 Priority:
 
@@ -271,6 +279,110 @@ Priority:
 - [ ] `REL-004` P2 Verify Linux CLI, service lifecycle, package, and recovery
   after the macOS and Windows release gates pass.
 
+## M7 — Client Federation and Optimizer Hardening
+
+- [x] `CAT-001` P0 Define one exportable Aura model-catalog contract containing
+  protocol, tools, streaming, reasoning, modality, context, compatibility grade,
+  provider/account route, and per-client representability.
+  - Done when: client adapters consume one catalog and cannot silently export
+    Failed or protocol-incompatible models.
+
+- [x] `CLT-008` P0 Define the bulk client-configuration lifecycle: detect,
+  select all compatible models, choose a default, preview, backup, atomic apply,
+  verify, reconnect/update, and guarded restore.
+  - Depends on: `CAT-001`, `CFG-001`.
+
+- [x] `CLT-009` P0 Upgrade OpenCode from one-model apply to full compatible
+  `provider.aura.models` export with a separately selected default model.
+  - Done when: one Connect action registers all compatible Aura models, preserves
+    unrelated OpenCode providers/settings, and restore refuses to clobber later
+    user edits.
+  - Depends on: `CLT-008`.
+
+- [x] `CLT-010` P1 Upgrade Factory Droid to export every model its documented
+  `customModels` schema can represent, with deduplication and one explicit
+  default/recommended model where the client supports it.
+  - Depends on: `CLT-008`.
+
+- [x] `CLT-011` P1 Verify Cursor's current configuration and model surfaces,
+  then implement the safest supported auto-config or a guided fallback without
+  relying on private schema assumptions.
+  - Depends on: `CAT-001`, `CLT-008`.
+
+- [x] `CLT-012` P1 Verify and add Kiro and Antigravity client tracks, keeping
+  provider OAuth/transport support separate from coding-client configuration.
+  - Done when: each client is labelled Auto, Partial, or Guided with a tested
+    connection path and recovery instructions.
+  - Depends on: `CAT-001`, `CLT-008`.
+
+- [x] `CLT-013` P2 Add evidence-backed templates for Cline, Roo Code, Continue,
+  Kilo Code, Droid, OpenClaw, and generic Responses/Chat/Messages agents.
+  - Depends on: `CAT-001`, `CLT-008`.
+
+- [x] `CLT-014` P0 Freeze Claude Code CLI behavior with protocol, OAuth,
+  environment, model-slot, compact, streaming, and auto-connect regression
+  fixtures before changing Claude presentation.
+  - Done when: all existing Claude Code CLI behavior is covered independently
+    from Claude Desktop.
+
+- [ ] `CLT-015` P1 Productize the existing Claude Desktop 3P foundation with
+  installation detection, static/hybrid/discovery preview, Aura naming, config
+  backup, atomic apply, verification, guarded restore, and macOS compatibility
+  evidence.
+  - Depends on: `CLT-014`, `CAT-001`, `CFG-001`.
+  - Done when: Claude Desktop can receive all representable Aura models without
+    changing Claude Code CLI state or native Anthropic passthrough behavior.
+
+- [x] `OPT-006` P0 Formalize Token Saver Off/Safe/Full/Ultra behavior by route,
+  protocol, content class, and client surface; do not infer safety from model
+  names alone.
+  - Depends on: `CAT-001`, `OPT-005`.
+
+- [ ] `OPT-007` P0 Add a separately gated Safe Native experiment for canonical
+  Codex/OpenAI paths that never rewrites encrypted, signed, compact, source,
+  migration, security, image, patch, or unresolved-error content.
+  - Done when: disabled remains the default until protocol fixtures and quality
+    benchmarks prove no behavior or cache regression.
+  - Depends on: `CLT-014`, `OPT-006`, `CMP-001`.
+
+- [x] `OPT-008` P1 Detect or declare downstream token compression and prevent
+  accidental double optimization through 9router or another optimizer.
+  - Depends on: `OPT-006`.
+
+- [ ] `EVAL-004` P0 Benchmark Token Saver modes on eligible routed clients and
+  Safe Native fixtures, recording real optimizer actions, saved input tokens,
+  cache effects, latency, cost/quota, and task-quality deltas.
+  - Depends on: `OPT-006` through `OPT-008`, `EVAL-003`.
+
+- [x] `UX-009` P0 Replace clipped in-card dropdowns with accessible portal-based
+  searchable popovers that collision-flip, scroll independently, and support
+  keyboard navigation and reduced motion.
+
+- [x] `UX-010` P1 Add a model multi-select with provider grouping, compatibility
+  reasons, Select All Compatible, selection count, and separate default-model
+  control for client connection flows.
+  - Depends on: `CAT-001`, `UX-009`.
+
+- [x] `UX-011` P1 Differentiate active parent, expanded parent, and active child
+  sidebar states; label the Claude switch explicitly as Claude Code CLI and keep
+  its behavior unchanged.
+  - Depends on: `CLT-014`.
+
+- [x] `UX-012` P1 Build the one-action client review surface showing detected
+  app/config path, Auto/Partial/Guided grade, compatible/excluded model counts,
+  default model, exact changes, connection test, and restore point.
+  - Depends on: `CLT-008`, `UX-010`.
+
+- [x] `SEC-003` P0 Extend the threat model and tests for client discovery,
+  third-party config paths, model-list injection, local endpoint credentials,
+  downstream optimizers, and Claude Desktop configuration.
+  - Depends on: `CLT-008`, `CLT-015`, `OPT-008`.
+
+- [ ] `REL-005` P1 Publish the next Aura preview only after M7 focused tests,
+  full regression, privacy scan, package smoke, and exact-SHA macOS/Windows/Linux
+  CI are green.
+  - Depends on: `CLT-009`, `CLT-014`, `OPT-006`, `UX-009`, `UX-011`, `SEC-003`.
+
 ## Initial Execution Order
 
 Start with one baseline sprint:
@@ -357,3 +469,6 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
 - Remaining external gates: live profile comparison (`EVAL-003`) and
   exact-SHA macOS/Windows/Linux CI and service
   lifecycle evidence (`REL-001`, `REL-004`).
+- M7 is approved for the next preview track. Its first deliverable is the shared
+  export catalog plus OpenCode Connect All; Claude Code CLI is frozen before the
+  existing Claude Desktop 3P foundation is exposed through guarded Aura UX.

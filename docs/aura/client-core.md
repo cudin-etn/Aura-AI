@@ -1,5 +1,11 @@
 # Aura AI client and protocol core
 
+Claude Code CLI is a frozen compatibility surface. Independent fixtures cover
+protocol routing, OAuth/native passthrough, environment precedence, model
+slots, compact/context controls, streaming, and cross-platform launch behavior.
+Claude Desktop stays behind a separate adapter so its configuration flow does
+not change these CLI contracts.
+
 Date: 2026-07-23
 
 ## Boundaries

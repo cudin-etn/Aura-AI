@@ -35,10 +35,16 @@ The security gate includes:
 - secret/error redaction and privacy scan;
 - OAuth callback/state tests;
 - atomic config, backup, rollback, and guarded restore tests;
+
+M7 adds explicit coverage for client discovery and guided setup: Aura only
+writes schemas for clients with a tested adapter, treats unknown client paths as
+manual guidance, validates model identifiers as non-empty strings, keeps local
+endpoint credentials out of previews and logs, and skips its optimizer when a
+downstream RTK-compatible optimizer is declared. Claude Desktop restore is
+hash-guarded and refuses to overwrite edits made after Aura applied its file.
 - Windows secret ACL and cross-platform path tests;
 - full-output path traversal and protected-content tests;
 - release workflow exact-SHA and permissions tests.
 
 No production release should proceed unless the full test suite and
 `bun run privacy:scan` pass on the release commit.
-

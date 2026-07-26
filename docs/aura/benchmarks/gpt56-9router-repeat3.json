@@ -1,0 +1,720 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-26T05:12:22.833Z",
+  "fixture": "fixtures/aura/gpt56-basic.json",
+  "provider": "9router",
+  "directModel": "cx/gpt-5.6-sol",
+  "proxyModel": "9router/cx-gpt-5.6-sol",
+  "proxyVersion": "0.1.0-preview.0",
+  "mode": "both",
+  "repeat": 3,
+  "capability": {
+    "grade": "Failed",
+    "reasons": [
+      "basic_generation_failed"
+    ]
+  },
+  "compatible": false,
+  "cases": [
+    {
+      "id": "responses-json",
+      "direct": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        }
+      ],
+      "proxy": [
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 20,
+          "totalMs": 21
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 2,
+          "totalMs": 2
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        }
+      ],
+      "comparisons": [
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "responses-stream",
+      "direct": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        }
+      ],
+      "proxy": [
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        }
+      ],
+      "comparisons": [
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "responses-tool-call",
+      "direct": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        }
+      ],
+      "proxy": [
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 2,
+          "totalMs": 2
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        }
+      ],
+      "comparisons": [
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "responses-tool-result",
+      "direct": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        }
+      ],
+      "proxy": [
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 2,
+          "totalMs": 2
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 2,
+          "totalMs": 2
+        }
+      ],
+      "comparisons": [
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "responses-compact",
+      "direct": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        }
+      ],
+      "proxy": [
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 2,
+          "totalMs": 2
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        }
+      ],
+      "comparisons": [
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "responses-error",
+      "expect": {
+        "status": 400,
+        "error": true
+      },
+      "direct": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        }
+      ],
+      "proxy": [
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "responses parse error: [\n  {\n    \"expected\": \"boolean\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"stream\"\n    ],\n    \"message\": \"Invalid input: expected boolean, received string\"\n  }\n]",
+          "headersMs": 2,
+          "totalMs": 2
+        },
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "responses parse error: [\n  {\n    \"expected\": \"boolean\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"stream\"\n    ],\n    \"message\": \"Invalid input: expected boolean, received string\"\n  }\n]",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 400,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "responses parse error: [\n  {\n    \"expected\": \"boolean\",\n    \"code\": \"invalid_type\",\n    \"path\": [\n      \"stream\"\n    ],\n    \"message\": \"Invalid input: expected boolean, received string\"\n  }\n]",
+          "headersMs": 1,
+          "totalMs": 1
+        }
+      ],
+      "comparisons": [
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "responses-cancellation",
+      "expect": {
+        "aborted": true
+      },
+      "direct": [
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        },
+        {
+          "httpStatus": 0,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Unable to connect. Is the computer able to access the url?",
+          "headersMs": 0,
+          "totalMs": 0
+        }
+      ],
+      "proxy": [
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "non_json_response",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        },
+        {
+          "httpStatus": 404,
+          "terminalStatus": null,
+          "eventTypes": [],
+          "outputDigest": null,
+          "outputChars": 0,
+          "toolNames": [],
+          "usage": null,
+          "error": "Provider is disabled: 9router",
+          "headersMs": 1,
+          "totalMs": 1
+        }
+      ],
+      "comparisons": [
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        },
+        {
+          "compatible": false,
+          "differences": [
+            "http_status_class"
+          ]
+        }
+      ]
+    }
+  ]
+}

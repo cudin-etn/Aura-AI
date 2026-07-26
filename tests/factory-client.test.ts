@@ -69,4 +69,13 @@ describe("Factory Droid client connector", () => {
     restoreFactoryConnection(state);
     expect(existsSync(path)).toBe(false);
   });
+
+  test("exports a selected model catalog with an explicit default", () => {
+    const next = buildFactoryConnection(undefined, "http://127.0.0.1:4444/v1", ["gpt-5.6-sol", "gpt-5.6-terra"], undefined, "gpt-5.6-terra");
+    expect(next.defaultModel).toBe("aura/gpt-5.6-terra");
+    expect((next.customModels as Array<{ model: string; auraManaged: boolean }>).map(model => model.model)).toEqual([
+      "gpt-5.6-sol",
+      "gpt-5.6-terra",
+    ]);
+  });
 });

@@ -7,7 +7,7 @@ type Optimizer = {
   enabled: boolean;
   deduplicate: boolean;
   reduceLogs: boolean;
-  preset: "lite" | "full" | "ultra";
+  preset: "off" | "safe" | "lite" | "full" | "ultra";
 };
 
 export default function Optimization({ apiBase }: { apiBase: string }) {
@@ -71,7 +71,7 @@ export default function Optimization({ apiBase }: { apiBase: string }) {
           </div>
 
           <div className="row" style={{ gap: 8, flexWrap: "wrap", marginTop: 18 }}>
-            {(["lite", "full", "ultra"] as const).map(preset => (
+            {(["off", "safe", "full", "ultra"] as const).map(preset => (
               <button key={preset} type="button" className={`btn ${optimizer.preset === preset ? "btn-primary" : "btn-ghost"}`} onClick={() => void update({ preset })} disabled={busy}>
                 {t(`aura.tokenSaver.${preset}` as TKey)}
               </button>

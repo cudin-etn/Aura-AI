@@ -41,41 +41,53 @@ export function defaultOpenCodeConfigPath(): string {
 export function buildOpenCodeConnection(
   source: string | undefined,
   baseUrl: string,
-  model: string,
+  models: readonly string[] | string,
+  defaultModel?: string,
 ): JsonObject {
+  const normalizedModels = [...new Set((typeof models === "string" ? [models] : models).map(model => model.trim()).filter(Boolean))];
+  if (normalizedModels.length === 0) throw new Error("OpenCode requires at least one Aura model");
+  const resolvedDefault = defaultModel?.trim() || normalizedModels[0];
+  if (!normalizedModels.includes(resolvedDefault)) throw new Error("OpenCode default model must be included in the Aura model list");
   const root = source?.trim() ? asObject(Bun.JSONC.parse(source), "OpenCode config") : {};
   const providers = root.provider === undefined ? {} : asObject(root.provider, "provider");
+  const previousAura = providers.aura === undefined ? {} : asObject(providers.aura, "provider.aura");
+  const previousOptions = previousAura.options === undefined ? {} : asObject(previousAura.options, "provider.aura.options");
   return {
     ...root,
     provider: {
       ...providers,
       aura: {
+        ...previousAura,
         npm: "@ai-sdk/openai-compatible",
         name: "Aura AI",
-        options: { baseURL: baseUrl.replace(/\/+$/, "") },
-        models: {
-          [model]: { name: model },
-        },
+        options: { ...previousOptions, baseURL: baseUrl.replace(/\/+$/, "") },
+        models: Object.fromEntries(normalizedModels.map(model => [model, { name: model }])),
       },
     },
-    model: `aura/${model}`,
+    model: `aura/${resolvedDefault}`,
   };
 }
 
-export function previewOpenCodeConnection(baseUrl: string, model: string): {
+export function previewOpenCodeConnection(baseUrl: string, models: readonly string[] | string, defaultModel?: string): {
   path: string;
   exists: boolean;
   model: string;
+  models: string[];
+  modelCount: number;
   provider: string;
   changes: string[];
 } {
   const path = defaultOpenCodeConfigPath();
   const source = existsSync(path) ? readFileSync(path, "utf8") : undefined;
-  buildOpenCodeConnection(source, baseUrl, model);
+  const normalizedModels = [...new Set((typeof models === "string" ? [models] : models).map(model => model.trim()).filter(Boolean))];
+  const resolvedDefault = defaultModel?.trim() || normalizedModels[0];
+  buildOpenCodeConnection(source, baseUrl, normalizedModels, resolvedDefault);
   return {
     path,
     exists: source !== undefined,
-    model: `aura/${model}`,
+    model: `aura/${resolvedDefault}`,
+    models: normalizedModels,
+    modelCount: normalizedModels.length,
     provider: "aura",
     changes: ["provider.aura", "model"],
   };
@@ -92,11 +104,17 @@ function validBackupPath(target: string, backupPath: string): boolean {
     .test(backupPath.slice(prefix.length));
 }
 
-export function applyOpenCodeConnection(baseUrl: string, model: string): OpenCodeConnectionState {
+export function applyOpenCodeConnection(
+  baseUrl: string,
+  models: readonly string[] | string,
+  defaultModel?: string,
+): OpenCodeConnectionState {
   const path = defaultOpenCodeConfigPath();
   const created = !existsSync(path);
   const source = created ? undefined : readFileSync(path, "utf8");
-  const next = buildOpenCodeConnection(source, baseUrl, model);
+  const normalizedModels = [...new Set((typeof models === "string" ? [models] : models).map(model => model.trim()).filter(Boolean))];
+  const resolvedDefault = defaultModel?.trim() || normalizedModels[0];
+  const next = buildOpenCodeConnection(source, baseUrl, normalizedModels, resolvedDefault);
   const nextBytes = JSON.stringify(next, null, 2) + "\n";
   mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
   const backupPath = created ? undefined : `${path}.aura-backup-${randomUUID()}`;
@@ -110,7 +128,13 @@ export function applyOpenCodeConnection(baseUrl: string, model: string): OpenCod
     const provider = asObject(verified.provider, "provider");
     const aura = asObject(provider.aura, "provider.aura");
     const options = asObject(aura.options, "provider.aura.options");
-    if (verified.model !== `aura/${model}` || options.baseURL !== baseUrl.replace(/\/+$/, "")) {
+    const verifiedModels = asObject(aura.models, "provider.aura.models");
+    if (
+      verified.model !== `aura/${resolvedDefault}`
+      || options.baseURL !== baseUrl.replace(/\/+$/, "")
+      || normalizedModels.some(model => !(model in verifiedModels))
+      || Object.keys(verifiedModels).length !== normalizedModels.length
+    ) {
       throw new Error("OpenCode verification failed after apply");
     }
   } catch (cause) {

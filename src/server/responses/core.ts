@@ -668,11 +668,14 @@ export async function handleResponses(
   if (
     config.aura?.optimizer?.enabled
     && !isCanonicalOpenAiForwardProvider(route.provider)
+    && (config.aura.optimizer.downstreamOptimizer as string | undefined) !== "9router-rtk"
     && !parsed._compactionRequest
   ) {
     const optimized = optimizeAuraToolOutputs(parsed.context.messages, {
       deduplicate: config.aura.optimizer.deduplicate !== false,
-      reduceLogs: config.aura.optimizer.reduceLogs !== false,
+      reduceLogs: config.aura.optimizer.reduceLogs !== false
+        && (config.aura.optimizer.downstreamOptimizer as string | undefined) !== "9router-rtk",
+      downstreamOptimizer: config.aura.optimizer.downstreamOptimizer,
       contextBudgetTokens: logCtx.auraRole
         ? config.aura.optimizer.contextBudgets?.[logCtx.auraRole]
         : undefined,

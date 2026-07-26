@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -51,6 +51,24 @@ interface Desktop3pMetadataEntry {
   name: string;
   [key: string]: unknown;
 }
+
+export interface Desktop3pStatus {
+  supported: boolean;
+  libraryPath: string;
+  configPath: string | null;
+  exists: boolean;
+  backupExists: boolean;
+  modelCount: number | null;
+  mode: Desktop3pConfigMode | null;
+}
+
+type AuraDesktopMetadata = {
+  backupPath?: string;
+  appliedHash?: string;
+  mode?: Desktop3pConfigMode;
+  created?: boolean;
+  originalName?: string;
+};
 
 interface Desktop3pMetadata {
   appliedId?: string;
@@ -215,6 +233,57 @@ function parseMetadata(path: string): Desktop3pMetadata {
   return { ...parsed, entries: parsed.entries };
 }
 
+function hashText(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function desktop3pLibraryPath(home = homedir()): string {
+  return join(home, "Library", "Application Support", "Claude-3p", "configLibrary");
+}
+
+function desktop3pEntry(libraryPath: string): { metadata: Desktop3pMetadata; entry: Desktop3pMetadataEntry | null; configPath: string | null } {
+  const metadataPath = join(libraryPath, "_meta.json");
+  const metadata = parseMetadata(metadataPath);
+  const entry = metadata.entries.find(candidate =>
+    candidate?.name === "aura" && typeof candidate.id === "string") ?? null;
+  return {
+    metadata,
+    entry,
+    configPath: entry ? join(libraryPath, `${entry.id}.json`) : null,
+  };
+}
+
+/** Return secret-free Claude Desktop 3P installation/configuration state. */
+export function getDesktop3pStatus(home = homedir()): Desktop3pStatus {
+  const supported = process.platform === "darwin";
+  const libraryPath = desktop3pLibraryPath(home);
+  const { entry, configPath } = desktop3pEntry(libraryPath);
+  const exists = !!configPath && existsSync(configPath);
+  let modelCount: number | null = null;
+  let mode: Desktop3pConfigMode | null = null;
+  if (exists && configPath) {
+    try {
+      const parsed = JSON.parse(readFileSync(configPath, "utf8")) as { inferenceModels?: unknown[]; modelDiscoveryEnabled?: boolean };
+      modelCount = Array.isArray(parsed.inferenceModels) ? parsed.inferenceModels.length : 0;
+      mode = parsed.modelDiscoveryEnabled === true
+        ? (Array.isArray(parsed.inferenceModels) && parsed.inferenceModels.length > 0 ? "hybrid" : "discovery")
+        : "static";
+    } catch {
+      modelCount = null;
+    }
+  }
+  const aura = entry?.aura as AuraDesktopMetadata | undefined;
+  return {
+    supported,
+    libraryPath,
+    configPath,
+    exists,
+    backupExists: !!aura?.backupPath && existsSync(aura.backupPath),
+    modelCount,
+    mode,
+  };
+}
+
 /** Write and apply the opencodex config in Claude Desktop 3P's config library. */
 export function writeDesktop3pConfig(
   port: number,
@@ -222,26 +291,33 @@ export function writeDesktop3pConfig(
   routedModels: Array<Desktop3pRoutedModel>,
   apiKey?: string,
   mode: Desktop3pConfigMode = "static",
+  home = homedir(),
 ): { written: boolean; path: string; reason?: string } {
-  const libraryPath = join(homedir(), "Library", "Application Support", "Claude-3p", "configLibrary");
+  const libraryPath = desktop3pLibraryPath(home);
   const metadataPath = join(libraryPath, "_meta.json");
   let configPath = libraryPath;
 
   try {
     mkdirSync(libraryPath, { recursive: true, mode: 0o700 });
     const metadata = parseMetadata(metadataPath);
-    const existing = metadata.entries.find(entry => entry?.name === "opencodex" && typeof entry.id === "string");
+    const existing = metadata.entries.find(entry =>
+      (entry?.name === "aura" || entry?.name === "opencodex") && typeof entry.id === "string");
     const id = existing?.id ?? randomUUID();
     configPath = join(libraryPath, `${id}.json`);
-    const entry: Desktop3pMetadataEntry = existing ? { ...existing, id, name: "opencodex" } : { id, name: "opencodex" };
+    const backupPath = `${configPath}.aura-backup`;
+    const existingContent = existsSync(configPath) ? readFileSync(configPath, "utf8") : null;
+    const originalName = existing?.name;
+    if (existingContent !== null && !existsSync(backupPath)) writeFileSync(backupPath, existingContent, { encoding: "utf8", mode: 0o600 });
+    const generated = JSON.stringify(generateDesktop3pConfig(port, nativeSlugs, routedModels, apiKey, mode), null, 2) + "\n";
+    const tempPath = `${configPath}.aura-tmp-${process.pid}`;
+    writeFileSync(tempPath, generated, { encoding: "utf8", mode: 0o600 });
+    renameSync(tempPath, configPath);
+    const entry: Desktop3pMetadataEntry = existing
+      ? { ...existing, id, name: "aura", aura: { backupPath, appliedHash: hashText(generated), mode, created: existingContent === null, originalName } }
+      : { id, name: "aura", aura: { backupPath, appliedHash: hashText(generated), mode, created: true } };
     const entries = existing
       ? metadata.entries.map(current => current === existing ? entry : current)
       : [...metadata.entries, entry];
-
-    writeFileSync(configPath, JSON.stringify(generateDesktop3pConfig(port, nativeSlugs, routedModels, apiKey, mode), null, 2) + "\n", {
-      encoding: "utf8",
-      mode: 0o600,
-    });
     writeFileSync(metadataPath, JSON.stringify({ ...metadata, appliedId: id, entries }, null, 2) + "\n", {
       encoding: "utf8",
       mode: 0o600,
@@ -251,4 +327,44 @@ export function writeDesktop3pConfig(
     const reason = error instanceof Error ? error.message : String(error);
     return { written: false, path: configPath, reason };
   }
+}
+
+/** Restore the pre-Aura Claude Desktop config only when Aura still owns the file. */
+export function restoreDesktop3pConfig(home = homedir()): { restored: boolean; reason?: string; path?: string } {
+  const libraryPath = desktop3pLibraryPath(home);
+  const { entry, configPath } = desktop3pEntry(libraryPath);
+  if (!entry || !configPath) return { restored: false, reason: "Claude Desktop 3P is not configured by Aura" };
+  const aura = entry.aura as AuraDesktopMetadata | undefined;
+  if (!aura?.appliedHash || !existsSync(configPath)) {
+    return { restored: false, reason: "Aura backup metadata is incomplete" };
+  }
+  const currentHash = hashText(readFileSync(configPath, "utf8"));
+  if (currentHash !== aura.appliedHash) return { restored: false, reason: "Claude Desktop config changed after Aura applied it" };
+  if (aura.created && !existsSync(aura.backupPath ?? "")) {
+    unlinkSync(configPath);
+    const metadataPath = join(libraryPath, "_meta.json");
+    const metadata = parseMetadata(metadataPath);
+    writeFileSync(metadataPath, JSON.stringify({
+      ...metadata,
+      appliedId: metadata.appliedId === entry.id ? undefined : metadata.appliedId,
+      entries: metadata.entries.filter(candidate => candidate.id !== entry.id),
+    }, null, 2) + "\n");
+    return { restored: true, path: configPath };
+  }
+  if (!aura.backupPath) return { restored: false, reason: "Aura backup metadata is incomplete" };
+  if (!existsSync(aura.backupPath)) return { restored: false, reason: "Aura backup file is missing" };
+  const restored = readFileSync(aura.backupPath, "utf8");
+  const tempPath = `${configPath}.aura-restore-${process.pid}`;
+  writeFileSync(tempPath, restored, { encoding: "utf8", mode: 0o600 });
+  renameSync(tempPath, configPath);
+  const metadataPath = join(libraryPath, "_meta.json");
+  const metadata = parseMetadata(metadataPath);
+  const restoredEntry: Desktop3pMetadataEntry = { ...entry, name: aura.originalName ?? "opencodex" };
+  delete restoredEntry.aura;
+  writeFileSync(metadataPath, JSON.stringify({
+    ...metadata,
+    appliedId: metadata.appliedId === entry.id ? undefined : metadata.appliedId,
+    entries: metadata.entries.map(candidate => candidate.id === entry.id ? restoredEntry : candidate),
+  }, null, 2) + "\n");
+  return { restored: true, path: configPath };
 }

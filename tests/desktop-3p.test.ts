@@ -1,17 +1,28 @@
-import { describe, expect, spyOn, test } from "bun:test";
+import { afterEach, describe, expect, spyOn, test } from "bun:test";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   buildDesktop3pRegistry,
   deriveDesktop3pCode,
   desktop3pAlias,
   generateDesktop3pConfig,
   generateDesktop3pModels,
+  getDesktop3pStatus,
   legacyDesktop3pAlias,
   parseDesktop3pModeArgs,
   resolveDesktop3pAlias,
+  restoreDesktop3pConfig,
+  writeDesktop3pConfig,
 } from "../src/claude/desktop-3p";
 import { resolveInboundModel } from "../src/claude/inbound";
 
 describe("Claude Desktop 3P models", () => {
+  let tempHome: string | null = null;
+  afterEach(() => {
+    if (tempHome) rmSync(tempHome, { recursive: true, force: true });
+    tempHome = null;
+  });
   test("derives stable golden codes", () => {
     expect(deriveDesktop3pCode("native/gpt-5.6-sol")).toBe("ncb");
     expect(deriveDesktop3pCode("opencode-go/glm-5.2")).toBe("yrf");
@@ -180,5 +191,40 @@ describe("Claude Desktop 3P models", () => {
     // Static generation also refreshes the decode registry (new + legacy aliases).
     expect(resolveDesktop3pAlias("claude-opus-4-8-ncb")).toBe("native/gpt-5.6-sol");
     expect(resolveDesktop3pAlias("claude-opus-4-ncb")).toBe("native/gpt-5.6-sol");
+  });
+
+  test("applies and restores a newly created Desktop config without touching user files", () => {
+    tempHome = mkdtempSync(join(tmpdir(), "aura-desktop-3p-"));
+    const applied = writeDesktop3pConfig(10100, ["gpt-5.6-sol"], [], undefined, "static", tempHome);
+    expect(applied.written).toBe(true);
+    expect(getDesktop3pStatus(tempHome)).toMatchObject({ exists: true, backupExists: false, modelCount: 1, mode: "static" });
+    const restored = restoreDesktop3pConfig(tempHome);
+    expect(restored).toMatchObject({ restored: true });
+    expect(existsSync(applied.path)).toBe(false);
+    expect(getDesktop3pStatus(tempHome).exists).toBe(false);
+  });
+
+  test("backs up an existing Desktop config and refuses restore after user edits", () => {
+    tempHome = mkdtempSync(join(tmpdir(), "aura-desktop-3p-"));
+    const library = join(tempHome, "Library", "Application Support", "Claude-3p", "configLibrary");
+    mkdirSync(library, { recursive: true });
+    const configPath = join(library, "existing.json");
+    const original = "{\n  \"userSetting\": true\n}\n";
+    writeFileSync(configPath, original);
+    writeFileSync(join(library, "_meta.json"), JSON.stringify({ entries: [{ id: "existing", name: "opencodex" }] }));
+    const applied = writeDesktop3pConfig(10100, ["gpt-5.6-sol"], [], undefined, "static", tempHome);
+    expect(applied.written).toBe(true);
+    expect(getDesktop3pStatus(tempHome).backupExists).toBe(true);
+    expect(JSON.parse(readFileSync(join(library, "_meta.json"), "utf8")).entries[0].aura.created).toBe(false);
+    expect(JSON.parse(readFileSync(join(library, "_meta.json"), "utf8")).entries[0].aura.originalName).toBe("opencodex");
+    const auraContent = readFileSync(configPath, "utf8");
+    writeFileSync(configPath, `${auraContent}\nuser edit\n`);
+    expect(restoreDesktop3pConfig(tempHome)).toMatchObject({ restored: false });
+    expect(readFileSync(configPath, "utf8")).toContain("user edit");
+    writeFileSync(configPath, auraContent);
+    expect(restoreDesktop3pConfig(tempHome)).toMatchObject({ restored: true });
+    expect(readFileSync(configPath, "utf8")).toBe(original);
+    expect(JSON.parse(readFileSync(join(library, "_meta.json"), "utf8")).entries[0].name).toBe("opencodex");
+    expect(getDesktop3pStatus(tempHome).exists).toBe(false);
   });
 });

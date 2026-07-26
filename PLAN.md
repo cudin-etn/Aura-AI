@@ -2,6 +2,7 @@
 
 Status: In progress
 Date: 2026-07-23
+Updated: 2026-07-25
 Product name: Aura AI
 
 ## 1. Product Goal
@@ -302,6 +303,55 @@ lifecycles, and document migration and recovery. Verify Linux CLI and service
 paths after the desktop gates pass.
 
 Exit: all success gates pass and an upgrade path from OpenCodex is documented.
+
+### M7 — Client Federation and Optimizer Hardening
+
+Turn the client registry into a capability-driven federation layer. A supported
+coding client should receive every Aura model that its protocol and model
+surface can represent, while Aura chooses one safe default and keeps routing,
+fallback, and role policy behind the gateway. The normal path is one reviewable
+Connect action: auto-detect the client and config path, select all compatible
+models, preview the exact diff, apply atomically, verify, and retain guarded
+restore. Unknown or unstable schemas fall back to a copy-ready guided flow
+instead of speculative file mutation.
+
+Promote OpenCode and Factory Droid from single-model configuration to full
+compatible-catalog export. Add verified client tracks for Cursor, Kiro,
+Antigravity, Cline/Roo/Continue/Kilo, and other compatible agents in that order.
+Each track must declare whether it supports automatic configuration, model-list
+registration, one-default-only configuration, or manual guidance.
+
+Claude remains a protected integration family:
+
+- freeze Claude Code CLI Messages, OAuth, environment injection, model slots,
+  compact, and auto-connect behavior before UI changes;
+- keep the Claude Code CLI enable switch behaviorally unchanged and label it
+  explicitly;
+- productize the existing Claude Desktop 3P static/hybrid/discovery foundation
+  behind detection, preview, backup, verification, restore, and macOS-specific
+  compatibility gates;
+- never make Claude Desktop promotion a prerequisite for Claude Code CLI.
+
+Harden Token Saver around route and content capability rather than model names.
+Expose Off, Safe, Full, and Ultra contracts; keep canonical native/encrypted
+paths unchanged unless a separately tested Safe Native transform proves byte
+and behavior safety. Detect downstream compression to avoid double-reducing
+content through providers such as 9router. Every saved-token claim must come
+from persisted optimizer actions and a quality-scored benchmark.
+
+Polish the client workflow with portal-based searchable model selectors,
+select-all-compatible plus explicit default selection, model counts and grouped
+compatibility reasons. Sidebar parent, expanded, and active-child states must
+use distinct visual hierarchy. Claude Code status may remain a quick control,
+but its label and placement must not imply that it controls every Claude model
+or Claude Desktop.
+
+Exit: OpenCode receives all compatible Aura models with one Connect action;
+every listed client has an evidence-backed auto or guided integration grade;
+Claude Code CLI retains its frozen behavior; Claude Desktop passes guarded
+macOS apply/restore tests; Token Saver reports measured non-zero actions on
+eligible fixtures without changing protected content; and the next preview
+passes full macOS, Windows, Linux, privacy, migration, and rollback gates.
 
 ## 11. Principal Risks
 
