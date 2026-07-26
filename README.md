@@ -8,6 +8,10 @@ Aura keeps the client workflow familiar while adding provider discovery,
 account and quota management, model profiles, capability-aware routing,
 fallbacks, guided client setup, route traces, and conservative token saving.
 
+![Aura AI architecture](assets/architecture.png)
+
+![Aura AI in action](assets/demo.gif)
+
 > Public preview: Aura AI is experimental software. Review provider terms and
 > test with non-critical projects before enabling automatic routing or token
 > optimization.
