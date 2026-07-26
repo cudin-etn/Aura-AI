@@ -4,6 +4,10 @@ Aura AI is a local gateway for AI coding agents. Connect Codex, Claude Code,
 OpenCode, Factory Droid, Cursor, Kiro, Cline, Roo Code, Continue, and other
 OpenAI-compatible clients to multiple providers from one clean dashboard.
 
+**Languages:** [English](README.md) · [Tiếng Việt](README.vi.md) ·
+[한국어](README.ko.md) · [简体中文](README.zh-CN.md) · [Русский](README.ru.md) ·
+[日本語](README.ja.md)
+
 Aura keeps the client workflow familiar while adding provider discovery,
 account and quota management, model profiles, capability-aware routing,
 fallbacks, guided client setup, route traces, and conservative token saving.
