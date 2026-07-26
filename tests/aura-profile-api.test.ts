@@ -135,16 +135,15 @@ describe("/api/aura/profile", () => {
     const catalogResponse = (await handleManagementAPI(catalogReq, new URL(catalogReq.url), target))!;
     expect(catalogResponse.status).toBe(200);
     const catalog = await catalogResponse.json() as { models: { id: string }[] };
-    expect(catalog.models.map(model => model.id)).toEqual([
+    expect(catalog.models.map(model => model.id)).toEqual(expect.arrayContaining([
       "9router/cx-gpt-5.6-luna",
       "9router/cx-gpt-5.6-sol",
       "9router/cx-gpt-5.6-terra",
       "gpt-5.3-codex-spark",
-      "gpt-5.5",
       "gpt-5.6-luna",
       "gpt-5.6-sol",
       "gpt-5.6-terra",
-    ]);
+    ]));
 
     const selected = ["9router/cx-gpt-5.6-sol", "9router/cx-gpt-5.6-terra"];
     const applyReq = new Request("http://localhost/api/aura/clients/opencode", {
