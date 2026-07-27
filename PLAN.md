@@ -353,6 +353,52 @@ macOS apply/restore tests; Token Saver reports measured non-zero actions on
 eligible fixtures without changing protected content; and the next preview
 passes full macOS, Windows, Linux, privacy, migration, and rollback gates.
 
+### M8 — Integration Hub and Agent Federation
+
+Add a provider-neutral integration layer for external developer services. Aura
+owns connection metadata, permissions, project selection, and agent exports;
+official MCP/API/CLI implementations remain the upstream execution surfaces.
+Credentials are stored through the platform secret store or existing OAuth
+credential facilities and never returned by management APIs.
+
+Initial integration families:
+
+- code and source: GitHub, GitLab, Bitbucket;
+- database and backend: Supabase, Firebase, Neon, PostgreSQL;
+- deploy: Vercel, Netlify, Cloudflare;
+- monitoring: Sentry, Logtail;
+- project management: Linear, Jira, Notion;
+- communication: Slack, Discord.
+
+Each integration declares its authentication mode, scopes, project/workspace
+selection, capabilities, upstream transport, supported clients, and whether
+the client path is Auto, Partial, or Guided. Aura exposes a local MCP gateway
+and generates client-specific exports from one normalized connection record.
+
+Exit: a user can connect a service once, select its safe scopes and project,
+preview the agents that will receive it, apply to all compatible agents with
+backup/restore, and revoke the connection without editing raw files. Clients
+without a stable MCP/config surface receive a short guided path.
+
+### M9 — Structured Warmth UI Refresh
+
+Apply the product-neutral Structured Warmth design grammar to Aura without
+copying Chia Tiền content, domain language, workflows, or motifs. Re-author
+semantic light/dark tokens, typography and Vietnamese-safe fallbacks; keep the
+Aura gradient as a restrained brand accent. Make the sidebar part of the
+canvas, place content in a capped rounded workspace panel with internal
+scrolling, and use contextual navigation with a clear parent/child hierarchy.
+
+All dense selectors use accessible portal popovers. Focus and Canvas layouts
+remain user-selectable. Responsive behavior is verified at 375px, 768px,
+1280px, 200% zoom, keyboard-only navigation, reduced motion, and long
+localized strings.
+
+Exit: every primary screen has one clear task hierarchy, no panel escapes the
+viewport, no page-level horizontal overflow occurs at the required widths,
+active navigation levels are visually distinct, and the Integration Hub is
+usable without relying on color, hover, or animation.
+
 ## 11. Principal Risks
 
 - Upstream Codex protocols and model catalogs change quickly.

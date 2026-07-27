@@ -30,14 +30,15 @@ The GUI product name is **Aura AI**. The public source origin is
 `https://github.com/cudin-etn/Aura-AI`. The package is
 `@tungninh/aura-ai`; the legacy OpenCodex package remains a migration source,
 not the Aura release target.
-The package exposes `aura` and `aura-ai` alongside `ocx` and `opencodex`.
-Keeping old identifiers is an intentional migration contract, not unfinished
-UI branding.
+The package exposes only `aura`. Legacy OpenCodex identifiers are left to the
+older package so a global npm upgrade cannot collide with `opencodex.cmd` or
+`ocx.cmd`, particularly on Windows.
 
 Before the first independent Aura release:
 
 1. run clean install and upgrade from the OpenCodex-compatible package;
-2. keep compatibility aliases for at least one migration release.
+2. verify that an existing OpenCodex global install can coexist with Aura
+   without npm bin collisions.
 
 ## External release blockers
 

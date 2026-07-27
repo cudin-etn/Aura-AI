@@ -462,6 +462,10 @@ export interface OcxConfig {
         appliedHash?: string;
       };
     };
+    /** Secret-free integration metadata; credentials live in platform storage. */
+    integrations?: {
+      connections?: import("./integrations/types").IntegrationConnectionMetadata[];
+    };
   };
   /** OpenAI provider-contract migration marker (v2 = single `openai` provider with account mode). */
   openaiProviderTierVersion?: 1 | 2;

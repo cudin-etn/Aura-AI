@@ -383,6 +383,50 @@ Priority:
   CI are green.
   - Depends on: `CLT-009`, `CLT-014`, `OPT-006`, `UX-009`, `UX-011`, `SEC-003`.
 
+## M8 — Integration Hub and Agent Federation
+
+- [x] `INT-001` P0 Define the normalized integration registry contract for
+  service identity, auth mode, scopes, project selection, capabilities,
+  upstream transport, and Auto/Partial/Guided client grades.
+- [ ] `INT-002` P0 Add secret-safe connection metadata storage and migrations;
+  credentials must use the platform secret store or existing OAuth store and
+  must never appear in DTOs, logs, previews, or route traces.
+- [ ] `INT-003` P0 Add a local Aura MCP gateway contract that can expose enabled
+  upstream integration tools without leaking provider credentials to clients.
+- [ ] `INT-004` P1 Add official-source connectors for GitHub, Supabase, Firebase,
+  and Vercel with OAuth, scope review, project selection, health checks, and
+  revoke actions.
+- [ ] `INT-005` P1 Add Neon/PostgreSQL, Netlify, Cloudflare, Sentry, and Logtail
+  connector tracks with the same normalized lifecycle.
+- [ ] `INT-006` P2 Add Linear, Jira, Notion, Slack, and Discord connector tracks
+  with explicit read/write capability boundaries.
+- [ ] `INT-007` P0 Add agent discovery and integration export contracts for
+  Codex, Claude Code/Desktop, OpenCode, Cursor, Kiro, Cline/Roo/Continue, and
+  generic MCP clients.
+- [ ] `INT-008` P0 Implement one reviewable Apply action: detect, preview,
+  backup, write, verify, reconnect, and guarded restore.
+- [ ] `INT-009` P1 Add permission center with Read, Write, Deploy, Migration,
+  and Admin scopes plus per-agent approval policy.
+- [ ] `INT-010` P1 Add integration audit events, health status, disconnect, and
+  revoke flows without logging secrets or private payloads.
+
+## M9 — Structured Warmth UI Refresh
+
+- [x] `UX-013` P0 Translate the Structured Warmth reference into Aura semantic
+  tokens without importing Chia Tiền language, data, workflows, or motifs.
+- [ ] `UX-014` P0 Rework the application shell so the sidebar blends into the
+  canvas and the content area is a capped rounded panel with internal scroll.
+- [ ] `UX-015` P1 Rebalance parent/child navigation, contextual sidebars, active
+  states, tab hierarchy, and page transitions without layout jitter.
+- [ ] `UX-016` P1 Refresh typography, Vietnamese glyph fallbacks, spacing,
+  radii, shadows, focus rings, status colors, and reduced-motion behavior.
+- [ ] `UX-017` P1 Add responsive Focus/Canvas rules for Home, Setup, Routing,
+  Insights, Settings, and Integrations at 375/768/1280px and 200% zoom.
+- [ ] `UX-018` P1 Rework selectors, dialogs, empty/error/loading/success states,
+  and integration permission surfaces for keyboard and screen-reader use.
+- [ ] `UX-019` P1 Add visual QA coverage for light/dark themes, long Vietnamese
+  translations, narrow windows, and forced-colors/high-contrast behavior.
+
 ## Initial Execution Order
 
 Start with one baseline sprint:
@@ -438,6 +482,27 @@ reproducible and that GPT-5.6 direct failures can be diagnosed mechanically.
   manual path elsewhere. Aura Setup adds a four-step provider/model/client/
   profile wizard with provider-aware model selection, connection testing, and a
   non-mutating review step.
+- `INT-001`: complete. Aura now has one secret-free registry for 17 initial
+  developer-service integrations, including auth modes, capabilities, upstream
+  transport, and Auto/Partial/Guided client grades. The management API exposes
+  the catalog and guarded pending-connection metadata without returning
+  credentials. `INT-002` remains open until platform-vault credential storage
+  and migrations are implemented.
+- `INT-002`: local-vault groundwork is complete. Prepared connections now keep
+  only an opaque secret reference in `config.json`; API-key material is written
+  atomically to a separate hardened vault file and is revoked on connection
+  removal. Native platform-keychain backends, migrations, and connector OAuth
+  completion remain open before this task can be closed.
+- `INT-003` and `INT-007`: the first shared export path is complete. Aura now
+  provides `aura mcp`, a real local stdio MCP server with read-only integration
+  status tools, plus a credential-free export contract and copy-ready client
+  declaration in Setup → Integrations. Upstream execution tools and the
+  guarded per-client Apply lifecycle remain open before either task can close.
+- `UX-013`: complete. The shared shell now maps the Structured Warmth grammar to
+  Aura semantic paper/ink, coral action, mint success, butter attention, and
+  lavender secondary tokens while retaining the Aura gradient as a restrained
+  brand accent. Setup → Integrations is the first page using the refreshed
+  hierarchy; the remaining shell/page work stays tracked by `UX-014`–`UX-019`.
 - M3 is complete. Next: finish the remaining smart-routing policy in M4.
 - `POL-001` through `POL-007` and `GUI-005`: complete; see
   `docs/aura/smart-routing.md`. Aura reuses bounded account affinity, key

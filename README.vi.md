@@ -46,8 +46,8 @@ aura service install
 aura stop
 ~~~
 
-Lệnh chính là aura và aura-ai. Alias ocx và opencodex vẫn được giữ cho
-migration và script cũ.
+Aura AI chỉ cài một lệnh duy nhất là `aura`. Các lệnh `ocx` và `opencodex`
+thuộc package OpenCodex cũ; Aura không ghi đè lên chúng.
 
 ## Kết nối coding agent
 
@@ -62,6 +62,19 @@ migration và script cũ.
 
 Aura không tự sửa file của client không nhận diện được schema. Trước khi apply
 cấu hình, Aura hiển thị preview và tạo backup khi cần.
+
+### MCP cho tích hợp (preview)
+
+Trong **Thiết lập → Tích hợp**, Aura tạo khai báo MCP cục bộ, không chứa
+credential, để dùng cho Codex, Claude, OpenCode, Cursor và client tương thích:
+
+~~~json
+{ "mcpServers": { "aura": { "command": "aura", "args": ["mcp"] } } }
+~~~
+
+Hiện `aura mcp` chỉ cung cấp trạng thái kết nối và scope an toàn. Các action
+chính thức của GitHub, Supabase, Firebase, Vercel… vẫn sẽ được bổ sung bằng
+connector riêng; Aura không bao giờ đưa API key vào file cấu hình agent.
 
 ## Routing và Token Saver
 

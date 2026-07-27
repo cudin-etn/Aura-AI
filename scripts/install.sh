@@ -27,14 +27,14 @@ echo "Using Node $(node --version)"
 # (keep sudo if the original install used sudo)
 npm install -g @tungninh/aura-ai
 
-if ! command -v ocx &>/dev/null; then
+if ! command -v aura &>/dev/null; then
   NPM_BIN="$(npm bin -g 2>/dev/null || printf "%s/bin" "$(npm prefix -g)")"
   echo "Aura AI installed, but 'aura' is not on PATH." >&2
   echo "Add your npm global bin directory to PATH, then rerun your shell: $NPM_BIN" >&2
   exit 1
 fi
 
-if ! ocx help >/dev/null; then
+if ! aura help >/dev/null; then
   echo "Aura AI installed, but 'aura help' failed. Check your npm global install and PATH." >&2
   exit 1
 fi

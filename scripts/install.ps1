@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 $ErrorActionPreference = "Stop"
 
-Write-Host "Installing opencodex..." -ForegroundColor Cyan
+Write-Host "Installing Aura AI..." -ForegroundColor Cyan
 
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
     Write-Error "Node.js 18+ is required. Install Node from https://nodejs.org/ and rerun this script."
@@ -16,7 +16,7 @@ if ($nodeMajor -lt 18) {
 }
 
 if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-    Write-Error "npm is required to install the published opencodex package."
+    Write-Error "npm is required to install the published Aura AI package."
     exit 1
 }
 
@@ -36,21 +36,21 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-$ocx = Get-Command ocx.cmd -ErrorAction SilentlyContinue
-if (-not $ocx) {
-    $ocx = Get-Command ocx -ErrorAction SilentlyContinue
+$aura = Get-Command aura.cmd -ErrorAction SilentlyContinue
+if (-not $aura) {
+    $aura = Get-Command aura -ErrorAction SilentlyContinue
 }
-if (-not $ocx) {
+if (-not $aura) {
     $npmPrefix = & $npm.Source prefix -g
-    Write-Error "opencodex installed, but 'ocx' is not on PATH. Add your npm global bin directory to PATH, then reopen PowerShell: $npmPrefix"
+    Write-Error "Aura AI installed, but 'aura' is not on PATH. Add your npm global bin directory to PATH, then reopen PowerShell: $npmPrefix"
     exit 1
 }
 
-& $ocx.Source help *> $null
+& $aura.Source help *> $null
 if ($LASTEXITCODE -ne 0) {
-    Write-Error "opencodex installed, but 'ocx.cmd help' failed with exit code $LASTEXITCODE. Check your npm global install and PATH."
+    Write-Error "Aura AI installed, but 'aura.cmd help' failed with exit code $LASTEXITCODE. Check your npm global install and PATH."
     exit $LASTEXITCODE
 }
 
 Write-Host ""
-Write-Host "opencodex installed! Run 'ocx init' to set up." -ForegroundColor Green
+Write-Host "Aura AI installed! Run 'aura init' to set up." -ForegroundColor Green

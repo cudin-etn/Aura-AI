@@ -1,9 +1,9 @@
 export const packageName = "@tungninh/aura-ai";
-export const cliCommand = "ocx";
+export const cliCommand = "aura";
 
 export async function loadBunApi() {
   if (typeof Bun === "undefined") {
-    throw new Error("The opencodex programmatic API requires the Bun runtime. Use `ocx` for the CLI entrypoint.");
+    throw new Error("The Aura AI programmatic API requires the Bun runtime. Use `aura` for the CLI entrypoint.");
   }
   return import("../src/index.ts");
 }

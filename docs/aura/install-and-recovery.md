@@ -23,9 +23,11 @@ After the preview is published, the shorter install is:
 npm install -g @tungninh/aura-ai@preview
 ```
 
-The existing `ocx` and `opencodex` commands remain supported; `aura` and
-`aura-ai` are aliases to the same runtime. This avoids breaking service files,
-scripts, and upgrades during the Aura transition.
+Aura installs only the `aura` command. It deliberately does not install or
+overwrite `ocx`, `opencodex`, or `aura-ai`: those names can belong to an older
+OpenCodex installation and caused Windows npm bin collisions during upgrade.
+Aura continues to reuse the compatible local state directory, so provider
+logins and existing client configuration are preserved.
 
 Open the local dashboard printed by the command. Aura binds to loopback by
 default. A non-loopback bind requires `OPENCODEX_API_AUTH_TOKEN`.
@@ -64,8 +66,38 @@ list-price equivalent, optimizer status, and estimated saved tokens.
 
 ## Upgrade and uninstall
 
-Upgrade through the same package channel used for installation. The release
-workflow runs clean-install, upgrade, service lifecycle, restore, and uninstall
-gates on Linux, macOS, and Windows. Do not remove the compatibility command
-aliases until a separately published Aura package and migration release have
-been verified.
+Upgrade through the same package channel used for installation. On Windows,
+close any running Aura/OpenCodex proxy before upgrading so npm can release old
+package files. The release workflow runs clean-install, upgrade, service
+lifecycle, restore, and uninstall gates on Linux, macOS, and Windows.
+
+### Windows: recover from an old OpenCodex command collision
+
+Aura releases from `0.1.0-preview.3` onward install **only** `aura`. This
+prevents npm from trying to replace the legacy `opencodex.cmd` shim while an
+older OpenCodex install still owns it. Aura keeps the compatible local state,
+so this recovery does not require signing in to providers again.
+
+If an older failed install reports `EEXIST ... opencodex.cmd` or `EPERM`:
+
+1. Close Codex, Aura/OpenCodex dashboards, and terminals using the proxy. If a
+   directory is still locked, restart Windows first.
+2. Open **PowerShell** and run the following. It renames rather than deletes
+   legacy shims and a failed partial installation.
+
+```powershell
+$npmBin = Join-Path $env:APPDATA "npm"
+Rename-Item (Join-Path $npmBin "opencodex.cmd") "opencodex.cmd.backup" -ErrorAction SilentlyContinue
+Rename-Item (Join-Path $npmBin "opencodex.ps1") "opencodex.ps1.backup" -ErrorAction SilentlyContinue
+Rename-Item (Join-Path $env:APPDATA "npm\node_modules\@tungninh\aura-ai") "aura-ai.failed-install.backup" -ErrorAction SilentlyContinue
+
+npm install -g @tungninh/aura-ai@preview
+aura --version
+aura ensure
+aura status
+aura doctor
+```
+
+`opencodex` and `ocx` remain available only if their original package is still
+installed. Aura's supported command is `aura`; use `aura gui` to open its
+dashboard. A renamed backup can be restored manually if it is ever needed.

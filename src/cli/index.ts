@@ -62,7 +62,7 @@ if (command !== undefined && command !== "help" && hasHelpFlag(args.slice(1))) {
 function parsePortOption(): number | undefined {
   if (args.length === 1) return undefined;
   if (args.length !== 3 || args[1] !== "--port") {
-    console.error("Usage: ocx start [--port <port>]");
+    console.error("Usage: aura start [--port <port>]");
     process.exit(1);
   }
   const portIdx = args.indexOf("--port");
@@ -110,7 +110,7 @@ async function chooseListenPort(requestedPort?: number): Promise<number> {
       allowEphemeralFallback: !hardPin,
     });
     if (preferred > 0 && selected !== preferred) {
-      console.log(`⚠️  Port ${preferred} is busy; starting opencodex on ${selected}.`);
+      console.log(`⚠️  Port ${preferred} is busy; starting Aura AI on ${selected}.`);
     }
     if (shouldPersistSelectedPort(config.port, selected, preferred)) {
       config.port = selected;
@@ -139,7 +139,7 @@ async function handleStart(options: { block?: boolean } = {}) {
   if (existingPid) {
     const live = await findLiveProxy();
     if (live) {
-      console.error(`⚠️  Proxy already running (PID ${live.pid ?? existingPid}, port ${live.port}). Use 'ocx stop' first.`);
+      console.error(`⚠️  Proxy already running (PID ${live.pid ?? existingPid}, port ${live.port}). Use 'aura stop' first.`);
       process.exit(1);
     }
     removePid(existingPid);
@@ -751,6 +751,11 @@ switch (command) {
   case "models": {
     const { handleModels } = await import("./models");
     handleModels(args.slice(1));
+    break;
+  }
+  case "mcp": {
+    const { runAuraMcpServer } = await import("../integrations/mcp-server");
+    await runAuraMcpServer();
     break;
   }
   case "claude": {

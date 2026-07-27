@@ -1,8 +1,10 @@
 import { capabilityFallback } from "./capability-fallback";
+import { integrationFallback } from "./integration-fallback";
 
 // German — generated from en.ts. Must match TKey set (compile-checked).
 export const de = {
   ...capabilityFallback,
+  ...integrationFallback,
   "nav.dashboard": "Übersicht",
   "nav.aura": "Aura-Einrichtung",
   "nav.startup": "Startsicherheit",
@@ -1290,6 +1292,41 @@ export const de = {
   "clients.guideMessages": "Messages",
   "clients.guideAuthHeader": "Auth header",
   "clients.guideAuthEnv": "Auth environment",
+  "nav.integrations": "Integrationen",
+  "integrations.eyebrow": "Aura-Verbindungen",
+  "integrations.title": "Integrationen",
+  "integrations.subtitle": "Entwicklungsdienste einmal verbinden und sichere Funktionen mit kompatiblen Coding-Clients teilen.",
+  "integrations.refresh": "Aktualisieren",
+  "integrations.vaultTitle": "Anmeldedaten bleiben hinter Aura",
+  "integrations.vaultHint": "Aura speichert Verbindungsmetadaten; Geheimnisse bleiben im Systemtresor oder im OAuth-Fluss.",
+  "integrations.oneTime": "Einmalige Einrichtung",
+  "integrations.search": "Integrationen suchen",
+  "integrations.searchPlaceholder": "GitHub, Supabase, Deployment, Monitoring suchen...",
+  "integrations.empty": "Keine passenden Integrationen gefunden.",
+  "integrations.connected": "Verbunden",
+  "integrations.pending": "Anmeldung nötig",
+  "integrations.available": "Verfügbar",
+  "integrations.autoClients": "{n} Clients verbinden automatisch",
+  "integrations.connect": "Verbinden",
+  "integrations.docs": "Doku",
+  "integrations.loadError": "Aura-Integrationen konnten nicht geladen werden.",
+  "integrations.category.code": "Code & Quelle",
+  "integrations.category.backend": "Datenbank & Backend",
+  "integrations.category.deploy": "Deployment",
+  "integrations.category.monitoring": "Monitoring",
+  "integrations.category.project": "Projektmanagement",
+  "integrations.category.communication": "Kommunikation",
+  "integrations.prepare": "Verbindung vorbereiten",
+  "integrations.prepareTitle": "{name} vorbereiten",
+  "integrations.prepareHint": "Projekt und minimale Berechtigungen wählen. In diesem Schritt speichert Aura kein Geheimnis; die Anmeldung bleibt im offiziellen Provider-Fluss.",
+  "integrations.connectionLabel": "Verbindungsname",
+  "integrations.resource": "Projekt oder Workspace (optional)",
+  "integrations.resourcePlaceholder": "Zum Beispiel: production, acme/web-app",
+  "integrations.authMode": "Authentifizierungsmethode",
+  "integrations.scopes": "Erlaubte Funktionen",
+  "integrations.prepareError": "Die Integrationsverbindung konnte nicht vorbereitet werden.",
+  "integrations.apiKey": "API-Schlüssel",
+  "integrations.apiKeyPlaceholder": "Wird in Auras lokalem Geheimnisspeicher abgelegt",
 } as const;
 
 export type TKey = keyof typeof de;

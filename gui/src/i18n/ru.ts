@@ -1,8 +1,10 @@
 import type { TKey } from "./en";
 import { capabilityFallback } from "./capability-fallback";
+import { integrationFallback } from "./integration-fallback";
 
 export const ru: Record<TKey, string> = {
   ...capabilityFallback,
+  ...integrationFallback,
   // sidebar / nav / common
   "nav.dashboard": "Дашборд",
   "nav.aura": "Настройка Aura",
@@ -1312,6 +1314,41 @@ export const ru: Record<TKey, string> = {
   "clients.guideMessages": "Messages",
   "clients.guideAuthHeader": "Auth header",
   "clients.guideAuthEnv": "Auth environment",
+  "nav.integrations": "Интеграции",
+  "integrations.eyebrow": "Подключения Aura",
+  "integrations.title": "Интеграции",
+  "integrations.subtitle": "Подключите сервисы разработки один раз и передайте безопасные возможности совместимым кодинг-агентам.",
+  "integrations.refresh": "Обновить",
+  "integrations.vaultTitle": "Учетные данные остаются внутри Aura",
+  "integrations.vaultHint": "Aura хранит только метаданные подключения; секреты остаются в хранилище платформы или OAuth-потоке.",
+  "integrations.oneTime": "Однократная настройка",
+  "integrations.search": "Поиск интеграций",
+  "integrations.searchPlaceholder": "GitHub, Supabase, деплой, мониторинг...",
+  "integrations.empty": "Интеграции по запросу не найдены.",
+  "integrations.connected": "Подключено",
+  "integrations.pending": "Нужен вход",
+  "integrations.available": "Доступно",
+  "integrations.autoClients": "{n} агентов подключаются автоматически",
+  "integrations.connect": "Подключить",
+  "integrations.docs": "Документация",
+  "integrations.loadError": "Не удалось загрузить интеграции Aura.",
+  "integrations.category.code": "Код и исходники",
+  "integrations.category.backend": "База данных и backend",
+  "integrations.category.deploy": "Деплой",
+  "integrations.category.monitoring": "Мониторинг",
+  "integrations.category.project": "Управление проектами",
+  "integrations.category.communication": "Коммуникации",
+  "integrations.prepare": "Подготовить подключение",
+  "integrations.prepareTitle": "Подготовить {name}",
+  "integrations.prepareHint": "Выберите проект и минимальные права. На этом шаге Aura не сохраняет секреты; аутентификация остается в официальном потоке провайдера.",
+  "integrations.connectionLabel": "Имя подключения",
+  "integrations.resource": "Проект или рабочая область (необязательно)",
+  "integrations.resourcePlaceholder": "Например: production, acme/web-app",
+  "integrations.authMode": "Метод аутентификации",
+  "integrations.scopes": "Разрешенные возможности",
+  "integrations.prepareError": "Не удалось подготовить подключение интеграции.",
+  "integrations.apiKey": "API-ключ",
+  "integrations.apiKeyPlaceholder": "Хранится в локальном хранилище секретов Aura",
 
 
 };

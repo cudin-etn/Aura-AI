@@ -5,7 +5,7 @@ import {
   IconGrid, IconServer, IconBot, IconActivity, IconGithub, IconMenu, IconSun,
   IconMoon, IconMonitor, IconGlobe, IconPower, IconSparkle, IconX, IconBoxes,
   IconList, IconTerminal, IconHardDrive, IconKey, IconShuffle, IconSliders,
-  IconChevron,
+  IconChevron, IconLink,
 } from "./icons";
 import { useI18n, useT, LOCALES, type Locale, type TKey } from "./i18n";
 import { Select } from "./ui";
@@ -29,12 +29,13 @@ const AuraSetup = lazy(() => import("./pages/AuraSetup"));
 const Appearance = lazy(() => import("./pages/Appearance"));
 const Capabilities = lazy(() => import("./pages/Capabilities"));
 const Optimization = lazy(() => import("./pages/Optimization"));
+const Integrations = lazy(() => import("./pages/Integrations"));
 
-type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude" | "appearance" | "capabilities" | "optimization";
+type Page = "dashboard" | "aura" | "startup" | "providers" | "models" | "combos" | "subagents" | "logs" | "usage" | "storage" | "codex-auth" | "api" | "claude" | "appearance" | "capabilities" | "optimization" | "integrations";
 type Section = "home" | "setup" | "routing" | "insights" | "settings";
 type Theme = "light" | "dark" | "system";
 
-const VALID_PAGES = new Set<Page>(["dashboard", "aura", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude", "appearance", "capabilities", "optimization"]);
+const VALID_PAGES = new Set<Page>(["dashboard", "aura", "startup", "providers", "models", "combos", "subagents", "logs", "usage", "storage", "codex-auth", "api", "claude", "appearance", "capabilities", "optimization", "integrations"]);
 
 const PAGE_TKEY: Record<Page, TKey> = {
   dashboard: "nav.dashboard",
@@ -53,6 +54,7 @@ const PAGE_TKEY: Record<Page, TKey> = {
   appearance: "nav.appearance",
   capabilities: "nav.capabilities",
   optimization: "nav.optimization",
+  integrations: "nav.integrations",
 };
 
 function readPageFromHash(): Page {
@@ -127,6 +129,7 @@ const SECTION_NAV: SectionConfig[] = [
       { id: "codex-auth", tkey: "nav.accounts", Icon: IconKey },
       { id: "claude", tkey: "nav.clients", Icon: IconTerminal },
       { id: "capabilities", tkey: "nav.capabilities", Icon: IconGlobe },
+      { id: "integrations", tkey: "nav.integrations", Icon: IconLink },
     ],
   },
   {
@@ -497,6 +500,7 @@ export default function App() {
             {page === "appearance" && <Appearance layoutSkin={layoutSkin} onLayoutSkinChange={setLayoutSkin} />}
             {page === "capabilities" && <Capabilities apiBase={API_BASE} />}
             {page === "optimization" && <Optimization apiBase={API_BASE} />}
+            {page === "integrations" && <Integrations apiBase={API_BASE} />}
             </Suspense>
           </ErrorBoundary>
         </div>

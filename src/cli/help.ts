@@ -11,46 +11,46 @@ type HelpEntry = {
 };
 
 const helpEntries: Record<string, HelpEntry> = {
-  init: { usage: "ocx init", summary: "Interactive setup for providers and Codex config injection." },
-  start: { usage: "ocx start [--port <port>]", summary: "Start the proxy server and sync models to Codex." },
-  stop: { usage: "ocx stop", summary: "Stop the proxy and restore native Codex config." },
+  init: { usage: "aura init", summary: "Interactive setup for providers and Codex config injection." },
+  start: { usage: "aura start [--port <port>]", summary: "Start the proxy server and sync models to Codex." },
+  stop: { usage: "aura stop", summary: "Stop the proxy and restore native Codex config." },
   restore: {
-    usage: "ocx restore [back]",
+    usage: "aura restore [back]",
     summary: "Restore native Codex config without stopping the proxy; `restore back` re-points codex at the running proxy.",
   },
   eject: {
-    usage: "ocx eject [back]",
+    usage: "aura eject [back]",
     summary: "Restore native Codex config without stopping the proxy; `eject back` re-points codex at the running proxy.",
   },
   "recover-history": {
-    usage: "ocx recover-history --legacy-openai",
+    usage: "aura recover-history --legacy-openai",
     summary: "Explicitly recover pre-backup syncResumeHistory rows.",
   },
   uninstall: {
-    usage: "ocx uninstall",
+    usage: "aura uninstall",
     summary: "Remove service/shim/config and restore native Codex.",
-    details: ["Alias: ocx remove"],
+    details: ["Alias: aura remove"],
   },
   remove: {
-    usage: "ocx remove",
+    usage: "aura remove",
     summary: "Remove service/shim/config and restore native Codex.",
-    details: ["Alias of: ocx uninstall"],
+    details: ["Alias of: aura uninstall"],
   },
   service: {
-    usage: "ocx service [install|start|stop|status|uninstall|remove]",
+    usage: "aura service [install|start|stop|status|uninstall|remove]",
     summary: "Run as a background service.",
     details: [
       "With no subcommand, installs/updates and starts the background service.",
-      "Use `ocx service status` to see diagnostics and log paths.",
+      "Use `aura service status` to see diagnostics and log paths.",
     ],
   },
   "codex-shim": {
-    usage: "ocx codex-shim <install|status|uninstall|remove>",
+    usage: "aura codex-shim <install|status|uninstall|remove>",
     summary: "Auto-start the proxy when `codex` launches.",
     details: ["Use `remove` as an alias for `uninstall`."],
   },
   tray: {
-    usage: "ocx tray <install|start|stop|status|uninstall|remove> [--json] [--no-start]",
+    usage: "aura tray <install|start|stop|status|uninstall|remove> [--json] [--no-start]",
     summary: "Install and control the Windows status tray icon.",
     details: [
       "The tray starts at Windows login and provides one-click proxy controls.",
@@ -58,38 +58,38 @@ const helpEntries: Record<string, HelpEntry> = {
       "--no-start (install only) installs the tray without launching it immediately.",
     ],
   },
-  ensure: { usage: "ocx ensure", summary: "Ensure the proxy is running and Codex config/cache are current." },
-  sync: { usage: "ocx sync", summary: "Fetch provider models and inject them into Codex config." },
-  "sync-cache": { usage: "ocx sync-cache", summary: "Refresh Codex's model cache from the active catalog." },
-  status: { usage: "ocx status", summary: "Check proxy server status." },
-  doctor: { usage: "ocx doctor", summary: "Diagnose environment/network issues (paths, WSL /mnt, proxy env, ChatGPT reachability)." },
+  ensure: { usage: "aura ensure", summary: "Ensure the proxy is running and Codex config/cache are current." },
+  sync: { usage: "aura sync", summary: "Fetch provider models and inject them into Codex config." },
+  "sync-cache": { usage: "aura sync-cache", summary: "Refresh Codex's model cache from the active catalog." },
+  status: { usage: "aura status", summary: "Check proxy server status." },
+  doctor: { usage: "aura doctor", summary: "Diagnose environment/network issues (paths, WSL /mnt, proxy env, ChatGPT reachability)." },
   debug: {
-    usage: "ocx debug [provider on|off|status|reset|logs [-f]|usage on|off|status|reset|logs [-f]]",
+    usage: "aura debug [provider on|off|status|reset|logs [-f]|usage on|off|status|reset|logs [-f]]",
     summary: "Show or toggle runtime provider debug logging on the running proxy.",
     details: [
-      "Provider: ocx debug provider on | off | status | reset | logs [-f]",
-      "Usage JSONL: ocx debug usage on | off | status | reset | logs [-f]",
+      "Provider: aura debug provider on | off | status | reset | logs [-f]",
+      "Usage JSONL: aura debug usage on | off | status | reset | logs [-f]",
       "Env default: OCX_DEBUG=1 (legacy OCX_DEBUG_FRAMES still works)",
     ],
   },
-  login: { usage: "ocx login <provider>", summary: "OAuth or API-key login for a provider." },
-  logout: { usage: "ocx logout <provider>", summary: "Remove a stored provider login." },
-  gui: { usage: "ocx gui", summary: "Open the opencodex dashboard." },
+  login: { usage: "aura login <provider>", summary: "OAuth or API-key login for a provider." },
+  logout: { usage: "aura logout <provider>", summary: "Remove a stored provider login." },
+  gui: { usage: "aura gui", summary: "Open the Aura dashboard." },
   update: {
-    usage: "ocx update [--tag latest|preview]",
-    summary: "Update opencodex. Preview installs stay on the preview tag unless overridden.",
+    usage: "aura update [--tag latest|preview]",
+    summary: "Update Aura AI. Preview installs stay on the preview tag unless overridden.",
   },
   provider: {
-    usage: "ocx provider <list|add|remove|show|set-default>",
+    usage: "aura provider <list|add|remove|show|set-default>",
     summary: "Non-interactive provider management.",
     details: [
       "Subcommands: list, add <name>, remove <name>, show <name>, set-default <name>",
       "Registry providers are auto-configured by name. Custom providers need --adapter and --base-url.",
-      "Run `ocx provider --help` for full usage and examples.",
+      "Run `aura provider --help` for full usage and examples.",
     ],
   },
   account: {
-    usage: "ocx account <list|current|use|refresh|auto-switch|remove|add-key> ...",
+    usage: "aura account <list|current|use|refresh|auto-switch|remove|add-key> ...",
     summary: "List and switch provider accounts and API-key pools (GUI parity).",
     details: [
       "list [provider]     Codex account pool, OAuth accounts and API keys (identifiers shown masked as the API returns them).",
@@ -103,7 +103,7 @@ const helpEntries: Record<string, HelpEntry> = {
     ],
   },
   models: {
-    usage: "ocx models [list] [--provider <name>] [--json] | add <provider> <modelId> [opts] | remove <id|provider/modelId> [--yes] | list-custom [--json]",
+    usage: "aura models [list] [--provider <name>] [--json] | add <provider> <modelId> [opts] | remove <id|provider/modelId> [--yes] | list-custom [--json]",
     summary: "List models and manage custom (manually registered) models.",
     details: [
       "List available models from static config with no subcommand (liveModels may add more at runtime).",
@@ -117,7 +117,7 @@ const helpEntries: Record<string, HelpEntry> = {
     ],
   },
   claude: {
-    usage: "ocx claude [claude args...]",
+    usage: "aura claude [claude args...]",
     summary: "Launch Claude Code wired to the proxy (env injection + gateway model discovery).",
     details: [
       "Ensures the proxy is running, then execs `claude` with ANTHROPIC_BASE_URL/ANTHROPIC_AUTH_TOKEN,",
@@ -128,11 +128,11 @@ const helpEntries: Record<string, HelpEntry> = {
     ],
   },
   restart: {
-    usage: "ocx restart",
+    usage: "aura restart",
     summary: "Stop the proxy and restart it (background). Equivalent to stop + ensure.",
   },
   v2: {
-    usage: "ocx v2 <status|on|off|mode <v1|default|v2>|threads <n>>",
+    usage: "aura v2 <status|on|off|mode <v1|default|v2>|threads <n>>",
     summary: "Toggle the Codex multi_agent_v2 feature (multi-agent surface).",
     details: [
       "status                Show flag, multi-agent mode, and thread limit.",
@@ -143,9 +143,14 @@ const helpEntries: Record<string, HelpEntry> = {
     ],
   },
   health: {
-    usage: "ocx health [--json]",
+    usage: "aura health [--json]",
     summary: "Check proxy health. Exits 0 if healthy, 1 otherwise.",
     details: ["Use --json for structured output: {ok, pid, port}."],
+  },
+  mcp: {
+    usage: "aura mcp",
+    summary: "Run Aura's local, read-only MCP integration server over stdio.",
+    details: ["Copy the declaration from Setup → Integrations into a compatible coding agent."],
   },
 };
 
@@ -156,51 +161,52 @@ function packageVersion(): string {
 }
 
 export function printVersion(): void {
-  console.log(`opencodex ${packageVersion()}`);
+  console.log(`Aura AI ${packageVersion()}`);
 }
 
 export function printUsage(): void {
-  console.log(`opencodex (ocx) — Universal provider proxy for Codex
+  console.log(`Aura AI (aura) — Universal provider gateway for coding agents
 
 Usage:
-  ocx init                    Interactive setup (provider + Codex config injection)
-  ocx start [--port <port>]   Start the proxy server (auto-syncs models to Codex)
-  ocx stop                    Stop the proxy AND restore native Codex (plain codex works again)
-  ocx restore                 Restore native Codex without stopping (alias: eject)
-  ocx restore back            Re-point codex at the running proxy (undo restore)
-  ocx recover-history --legacy-openai
+  aura init                    Interactive setup (provider + Codex config injection)
+  aura start [--port <port>]   Start the proxy server (auto-syncs models to Codex)
+  aura stop                    Stop the proxy AND restore native Codex (plain codex works again)
+  aura restore                 Restore native Codex without stopping (alias: eject)
+  aura restore back            Re-point codex at the running proxy (undo restore)
+  aura recover-history --legacy-openai
                                Explicitly recover pre-backup syncResumeHistory rows
-  ocx uninstall               Remove service/shim/config and restore native Codex (alias: remove)
-  ocx service [sub]           Run as a background service (default: install/update/start)
-  ocx codex-shim <sub>        Auto-start proxy when \`codex\` launches (install|status|uninstall|remove)
-  ocx tray <sub>              Windows status tray (install|start|stop|status|uninstall)
-  ocx ensure                  Ensure the proxy is running and Codex config/cache are current
-  ocx sync                    Fetch models from providers and inject into Codex config
-  ocx sync-cache              Refresh Codex's model cache from the active catalog
-  ocx status                  Check proxy server status
-  ocx doctor                  Diagnose environment/network issues (WSL, proxy, ChatGPT reachability)
-  ocx debug [provider|usage ...]
+  aura uninstall               Remove service/shim/config and restore native Codex (alias: remove)
+  aura service [sub]           Run as a background service (default: install/update/start)
+  aura codex-shim <sub>        Auto-start proxy when \`codex\` launches (install|status|uninstall|remove)
+  aura tray <sub>              Windows status tray (install|start|stop|status|uninstall)
+  aura ensure                  Ensure the proxy is running and Codex config/cache are current
+  aura sync                    Fetch models from providers and inject into Codex config
+  aura sync-cache              Refresh Codex's model cache from the active catalog
+  aura status                  Check proxy server status
+  aura doctor                  Diagnose environment/network issues (WSL, proxy, ChatGPT reachability)
+  aura debug [provider|usage ...]
                               provider/usage on|off|status|reset|logs [-f]
-  ocx login <provider>        OAuth login (xai) — opens browser, stores token in ~/.opencodex/auth.json
-  ocx logout <provider>       Remove a stored OAuth login
-  ocx gui                     Open the opencodex dashboard
-  ocx update [--tag <tag>]    Update opencodex (keeps preview installs on @preview)
-  ocx restart                  Stop and restart the proxy
-  ocx v2 <sub>                multi_agent_v2 surface (status|on|off|mode|threads)
-  ocx health [--json]          Check proxy health (exit 0=healthy, 1=not)
-  ocx provider <sub>          Manage providers (list|add|remove|show|set-default)
-  ocx account <sub>           Accounts/keys (list|current|use|refresh|auto-switch|remove|add-key)
-  ocx models <sub>            List models; manage custom models (add|remove|list-custom)
-  ocx claude [args...]        Launch Claude Code wired to the proxy (model discovery on)
-  ocx help [command]          Show help
-  ocx --version | -v          Print version
+  aura login <provider>        OAuth login (xai) — opens browser, stores token in ~/.opencodex/auth.json
+  aura logout <provider>       Remove a stored OAuth login
+  aura gui                     Open the Aura dashboard
+  aura update [--tag <tag>]    Update Aura AI (keeps preview installs on @preview)
+  aura restart                 Stop and restart the proxy
+  aura v2 <sub>                multi_agent_v2 surface (status|on|off|mode|threads)
+  aura health [--json]         Check proxy health (exit 0=healthy, 1=not)
+  aura provider <sub>          Manage providers (list|add|remove|show|set-default)
+  aura account <sub>           Accounts/keys (list|current|use|refresh|auto-switch|remove|add-key)
+  aura models <sub>            List models; manage custom models (add|remove|list-custom)
+  aura claude [args...]        Launch Claude Code wired to the proxy (model discovery on)
+  aura mcp                     Run Aura's local read-only Integration MCP server
+  aura help [command]          Show help
+  aura --version | -v          Print version
 
 Examples:
-  ocx init                    Set up provider and inject into Codex
-  ocx start                   Start on default port (10100)
-  ocx start --port 8080       Start on custom port
-  ocx help service            Show service command help
-  ocx sync                    Sync available models to Codex`);
+  aura init                    Set up provider and inject into Codex
+  aura start                   Start on default port (10100)
+  aura start --port 8080       Start on custom port
+  aura help service            Show service command help
+  aura sync                    Sync available models to Codex`);
 }
 
 export function hasHelpFlag(values: string[]): boolean {

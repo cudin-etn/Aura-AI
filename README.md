@@ -57,8 +57,8 @@ Open `http://127.0.0.1:10100` and follow the setup wizard:
 3. Assign models to roles or choose a routing profile.
 4. Select a coding client and apply the generated configuration.
 
-The primary commands are `aura` and `aura-ai`. Compatibility aliases
-`ocx` and `opencodex` are retained for migration and existing scripts.
+Aura installs one command: `aura`. Existing `ocx` and `opencodex` commands
+remain owned by an older OpenCodex package and Aura never overwrites them.
 
 ```bash
 aura status
@@ -86,6 +86,19 @@ manual setup for:
 For clients without a supported schema, Aura shows the endpoint, auth mode,
 model ids, environment variables, and exact copy-ready steps. Aura never edits
 an unknown application file without a detected schema and a backup.
+
+### Integration MCP (preview)
+
+**Setup → Integrations** can generate the credential-free local MCP declaration
+for Codex, Claude, OpenCode, Cursor, and compatible clients:
+
+```json
+{ "mcpServers": { "aura": { "command": "aura", "args": ["mcp"] } } }
+```
+
+`aura mcp` currently exposes safe integration readiness and scope metadata only.
+Official GitHub, Supabase, Firebase, Vercel, and other provider actions remain
+explicit connector work; Aura never forwards API keys into an agent config.
 
 ## Routing and token saving
 
