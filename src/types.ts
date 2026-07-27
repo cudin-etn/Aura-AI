@@ -465,6 +465,10 @@ export interface OcxConfig {
     /** Secret-free integration metadata; credentials live in platform storage. */
     integrations?: {
       connections?: import("./integrations/types").IntegrationConnectionMetadata[];
+      /** Guarded local MCP applies, persisted so restore survives a restart. */
+      mcpApplies?: {
+        codex?: import("./clients/codex-mcp").CodexMcpConnectionState;
+      };
     };
   };
   /** OpenAI provider-contract migration marker (v2 = single `openai` provider with account mode). */

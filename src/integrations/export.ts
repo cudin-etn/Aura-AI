@@ -9,12 +9,56 @@ export interface AuraMcpServerExport {
   args: ["mcp"];
 }
 
+export interface IntegrationMcpSnippet {
+  syntax: "toml" | "json" | "shell";
+  destination: string;
+  content: string;
+}
+
 export interface IntegrationAgentExport {
   clientId: string;
   grade: IntegrationClientGrade;
   mcp: AuraMcpServerExport;
+  snippet: IntegrationMcpSnippet;
   connections: Array<IntegrationConnectionSummary & { integrationName: string }>;
   note: string;
+}
+
+function mcpSnippetForClient(clientId: string): IntegrationMcpSnippet {
+  const server = { command: "aura", args: ["mcp"] };
+  switch (clientId) {
+    case "codex":
+      return {
+        syntax: "toml",
+        destination: "~/.codex/config.toml",
+        content: '[mcp_servers.aura]\ncommand = "aura"\nargs = ["mcp"]',
+      };
+    case "claude-code":
+      return {
+        syntax: "shell",
+        destination: "Claude Code user configuration",
+        content: "claude mcp add --scope user aura -- aura mcp",
+      };
+    case "opencode":
+      return {
+        syntax: "json",
+        destination: "OpenCode config: mcp.servers.aura",
+        content: JSON.stringify({ mcp: { servers: { aura: { type: "local", command: [server.command, ...server.args] } } } }, null, 2),
+      };
+    case "claude-desktop":
+    case "cursor":
+      return {
+        syntax: "json",
+        destination: clientId === "cursor" ? "Cursor MCP configuration" : "Claude Desktop configuration",
+        content: JSON.stringify({ mcpServers: { aura: server } }, null, 2),
+      };
+    default:
+      return {
+        syntax: "json",
+        destination: "Compatible MCP client configuration",
+        content: JSON.stringify({ mcpServers: { aura: server } }, null, 2),
+      };
+  }
 }
 
 /**
@@ -44,6 +88,7 @@ export function buildIntegrationAgentExport(config: OcxConfig, clientId: string)
     clientId: normalizedClientId || "generic",
     grade,
     mcp: { command: "aura", args: ["mcp"] },
+    snippet: mcpSnippetForClient(normalizedClientId || "generic"),
     connections: ready,
     note: ready.length
       ? "Copy this MCP declaration into the agent. Aura exposes connection metadata only until an official provider adapter is enabled."

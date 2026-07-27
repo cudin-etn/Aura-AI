@@ -43,6 +43,10 @@ describe("Aura Integration Hub registry", () => {
     }, { persist: false });
     const pending = buildIntegrationAgentExport(current, "codex");
     expect(pending.mcp).toEqual({ command: "aura", args: ["mcp"] });
+    expect(pending.snippet).toEqual({
+      syntax: "toml", destination: "~/.codex/config.toml",
+      content: '[mcp_servers.aura]\ncommand = "aura"\nargs = ["mcp"]',
+    });
     expect(pending.connections).toHaveLength(0);
 
     const stored = current.aura!.integrations!.connections![0]!;
@@ -51,5 +55,12 @@ describe("Aura Integration Hub registry", () => {
     expect(ready.connections).toHaveLength(1);
     expect(ready.connections[0]).not.toHaveProperty("secretRef");
     expect(ready.connections[0]?.id).toBe(connection.id);
+  });
+
+  test("emits each agent's native MCP format instead of one misleading JSON shape", () => {
+    const current = config();
+    expect(buildIntegrationAgentExport(current, "opencode").snippet.content).toContain('"servers"');
+    expect(buildIntegrationAgentExport(current, "claude-code").snippet.content).toBe("claude mcp add --scope user aura -- aura mcp");
+    expect(buildIntegrationAgentExport(current, "claude-desktop").snippet.content).toContain('"mcpServers"');
   });
 });

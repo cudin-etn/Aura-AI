@@ -3,6 +3,8 @@ import { AURA_INTEGRATIONS } from "../../integrations/registry";
 import { listIntegrationConnections, prepareIntegrationConnection, removeIntegrationConnection } from "../../integrations/connections";
 import { removeIntegrationSecret, storeIntegrationSecret } from "../../integrations/vault";
 import { buildIntegrationAgentExport } from "../../integrations/export";
+import { applyCodexMcpConnection, previewCodexMcpConnection, restoreCodexMcpConnection } from "../../clients/codex-mcp";
+import { saveConfig } from "../../config";
 import type { IntegrationAuthMode, IntegrationCapability } from "../../integrations/types";
 import type { ManagementContext } from "./context";
 
@@ -22,6 +24,43 @@ export async function handleIntegrationRoutes(ctx: ManagementContext): Promise<R
   if (url.pathname === "/api/integrations/export" && req.method === "GET") {
     const clientId = url.searchParams.get("client")?.trim() || "generic";
     return jsonResponse({ export: buildIntegrationAgentExport(config, clientId) });
+  }
+
+  if (url.pathname === "/api/integrations/mcp/codex/preview" && req.method === "GET") {
+    try { return jsonResponse({ preview: previewCodexMcpConnection(), applied: config.aura?.integrations?.mcpApplies?.codex ?? null }); }
+    catch (error) { return jsonResponse({ error: error instanceof Error ? error.message : String(error) }, 400); }
+  }
+
+  if (url.pathname === "/api/integrations/mcp/codex/apply" && req.method === "POST") {
+    try {
+      const state = applyCodexMcpConnection();
+      const previous = config.aura?.integrations?.mcpApplies?.codex;
+      config.aura = {
+        ...config.aura,
+        integrations: { ...config.aura?.integrations, mcpApplies: { ...config.aura?.integrations?.mcpApplies, codex: state } },
+      };
+      try { saveConfig(config); }
+      catch (error) {
+        try { restoreCodexMcpConnection(state); } catch { /* best-effort rollback */ }
+        config.aura = { ...config.aura, integrations: { ...config.aura?.integrations, mcpApplies: { ...config.aura?.integrations?.mcpApplies, ...(previous ? { codex: previous } : {}) } } };
+        throw error;
+      }
+      return jsonResponse({ ok: true, state }, 201);
+    } catch (error) { return jsonResponse({ error: error instanceof Error ? error.message : String(error) }, 400); }
+  }
+
+  if (url.pathname === "/api/integrations/mcp/codex" && req.method === "DELETE") {
+    const state = config.aura?.integrations?.mcpApplies?.codex;
+    if (!state) return jsonResponse({ error: "Aura has no managed Codex MCP apply to restore" }, 404);
+    try {
+      restoreCodexMcpConnection(state);
+      const previous = config.aura;
+      const { codex: _removed, ...mcpApplies } = previous?.integrations?.mcpApplies ?? {};
+      config.aura = { ...previous, integrations: { ...previous?.integrations, mcpApplies } };
+      try { saveConfig(config); }
+      catch (error) { config.aura = previous; throw error; }
+      return jsonResponse({ ok: true });
+    } catch (error) { return jsonResponse({ error: error instanceof Error ? error.message : String(error) }, 400); }
   }
 
   if (url.pathname === "/api/integrations/connection" && req.method === "POST") {

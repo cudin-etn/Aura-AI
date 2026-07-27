@@ -20,6 +20,10 @@ export type OpenCodeConnectionState = {
 
 type JsonObject = Record<string, unknown>;
 
+function auraMcpServer(): JsonObject {
+  return { type: "local", command: ["aura", "mcp"] };
+}
+
 function asObject(value: unknown, label: string): JsonObject {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new Error(`${label} must be a JSON object`);
@@ -52,6 +56,10 @@ export function buildOpenCodeConnection(
   const providers = root.provider === undefined ? {} : asObject(root.provider, "provider");
   const previousAura = providers.aura === undefined ? {} : asObject(providers.aura, "provider.aura");
   const previousOptions = previousAura.options === undefined ? {} : asObject(previousAura.options, "provider.aura.options");
+  const mcp = root.mcp === undefined ? {} : asObject(root.mcp, "mcp");
+  // OpenCode v2 owns servers under mcp.servers. Preserve all other MCP
+  // settings and fail closed if the known container is not an object.
+  const mcpServers = mcp.servers === undefined ? {} : asObject(mcp.servers, "mcp.servers");
   return {
     ...root,
     provider: {
@@ -63,6 +71,10 @@ export function buildOpenCodeConnection(
         options: { ...previousOptions, baseURL: baseUrl.replace(/\/+$/, "") },
         models: Object.fromEntries(normalizedModels.map(model => [model, { name: model }])),
       },
+    },
+    mcp: {
+      ...mcp,
+      servers: { ...mcpServers, aura: auraMcpServer() },
     },
     model: `aura/${resolvedDefault}`,
   };
@@ -89,7 +101,7 @@ export function previewOpenCodeConnection(baseUrl: string, models: readonly stri
     models: normalizedModels,
     modelCount: normalizedModels.length,
     provider: "aura",
-    changes: ["provider.aura", "model"],
+    changes: ["provider.aura", "mcp.servers.aura", "model"],
   };
 }
 
@@ -129,11 +141,16 @@ export function applyOpenCodeConnection(
     const aura = asObject(provider.aura, "provider.aura");
     const options = asObject(aura.options, "provider.aura.options");
     const verifiedModels = asObject(aura.models, "provider.aura.models");
+    const verifiedMcp = asObject(verified.mcp, "mcp");
+    const verifiedMcpServers = asObject(verifiedMcp.servers, "mcp.servers");
+    const verifiedAuraMcp = asObject(verifiedMcpServers.aura, "mcp.servers.aura");
     if (
       verified.model !== `aura/${resolvedDefault}`
       || options.baseURL !== baseUrl.replace(/\/+$/, "")
       || normalizedModels.some(model => !(model in verifiedModels))
       || Object.keys(verifiedModels).length !== normalizedModels.length
+      || verifiedAuraMcp.type !== "local"
+      || JSON.stringify(verifiedAuraMcp.command) !== JSON.stringify(["aura", "mcp"])
     ) {
       throw new Error("OpenCode verification failed after apply");
     }

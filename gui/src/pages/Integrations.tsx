@@ -29,6 +29,7 @@ type AgentExport = {
   clientId: string;
   grade: "auto" | "partial" | "guided";
   mcp: { command: "aura"; args: ["mcp"] };
+  snippet: { syntax: "toml" | "json" | "shell"; destination: string; content: string };
   connections: Array<Connection & { integrationName: string }>;
 };
 
@@ -176,6 +177,9 @@ function AgentExportPanel({ apiBase }: { apiBase: string }) {
   const [clientId, setClientId] = useState("codex");
   const [exportPlan, setExportPlan] = useState<AgentExport | null>(null);
   const [copied, setCopied] = useState(false);
+  const [codexApplied, setCodexApplied] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -188,8 +192,18 @@ function AgentExportPanel({ apiBase }: { apiBase: string }) {
 
   const copy = async () => {
     if (!exportPlan) return;
-    const declaration = JSON.stringify({ mcpServers: { aura: exportPlan.mcp } }, null, 2);
-    try { await navigator.clipboard.writeText(declaration); setCopied(true); } catch { setCopied(false); }
+    try { await navigator.clipboard.writeText(exportPlan.snippet.content); setCopied(true); } catch { setCopied(false); }
+  };
+
+  const applyCodex = async () => {
+    const restoring = codexApplied;
+    setApplying(true); setApplyError(null);
+    try {
+      const response = await fetch(`${apiBase}/api/integrations/mcp/codex${restoring ? "" : "/apply"}`, { method: restoring ? "DELETE" : "POST" });
+      if (!response.ok) throw new Error((await response.json() as { error?: string }).error || "apply failed");
+      setCodexApplied(!restoring);
+    } catch (error) { setApplyError(error instanceof Error ? error.message : t("integrations.mcpApplyError")); }
+    finally { setApplying(false); }
   };
 
   return (
@@ -208,11 +222,14 @@ function AgentExportPanel({ apiBase }: { apiBase: string }) {
           </select>
         </label>
         <button className="btn btn-ghost" type="button" onClick={() => void copy()} disabled={!exportPlan}>{copied ? <><IconCheck aria-hidden /> {t("integrations.exportCopied")}</> : t("integrations.exportCopy")}</button>
+        {clientId === "codex" && <button className="btn btn-primary" type="button" onClick={() => void applyCodex()} disabled={applying}>{applying ? t("common.loading") : codexApplied ? t("integrations.mcpRestoreCodex") : t("integrations.mcpApplyCodex")}</button>}
       </div>
       {exportPlan?.connections.length ? (
         <p className="integration-export-ready">{exportPlan.connections.map(item => item.integrationName).join(" · ")}</p>
       ) : <p className="integration-export-ready integration-export-empty">{t("integrations.exportEmpty")}</p>}
-      <pre className="integration-export-code" aria-label={t("integrations.exportCode")}>{JSON.stringify({ mcpServers: { aura: exportPlan?.mcp ?? { command: "aura", args: ["mcp"] } } }, null, 2)}</pre>
+      {exportPlan && <p className="integration-export-destination">{t("integrations.exportDestination")}: <code>{exportPlan.snippet.destination}</code></p>}
+      {applyError && <div className="notice notice-err integration-export-error" role="alert">{applyError}</div>}
+      <pre className="integration-export-code" aria-label={t("integrations.exportCode")}>{exportPlan?.snippet.content ?? "aura mcp"}</pre>
     </section>
   );
 }

@@ -40,6 +40,7 @@ describe("Aura OpenCode connector", () => {
         options: { baseURL: "http://127.0.0.1:10100/v1" },
       },
     });
+    expect(config.mcp).toMatchObject({ servers: { aura: { type: "local", command: ["aura", "mcp"] } } });
     expect(config.model).toBe("aura/cx/gpt-5.6-terra");
   });
 
@@ -79,7 +80,7 @@ describe("Aura OpenCode connector", () => {
       models: ["model"],
       modelCount: 1,
       provider: "aura",
-      changes: ["provider.aura", "model"],
+      changes: ["provider.aura", "mcp.servers.aura", "model"],
     });
     expect(JSON.stringify(preview)).not.toContain("must-not-leak");
   });
