@@ -1348,4 +1348,7 @@ export const ko: Record<TKey, string> = {
   "integrations.prepareError": "통합 연결을 준비하지 못했습니다.",
   "integrations.apiKey": "API 키",
   "integrations.apiKeyPlaceholder": "Aura의 로컬 비밀 저장소에 보관됩니다",
+  "integrations.catalog": "설정 보기", "integrations.catalogHint": "Aura는 현재 MCP 설정을 내보낼 수 있습니다. 업스트림 커넥터는 아직 활성화되지 않아 자격 증명이나 권한을 저장하지 않습니다.", "integrations.catalogNext": "다음: 서비스에서 인증한 뒤 코딩 에이전트에 Aura MCP를 적용하세요.",
+  "sub.routerTitle": "Smart GPT Router", "sub.routerHint": "적합한 GPT 모델 {count}개를 사용합니다.", "sub.router.manual": "수동", "sub.router.safe": "Auto Safe", "sub.router.adaptive": "Auto Adaptive",
+  "logs.route.profile_match": "요청 모델 유지", "logs.route.manual_override": "수동 선택 유지", "logs.route.auto_safe": "Auto Safe가 GPT 모델 선택", "logs.route.auto_adaptive": "Auto Adaptive가 GPT 모델 선택", "logs.route.risk_escalation": "위험 신호로 승격", "logs.route.verification_escalation": "반복 검증 실패로 승격",
 };

@@ -439,11 +439,12 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
         profiles: AURA_PROFILE_IDS,
         roles: AURA_ROLES,
         available,
+        router: config.aura?.router ?? { mode: "manual", candidates: available.filter(model => /(^|\/)gpt[-_]/i.test(model)) },
       });
     }
 
     if (req.method === "PUT") {
-      let body: { profile?: unknown; roles?: unknown };
+      let body: { profile?: unknown; roles?: unknown; router?: unknown };
       try { body = await req.json(); } catch { return jsonResponse({ error: "invalid JSON body" }, 400); }
       if (!body || typeof body !== "object" || Array.isArray(body)) {
         return jsonResponse({ error: "body must be a JSON object" }, 400);
@@ -454,6 +455,9 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
       if (available.length === 0) return jsonResponse({ error: "no available models" }, 409);
       if (body.roles !== undefined && (!body.roles || typeof body.roles !== "object" || Array.isArray(body.roles))) {
         return jsonResponse({ error: "roles must be an object" }, 400);
+      }
+      if (body.router !== undefined && (!body.router || typeof body.router !== "object" || Array.isArray(body.router))) {
+        return jsonResponse({ error: "router must be an object" }, 400);
       }
 
       const overrides: AuraProfileOverrides = {};
@@ -489,6 +493,24 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
 
       const profile = buildAuraProfile(body.profile as AuraProfileId, available, overrides);
       applyAuraProfile(config, profile);
+      const router = body.router as { mode?: unknown; candidates?: unknown } | undefined;
+      if (router) {
+        if (router.mode !== undefined && router.mode !== "manual" && router.mode !== "safe" && router.mode !== "adaptive") {
+          return jsonResponse({ error: "router.mode must be manual, safe, or adaptive" }, 400);
+        }
+        if (router.candidates !== undefined && (!Array.isArray(router.candidates) || router.candidates.some(model => typeof model !== "string" || !available.includes(model) || !/(^|\/)gpt[-_]/i.test(model)))) {
+          return jsonResponse({ error: "router.candidates must contain available GPT models" }, 400);
+        }
+        config.aura!.router = {
+          mode: (router.mode as "manual" | "safe" | "adaptive" | undefined) ?? config.aura?.router?.mode ?? "manual",
+          candidates: (router.candidates as string[] | undefined) ?? available.filter(model => /(^|\/)gpt[-_]/i.test(model)),
+        };
+      } else {
+        config.aura!.router = {
+          mode: config.aura?.router?.mode ?? "manual",
+          candidates: config.aura?.router?.candidates?.length ? config.aura.router.candidates : available.filter(model => /(^|\/)gpt[-_]/i.test(model)),
+        };
+      }
       saveConfig(config);
       await refreshCodexCatalogBestEffort();
       await syncClaudeAgentDefsBestEffort();
@@ -499,6 +521,7 @@ export async function handleAgentSettingsRoutes(ctx: ManagementContext): Promise
         profiles: AURA_PROFILE_IDS,
         roles: AURA_ROLES,
         available,
+        router: config.aura?.router,
       });
     }
   }

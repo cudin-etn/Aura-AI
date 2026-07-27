@@ -5,6 +5,8 @@ export type AuraProfileId = typeof AURA_PROFILE_IDS[number];
 export type AuraRouteReason =
   | "profile_match"
   | "manual_override"
+  | "auto_safe"
+  | "auto_adaptive"
   | "risk_escalation"
   | "verification_escalation";
 
@@ -53,6 +55,36 @@ export const AURA_ROLE_CONTEXT_BUDGETS: Record<AuraRole, number> = {
 
 function findTier(models: readonly string[], tier: "sol" | "terra" | "luna"): string | undefined {
   return models.find(model => model.toLowerCase().includes(`gpt-5.6-${tier}`));
+}
+
+export type AuraRouterMode = "manual" | "safe" | "adaptive";
+
+function isGptModel(model: string): boolean {
+  return /(^|\/)gpt[-_]/i.test(model) || /^gpt[-_]/i.test(model);
+}
+
+/**
+ * Aura routes only among GPT models for now. Keeping the candidate list on the
+ * Aura profile makes selection deterministic and avoids a live catalog fetch on
+ * every request.
+ */
+export function auraGptCandidates(models: readonly string[]): string[] {
+  return [...new Set(models.filter(isGptModel))];
+}
+
+function modelTier(model: string): 0 | 1 | 2 {
+  const value = model.toLowerCase();
+  if (/(sol|pro|max|reasoning)/.test(value)) return 2;
+  if (/(luna|mini|nano|flash)/.test(value)) return 0;
+  return 1;
+}
+
+function pickCandidate(candidates: readonly string[], targetTier: 0 | 1 | 2): string | undefined {
+  return [...candidates].sort((left, right) => {
+    const tierDistance = Math.abs(modelTier(left) - targetTier) - Math.abs(modelTier(right) - targetTier);
+    if (tierDistance !== 0) return tierDistance;
+    return left.localeCompare(right);
+  })[0];
 }
 
 export function buildAuraProfile(
@@ -130,6 +162,13 @@ export function applyAuraProfile(config: OcxConfig, profile: AuraProfile): void 
     roles: profile.roles,
     maxSubagents: profile.maxSubagents,
     tokenBudgetPerTask: profile.tokenBudgetPerTask,
+    router: {
+      mode: config.aura?.router?.mode ?? "manual",
+      candidates: auraGptCandidates([
+        ...Object.values(profile.roles).map(assignment => assignment.model),
+        ...(config.aura?.router?.candidates ?? []),
+      ]),
+    },
     optimizer: {
       enabled: true,
       preset: config.aura?.optimizer?.preset ?? "full",
@@ -208,6 +247,19 @@ export function resolveAuraRoute(
   }
   if (verificationFailures(headers) >= 2 && reviewerModel) {
     return { profile, role: "reviewer", reason: "verification_escalation", model: reviewerModel };
+  }
+  const mode = config.aura?.router?.mode ?? "manual";
+  if (mode !== "manual") {
+    const candidates = auraGptCandidates(config.aura?.router?.candidates ?? []);
+    if (candidates.length > 0) {
+      const targetTier: 0 | 1 | 2 = role === "reviewer" ? 2
+        : role === "explorer" || role === "docs" ? 0
+          : 1;
+      const selected = pickCandidate(candidates, targetTier);
+      if (selected) {
+        return { profile, role, reason: mode === "safe" ? "auto_safe" : "auto_adaptive", model: selected };
+      }
+    }
   }
   return {
     profile,

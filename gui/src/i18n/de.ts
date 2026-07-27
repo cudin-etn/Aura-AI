@@ -1327,6 +1327,11 @@ export const de = {
   "integrations.prepareError": "Die Integrationsverbindung konnte nicht vorbereitet werden.",
   "integrations.apiKey": "API-Schlüssel",
   "integrations.apiKeyPlaceholder": "Wird in Auras lokalem Geheimnisspeicher abgelegt",
+  "integrations.catalog": "Setup anzeigen",
+  "integrations.catalogHint": "Aura kann heute eine fertige MCP-Konfiguration exportieren. Der Upstream-Connector ist noch nicht aktiviert; keine Zugangsdaten oder Rechte werden gespeichert.",
+  "integrations.catalogNext": "Als Nächstes: beim Dienst anmelden und Aura MCP für den Coding-Agenten übernehmen.",
+  "sub.routerTitle": "Smart GPT Router", "sub.routerHint": "Verwendet {count} geeignete GPT-Modelle.", "sub.router.manual": "Manuell", "sub.router.safe": "Auto Safe", "sub.router.adaptive": "Auto Adaptive",
+  "logs.route.profile_match": "Angefordertes Modell beibehalten", "logs.route.manual_override": "Manuelle Auswahl beibehalten", "logs.route.auto_safe": "Auto Safe hat ein GPT-Modell gewählt", "logs.route.auto_adaptive": "Auto Adaptive hat ein GPT-Modell gewählt", "logs.route.risk_escalation": "Wegen Risikosignal eskaliert", "logs.route.verification_escalation": "Nach fehlgeschlagener Prüfung eskaliert",
 } as const;
 
 export type TKey = keyof typeof de;

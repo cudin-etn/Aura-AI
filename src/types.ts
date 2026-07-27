@@ -426,6 +426,12 @@ export interface OcxConfig {
   /** Aura's role/profile layer, compiled into existing OpenCodex routing controls. */
   aura?: {
     activeProfile?: "saver" | "balanced" | "quality";
+    /** Automatic GPT selection is opt-in; manual keeps the client-selected model intact. */
+    router?: {
+      mode?: "manual" | "safe" | "adaptive";
+      /** Snapshot of eligible GPT catalog entries, refreshed whenever the Aura profile is saved. */
+      candidates?: string[];
+    };
     roles?: Partial<Record<
       "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs",
       { model: string; effort: "low" | "medium" | "high" | "xhigh" | "max" | "ultra" }

@@ -1349,6 +1349,9 @@ export const ru: Record<TKey, string> = {
   "integrations.prepareError": "Не удалось подготовить подключение интеграции.",
   "integrations.apiKey": "API-ключ",
   "integrations.apiKeyPlaceholder": "Хранится в локальном хранилище секретов Aura",
+  "integrations.catalog": "Посмотреть настройку", "integrations.catalogHint": "Aura уже может экспортировать MCP-конфигурацию. Внешний коннектор ещё не включён, поэтому данные и права не сохраняются.", "integrations.catalogNext": "Далее: выполните вход в сервис и примените Aura MCP для coding agent.",
+  "sub.routerTitle": "Smart GPT Router", "sub.routerHint": "Использует {count} подходящих GPT-моделей.", "sub.router.manual": "Вручную", "sub.router.safe": "Auto Safe", "sub.router.adaptive": "Auto Adaptive",
+  "logs.route.profile_match": "Запрошенная модель сохранена", "logs.route.manual_override": "Ручной выбор сохранён", "logs.route.auto_safe": "Auto Safe выбрал GPT-модель", "logs.route.auto_adaptive": "Auto Adaptive выбрал GPT-модель", "logs.route.risk_escalation": "Повышено из-за риска", "logs.route.verification_escalation": "Повышено после ошибок проверки",
 
 
 };

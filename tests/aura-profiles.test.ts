@@ -3,6 +3,7 @@ import {
   applyAuraProfile,
   AURA_ROLE_REQUIREMENTS,
   auraRouteMetadata,
+  auraGptCandidates,
   buildAuraProfile,
   inferAuraRole,
   resolveAuraRoute,
@@ -113,6 +114,19 @@ describe("Aura profiles", () => {
       role: "orchestrator",
       reason: "profile_match",
       model: models[1],
+    });
+  });
+
+  test("routes only configured GPT candidates when automatic routing is enabled", () => {
+    const target = config();
+    applyAuraProfile(target, buildAuraProfile("balanced", models));
+    target.aura!.router = { mode: "safe", candidates: [...models, "other/provider-model"] };
+    expect(auraGptCandidates(target.aura!.router.candidates)).toEqual(models);
+    expect(resolveAuraRoute(target, new Headers({ "x-aura-role": "explorer" }), models[2])).toMatchObject({
+      model: models[0], reason: "auto_safe", role: "explorer",
+    });
+    expect(resolveAuraRoute(target, new Headers({ "x-aura-role": "reviewer" }), models[0])).toMatchObject({
+      model: models[2], reason: "auto_safe", role: "reviewer",
     });
   });
 

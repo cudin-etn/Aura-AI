@@ -16,7 +16,7 @@ export async function handleIntegrationRoutes(ctx: ManagementContext): Promise<R
   const { req, url, config } = ctx;
   if (url.pathname === "/api/integrations" && req.method === "GET") {
     return jsonResponse({
-      integrations: AURA_INTEGRATIONS,
+      integrations: AURA_INTEGRATIONS.map(integration => ({ ...integration, availability: integration.availability ?? "catalog" })),
       connections: listIntegrationConnections(config),
     });
   }
@@ -72,6 +72,11 @@ export async function handleIntegrationRoutes(ctx: ManagementContext): Promise<R
     const label = typeof body.label === "string" ? body.label : "";
     const authMode = body.authMode;
     const scopes = body.scopes;
+    const definition = AURA_INTEGRATIONS.find(item => item.id === integrationId);
+    if (!definition) return jsonResponse({ error: "unknown integration" }, 404);
+    if ((definition.availability ?? "catalog") !== "available") {
+      return jsonResponse({ error: "This integration is a catalog entry. Aura can export its MCP setup, but does not yet run its upstream adapter." }, 409);
+    }
     if (!integrationId || !label || typeof authMode !== "string" || !AUTH_MODES.has(authMode as IntegrationAuthMode)) {
       return jsonResponse({ error: "integrationId, label, and a supported authMode are required" }, 400);
     }

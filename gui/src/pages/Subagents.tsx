@@ -21,6 +21,7 @@ type AuraProfileResponse = {
   profiles: AuraProfileId[];
   roles: AuraRole[];
   available: string[];
+  router?: { mode?: "manual" | "safe" | "adaptive"; candidates?: string[] };
 };
 
 const AURA_EFFORTS = ["low", "medium", "high", "xhigh", "max", "ultra"];
@@ -101,14 +102,14 @@ export default function Subagents({ apiBase }: { apiBase: string }) {
     return available.filter(m => !q || m.toLowerCase().includes(q));
   }, [available, query]);
 
-  const saveAura = async (profile: AuraProfileId, roles?: AuraProfile["roles"]) => {
+  const saveAura = async (profile: AuraProfileId, roles?: AuraProfile["roles"], router = aura?.router) => {
     setAuraSaving(true);
     setStatus("");
     try {
       const response = await fetch(`${apiBase}/api/aura/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile, ...(roles ? { roles } : {}) }),
+        body: JSON.stringify({ profile, ...(roles ? { roles } : {}), ...(router ? { router } : {}) }),
       });
       const data = await response.json() as AuraProfileResponse & { error?: string };
       if (!response.ok) throw new Error(data.error || t("sub.auraSaveFailed"));
@@ -139,6 +140,12 @@ export default function Subagents({ apiBase }: { apiBase: string }) {
     } : current);
   };
 
+  const setRouterMode = (mode: "manual" | "safe" | "adaptive") => {
+    if (!aura) return;
+    const candidates = aura.available.filter(model => /(^|\/)gpt[-_]/i.test(model));
+    void saveAura(aura.activeProfile, aura.profile.roles, { mode, candidates });
+  };
+
   if (loading) return <div className="muted" style={{ padding: 8 }}>{t("sub.loading")}</div>;
 
   return (
@@ -166,6 +173,19 @@ export default function Subagents({ apiBase }: { apiBase: string }) {
                 {profile[0].toUpperCase() + profile.slice(1)}
               </button>
             ))}
+          </div>
+          <div className="aura-router-card">
+            <div>
+              <strong>{t("sub.routerTitle")}</strong>
+              <p className="muted text-label">{t("sub.routerHint", { count: (aura.router?.candidates ?? aura.available.filter(model => /(^|\/)gpt[-_]/i.test(model))).length })}</p>
+            </div>
+            <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
+              {(["manual", "safe", "adaptive"] as const).map(mode => (
+                <button key={mode} type="button" className={`btn ${aura.router?.mode === mode ? "btn-primary" : "btn-ghost"}`} disabled={auraSaving} onClick={() => setRouterMode(mode)}>
+                  {t(`sub.router.${mode}` as never)}
+                </button>
+              ))}
+            </div>
           </div>
           <p className="muted text-label">
             {t("sub.auraParent")}: <code>{modelLabel(aura.profile.roles.orchestrator.model)}</code>

@@ -427,6 +427,23 @@ Priority:
 - [ ] `UX-019` P1 Add visual QA coverage for light/dark themes, long Vietnamese
   translations, narrow windows, and forced-colors/high-contrast behavior.
 
+## M10 — Focused Aura Intelligence
+
+- [x] `AUR-001` P0 Add an opt-in GPT-only router with Manual, Auto Safe, and
+  Auto Adaptive modes. Selection is deterministic at request boundaries,
+  preserves explicit risk/verification escalation, and records its reason.
+- [x] `AUR-002` P0 Surface a human-readable route explanation in Insights logs;
+  reuse the existing token/concurrency guard, account affinity, key failover,
+  and circuit/cooldown recovery instead of creating competing mechanisms.
+- [x] `AUR-003` P1 Make Integration Hub catalog status truthful: MCP export is
+  usable now, while upstream connectors remain clearly marked as catalog work
+  until OAuth/project-health/revoke handlers exist.
+- [ ] `AUR-004` P1 Add measured adaptive inputs (price, latency, throughput,
+  quota health) after a live benchmark corpus exists; do not claim optimisation
+  from static model-name heuristics.
+- [ ] `AUR-005` P1 Move uncommon subscription OAuth bridges into an Advanced /
+  Labs provider surface while retaining Custom and local providers.
+
 ## Initial Execution Order
 
 Start with one baseline sprint:

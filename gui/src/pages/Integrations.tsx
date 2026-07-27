@@ -11,6 +11,7 @@ type Integration = {
   capabilities: string[];
   upstream: string;
   clientSupport: Array<{ clientId: string; grade: "auto" | "partial" | "guided" }>;
+  availability: "planned" | "catalog" | "available";
   docsUrl?: string;
 };
 
@@ -137,7 +138,7 @@ export default function Integrations({ apiBase }: { apiBase: string }) {
                     <div className="integration-card-head">
                       <div className="integration-mark"><IconServer aria-hidden /></div>
                       <div className="integration-title"><h2>{item.name}</h2><span>{item.upstream}</span></div>
-                      <span className={`status-badge ${connection?.status === "pending-auth" ? "status-badge--warn" : connection?.status === "connected" ? "status-badge--ok" : "status-badge--muted"}`}>
+                      <span className={`status-badge ${connection?.status === "pending-auth" ? "status-badge--warn" : connection?.status === "connected" ? "status-badge--ok" : item.availability === "available" ? "status-badge--info" : "status-badge--muted"}`}>
                         {connection?.status === "pending-auth" ? t("integrations.pending") : connection?.status === "connected" ? <><IconCheck aria-hidden /> {t("integrations.connected")}</> : t("integrations.available")}
                       </span>
                     </div>
@@ -147,7 +148,7 @@ export default function Integrations({ apiBase }: { apiBase: string }) {
                       <span>{item.authModes.join(" · ")}</span>
                     </div>
                     <div className="integration-card-actions">
-                      <button className="btn btn-ghost" type="button" onClick={() => setSelected(item)}>{t("integrations.prepare")}</button>
+                      <button className="btn btn-ghost" type="button" onClick={() => setSelected(item)}>{item.availability === "available" ? t("integrations.prepare") : t("integrations.catalog")}</button>
                       {item.docsUrl && <a className="btn btn-text" href={item.docsUrl} target="_blank" rel="noreferrer">{t("integrations.docs")}</a>}
                     </div>
                   </article>
@@ -246,6 +247,7 @@ function IntegrationPrepareModal({
   onPrepared: (connection: Connection) => void;
 }) {
   const t = useT();
+  const catalogOnly = integration.availability !== "available";
   const [label, setLabel] = useState(integration.name);
   const [resource, setResource] = useState("");
   const [authMode, setAuthMode] = useState(integration.authModes[0] ?? "mcp");
@@ -303,6 +305,25 @@ function IntegrationPrepareModal({
     if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   };
+
+  if (catalogOnly) {
+    return (
+      <div className="modal-overlay" role="presentation" onMouseDown={onClose}>
+        <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="integration-prepare-title" className="modal-card integration-modal" onMouseDown={event => event.stopPropagation()} onKeyDown={trapFocus}>
+          <div className="modal-head">
+            <div><p className="eyebrow"><IconLink aria-hidden /> {t("integrations.eyebrow")}</p><h2 id="integration-prepare-title">{t("integrations.prepareTitle", { name: integration.name })}</h2></div>
+            <button type="button" className="btn-icon" onClick={onClose} aria-label={t("common.close")}><IconX /></button>
+          </div>
+          <p className="modal-copy">{t("integrations.catalogHint")}</p>
+          <div className="notice notice-info">{t("integrations.catalogNext")}</div>
+          <div className="modal-actions">
+            {integration.docsUrl && <a className="btn btn-ghost" href={integration.docsUrl} target="_blank" rel="noreferrer">{t("integrations.docs")}</a>}
+            <button type="button" className="btn btn-primary" onClick={onClose}>{t("common.close")}</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="modal-overlay" role="presentation" onMouseDown={onClose}>

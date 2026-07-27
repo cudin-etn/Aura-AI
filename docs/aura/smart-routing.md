@@ -28,6 +28,23 @@ Applying a profile writes the existing subagent roster, worker injection model,
 effort, and deterministic delegation guidance. Explicit per-role choices are
 validated against the normalized available-model catalog.
 
+## Smart GPT Router
+
+The Routing workspace exposes three deliberately bounded modes:
+
+- **Manual** preserves the model requested by the client (the default).
+- **Auto Safe** selects from the saved eligible GPT catalog at a request
+  boundary: economy tier for exploration/docs, balanced tier for parent/work/
+  testing, and strongest tier for review.
+- **Auto Adaptive** uses that same safe role contract today and is reserved for
+  measured latency, price, throughput, and quota-health inputs once the live
+  benchmark gate exists. It does not claim live optimisation from a model name.
+
+Aura only considers explicit GPT candidates; it never switches provider family
+or changes an in-flight stream. Explicit risk and verification escalation still
+take precedence. The selected mode and its human-readable reason are persisted
+in the route trace.
+
 ## Route trace
 
 Sanitized request/usage logs persist:
@@ -35,7 +52,7 @@ Sanitized request/usage logs persist:
 - client and protocol;
 - hashed thread key;
 - Aura profile and inferred role;
-- profile match versus manual model override;
+- manual choice, Auto Safe/Adaptive selection, or bounded escalation reason;
 - physical attempts, recovery kinds, affinity decision, usage, and cost.
 
 The Logs detail view surfaces the Aura route fields alongside provider/model

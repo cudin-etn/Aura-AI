@@ -811,6 +811,9 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
   background: var(--raised);
 }
 .layout-focus .aura-profile-overview { grid-template-columns: 1fr; }
+.aura-router-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 14px; padding: 13px 14px; border: 1px solid var(--border-soft); border-radius: var(--radius-md); background: var(--surface); }
+.aura-router-card strong { display: block; }
+.aura-router-card p { margin: 3px 0 0; max-width: 62ch; }
 
 /* Token optimizer: explain the transformation instead of showing another text row. */
 .optimizer-visual {
@@ -1903,4 +1906,5 @@ button.prov-account-row.active { cursor: default; }
   .integration-callout .status-badge { margin-left: 56px; }
   .integration-export-controls { align-items: stretch; }
   .integration-grid { grid-template-columns: 1fr; }
+  .aura-router-card { align-items: flex-start; flex-direction: column; }
 }

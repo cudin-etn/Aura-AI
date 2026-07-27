@@ -97,7 +97,7 @@ interface LogEntry {
   auraProtocol?: "responses" | "chat-completions" | "messages";
   auraProfile?: "saver" | "balanced" | "quality";
   auraRole?: "orchestrator" | "explorer" | "worker" | "reviewer" | "tester" | "docs";
-  auraRouteReason?: "profile_match" | "manual_override" | "risk_escalation" | "verification_escalation";
+  auraRouteReason?: "profile_match" | "manual_override" | "auto_safe" | "auto_adaptive" | "risk_escalation" | "verification_escalation";
   auraOptimizerSavedTokens?: number;
   auraOptimizerActions?: number;
   timestamp: number;
@@ -594,7 +594,7 @@ function LogDetailDialog({
             {detail.auraClient && (<><span className="muted">{t("logs.detail.auraClient")}</span><span className="mono">{detail.auraClient} / {detail.auraProtocol ?? "\u2014"}</span></>)}
             {detail.auraProfile && (<><span className="muted">{t("logs.detail.auraProfile")}</span><span className="mono">{detail.auraProfile}</span></>)}
             {detail.auraRole && (<><span className="muted">{t("logs.detail.auraRole")}</span><span className="mono">{detail.auraRole}</span></>)}
-            {detail.auraRouteReason && (<><span className="muted">{t("logs.detail.auraReason")}</span><span className="mono">{detail.auraRouteReason}</span></>)}
+            {detail.auraRouteReason && (<><span className="muted">{t("logs.detail.auraReason")}</span><span>{t(`logs.route.${detail.auraRouteReason}` as never)}</span></>)}
             {detail.auraOptimizerActions !== undefined && (<><span className="muted">{t("logs.detail.optimizer")}</span><span className="mono">{t("logs.detail.optimizerValue", { actions: detail.auraOptimizerActions, tokens: detail.auraOptimizerSavedTokens ?? 0 })}</span></>)}
             {detail.errorCode && (<><span className="muted">{t("logs.col.error")}</span><span className="mono">{detail.errorCode}</span></>)}
             {detail.upstreamError && (<><span className="muted">{t("logs.col.upstreamReason")}</span><span className="mono log-detail-break">{detail.upstreamError}</span></>)}

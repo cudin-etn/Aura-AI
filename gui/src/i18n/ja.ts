@@ -1349,4 +1349,7 @@ export const ja: Record<TKey, string> = {
   "integrations.prepareError": "統合接続を準備できませんでした。",
   "integrations.apiKey": "API キー",
   "integrations.apiKeyPlaceholder": "Aura のローカル秘密ストアに保存されます",
+  "integrations.catalog": "設定を見る", "integrations.catalogHint": "Aura は現在 MCP 設定をエクスポートできます。上流コネクターは未有効のため資格情報や権限は保存しません。", "integrations.catalogNext": "次にサービスで認証し、Coding Agent に Aura MCP を適用します。",
+  "sub.routerTitle": "Smart GPT Router", "sub.routerHint": "対象の GPT モデル {count} 件を使用します。", "sub.router.manual": "手動", "sub.router.safe": "Auto Safe", "sub.router.adaptive": "Auto Adaptive",
+  "logs.route.profile_match": "要求モデルを維持", "logs.route.manual_override": "手動選択を維持", "logs.route.auto_safe": "Auto Safe が GPT モデルを選択", "logs.route.auto_adaptive": "Auto Adaptive が GPT モデルを選択", "logs.route.risk_escalation": "リスク信号により昇格", "logs.route.verification_escalation": "検証失敗後に昇格",
 };

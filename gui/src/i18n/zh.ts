@@ -1348,4 +1348,7 @@ export const zh: Record<TKey, string> = {
   "integrations.prepareError": "无法准备集成连接。",
   "integrations.apiKey": "API 密钥",
   "integrations.apiKeyPlaceholder": "存储在 Aura 本地密钥库中",
+  "integrations.catalog": "查看设置", "integrations.catalogHint": "Aura 目前可以导出 MCP 配置。上游连接器尚未启用，因此不会保存凭据或权限。", "integrations.catalogNext": "下一步：在服务中完成认证，然后为 coding agent 应用 Aura MCP。",
+  "sub.routerTitle": "Smart GPT Router", "sub.routerHint": "使用 {count} 个可用 GPT 模型。", "sub.router.manual": "手动", "sub.router.safe": "Auto Safe", "sub.router.adaptive": "Auto Adaptive",
+  "logs.route.profile_match": "保留请求的模型", "logs.route.manual_override": "保留手动选择", "logs.route.auto_safe": "Auto Safe 已选择 GPT 模型", "logs.route.auto_adaptive": "Auto Adaptive 已选择 GPT 模型", "logs.route.risk_escalation": "因风险信号升级", "logs.route.verification_escalation": "多次验证失败后升级",
 };
