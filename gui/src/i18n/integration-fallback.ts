@@ -2,11 +2,11 @@
 export const integrationFallback = {
   "integrations.exportTitle": "Export to coding agent",
   "integrations.mcp": "MCP",
-  "integrations.exportHint": "Generate a safe, copy-ready MCP declaration. It exposes connection status only until the official provider adapter is enabled.",
+  "integrations.exportHint": "Choose an agent, then copy or apply MCP with backup.",
   "integrations.exportClient": "Coding agent",
   "integrations.exportCopy": "Copy MCP declaration",
   "integrations.exportCopied": "MCP declaration copied.",
-  "integrations.exportEmpty": "Complete an integration's official authentication first, then export it to an agent.",
+  "integrations.exportEmpty": "Connect a service to share its safe status with an agent.",
   "integrations.export.codex": "Codex",
   "integrations.export.claudeCode": "Claude Code",
   "integrations.export.claudeDesktop": "Claude Desktop",

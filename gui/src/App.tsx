@@ -439,35 +439,34 @@ export default function App() {
             );
           })}
         </nav>
-        <div className="sidebar-foot">
+        <div className="sidebar-foot sidebar-utility" aria-label={t("nav.primary")}>
           {claudeEnabled !== null && (
-            <button type="button" className="theme-toggle" onClick={toggleClaude}
+            <button type="button" className={`utility-button${claudeEnabled ? " utility-button--active" : ""}`} onClick={toggleClaude}
               aria-pressed={claudeEnabled} aria-label={t("claude.toggleAria")} title={t("claude.toggleAria")}
-              style={claudeEnabled ? { color: "var(--accent)" } : undefined}>
-              <IconSparkle /> <span className="mode">{claudeEnabled ? t("app.claudeCliOn") : t("app.claudeCliOff")}</span>
+              >
+              <IconSparkle /> <span className="sr-only">{claudeEnabled ? t("app.claudeCliOn") : t("app.claudeCliOff")}</span>
             </button>
           )}
-          <div className="lang-toggle">
-            <IconGlobe aria-hidden />
+          <div className="lang-toggle utility-language">
             <Select
               value={locale}
               options={LOCALES.map(l => ({ value: l.code, label: l.name }))}
               onChange={v => setLocale(v as Locale)}
               label={t("lang.label")}
               placement="right"
-              style={{ flex: 1, minWidth: 0, width: "100%" }}
+              compactIcon={<IconGlobe aria-hidden />}
             />
           </div>
-          <button type="button" className="theme-toggle" onClick={cycleTheme}
+          <button type="button" className="utility-button" onClick={cycleTheme}
             aria-label={`${t("theme.label")}: ${t(THEME_TKEY[theme])}`} title={`${t("theme.label")}: ${t(THEME_TKEY[theme])}`}>
-            <ThemeIcon /> <span className="mode">{t(THEME_TKEY[theme])}</span>
+            <ThemeIcon />
           </button>
-          <button type="button" className="theme-toggle stop-toggle" onClick={handleStop} disabled={stopping}
+          <button type="button" className="utility-button stop-toggle" onClick={handleStop} disabled={stopping}
             aria-label={t("dash.stop")} title={t("dash.stop")}>
-            <IconPower /> <span className="mode">{stopping ? t("dash.stopping") : t("dash.stop")}</span>
+            <IconPower /><span className="sr-only">{stopping ? t("dash.stopping") : t("dash.stop")}</span>
           </button>
-          <a className="sidebar-link" href="https://github.com/cudin-etn/Aura-AI" target="_blank" rel="noreferrer">
-            <IconGithub /> {t("common.github")}
+          <a className="utility-button" href="https://github.com/cudin-etn/Aura-AI" target="_blank" rel="noreferrer" aria-label={t("common.github")} title={t("common.github")}>
+            <IconGithub />
           </a>
         </div>
       </aside>

@@ -1,6 +1,6 @@
 {
   "name": "@tungninh/aura-ai",
-  "version": "0.1.0-preview.3",
+  "version": "0.1.0-preview.4",
   "description": "Aura AI — a local multi-provider gateway for Codex, Claude Code, OpenCode, and other AI coding agents",
   "type": "module",
   "main": "./bin/package-main.mjs",

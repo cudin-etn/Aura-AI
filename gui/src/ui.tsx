@@ -83,7 +83,7 @@ function useFloatingDropdown(
   return { anchorRef, dropdownRef, floatingStyle };
 }
 
-export function Select({ value, options, onChange, disabled, label, style, align, placement, dropdownStyle }: {
+export function Select({ value, options, onChange, disabled, label, style, align, placement, dropdownStyle, compactIcon }: {
   value: string;
   options: SelectOption[];
   onChange: (value: string) => void;
@@ -93,6 +93,8 @@ export function Select({ value, options, onChange, disabled, label, style, align
   align?: "left" | "right";
   placement?: "below" | "right";
   dropdownStyle?: CSSProperties;
+  /** Compact utility controls can show an icon instead of the selected label. */
+  compactIcon?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const { anchorRef, dropdownRef, floatingStyle } = useFloatingDropdown(open, placement, align);
@@ -135,15 +137,15 @@ export function Select({ value, options, onChange, disabled, label, style, align
     <div ref={anchorRef} className="custom-select" style={{ position: "relative", display: "inline-block", ...style }}>
       <button
         type="button"
-        className="select-trigger"
+        className={`select-trigger${compactIcon ? " select-trigger--icon" : ""}`}
         onClick={() => !disabled && setOpen(o => !o)}
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={label}
       >
-        <span className="select-value">{current?.label ?? value}</span>
-        <span className="select-chevron" aria-hidden><IconChevron /></span>
+        <span className="select-value">{compactIcon ?? current?.label ?? value}</span>
+        {!compactIcon && <span className="select-chevron" aria-hidden><IconChevron /></span>}
       </button>
       {dropdown && createPortal(dropdown, document.body)}
     </div>
